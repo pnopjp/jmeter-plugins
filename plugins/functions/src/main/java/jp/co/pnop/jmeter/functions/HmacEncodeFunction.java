@@ -6,10 +6,9 @@ import org.apache.jmeter.functions.AbstractFunction;
 import org.apache.jmeter.functions.InvalidVariableException;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.samplers.Sampler;
-import org.apache.jmeter.threads.JMeterVariables;
 
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.crypto.Mac;
@@ -24,7 +23,7 @@ public class HmacEncodeFunction extends AbstractFunction {
 
     private static final Logger log = LoggerFactory.getLogger(HmacEncodeFunction.class);
 
-    private static final List<String> desc = new LinkedList<String>();
+    private static final List<String> desc = new ArrayList<String>();
     private static final String KEY = "__hmac";
 
     // Number of parameters expected - used to reject invalid calls
@@ -51,7 +50,8 @@ public class HmacEncodeFunction extends AbstractFunction {
         try {
 	        Mac mac = Mac.getInstance(algorithm);
 	        mac.init(new SecretKeySpec(Base64.decodeBase64(privateKey.getBytes()), algorithm));
-	        hashedString = new String(Base64.encodeBase64(mac.doFinal(sourceString.getBytes())));
+            hashedString = new String(Base64.encodeBase64(mac.doFinal(sourceString.getBytes())));
+            addVariableValue(hashedString, values, 3);
         } catch (NoSuchAlgorithmException e) {
             log.error("Error calling {} function with value {}, hash algorithm {}, ", KEY, sourceString, algorithm, e);
         } catch (InvalidKeyException e) {
@@ -59,21 +59,12 @@ public class HmacEncodeFunction extends AbstractFunction {
         } catch (IllegalArgumentException e) {
             log.error("Error calling {} function with value {}, hash algorithm {}, private key {}, ", KEY, sourceString, algorithm, privateKey, e);
         }
-        
-        if (values.length > 3) {
-            String variableName = values[3].execute();
-            if (variableName.length() > 0) {// Allow for empty name
-                final JMeterVariables variables = getVariables();
-                if (variables != null) {
-                    variables.put(variableName, hashedString);
-                }
-            }
-        }
+
         return hashedString;
     }
 
     @Override
-    public synchronized void setParameters(Collection<CompoundVariable> parameters) throws InvalidVariableException {
+    public void setParameters(Collection<CompoundVariable> parameters) throws InvalidVariableException {
         checkParameterCount(parameters, MIN_PARAMETER_COUNT, MAX_PARAMETER_COUNT);
         values = parameters.toArray(new CompoundVariable[parameters.size()]);
     }
