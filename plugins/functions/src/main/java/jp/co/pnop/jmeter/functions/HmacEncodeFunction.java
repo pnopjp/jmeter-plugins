@@ -42,9 +42,9 @@ public class HmacEncodeFunction extends AbstractFunction {
     @Override
     public synchronized String execute(SampleResult previousResult, Sampler currentSampler)
             throws InvalidVariableException {
-        String algorithm = values[0].execute();
+        String algorithm = values[0].execute().trim();
         String sourceString = values[1].execute();
-        String privateKey = values[2].execute();
+        String privateKey = values[2].execute().trim();
         String hashedString = null;
 
         try {

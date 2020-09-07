@@ -113,5 +113,11 @@
             <version>5.7.0-M1</version>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.azure/azure-cosmos -->
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-cosmos</artifactId>
+            <version>4.3.1</version>
+        </dependency>
     </dependencies>
 </project>

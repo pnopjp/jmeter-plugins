@@ -1,5 +1,29 @@
 # Functions
 
+## __AzCosmosDbAuthZ
+
+AzCosmosDbAuthZ frunction returns a string to be specified in the Authorization header for accessing Cosmos DB.
+
+### Parameters
+
+|Attribute|Description|Required|
+|----|----|----|
+|Cosmosdb Key|Cosmos DB master key|Yes|
+|x-ms-date header variable name|Name of variable in which to store for x-ms-date header.|Yes|
+|HTTP Request method|The string is the HTTP verb, such as GET, POST, or PUT.|Yes|
+|ResourceType|Type of resource that the request is for, Eg. "dbs", "colls", "docs".|Yes|
+|ResourceLink|Identity property of the resource that the request is directed at. ResourceLink must maintain its case for the ID of the resource. Example, for a collection it looks like: "dbs/MyDatabase/colls/MyCollection".|Yes|
+|TokenVersion|The version of the token.(optinal) currently 1.0.|No|
+
+### Examples
+
+```text
+${__AzCosmosDbAuthZ(dxN************79w==,headers.x-ms-date,GET,docs,dbs/SampleDB/colls/Persons)}
+```
+
+**returns** type%3Dmaster%26ver%3D1.0%26sig%3DEeW************sW4%3D  
+headers.x-ms-date=Mon, 07 Sep 2020 00:34:57 GMT
+
 ## __hmac
 
 The hmac function returns a HMAC in the specific hash algorithm with the key and variable name.
@@ -19,7 +43,7 @@ The hmac function returns a HMAC in the specific hash algorithm with the key and
 ${__hmac(HmacSHA256,Hello World,SGVsbG8gQXp1cmUh,)}
 ```
 
-returns **qLGOpn6DRZMiXdjA2RLctf5Ya0ZPtgGP97ZkBkCW3xg=**
+**returns** qLGOpn6DRZMiXdjA2RLctf5Ya0ZPtgGP97ZkBkCW3xg=
 
 ### Examples of usage scenarios
 
