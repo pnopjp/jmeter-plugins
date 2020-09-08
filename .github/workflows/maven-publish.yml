@@ -5,7 +5,7 @@ name: Maven Package
 
 on:
   release:
-    types: [released]
+    types: [published]
 
 jobs:
   build:
@@ -22,9 +22,17 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Build with Maven
-      run: mvn clean -B package --file plugins/functions/pom.xml
+      run: |
+        export MVN_ARGS="-DbuildNumberSuffix= -B --file plugins/functions/pom.xml"
+        mvn ${MVN_ARGS} package
+        echo "::set-env name=FILENAME::$(mvn ${MVN_ARGS} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)"
 
-    - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+    - name: Upload built jar of functions
+      uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }} 
+        asset_path: ./plugins/functions/target/${{ env.FILENAME }}.jar
+        asset_name: ${{ env.FILENAME }}.jar
+        asset_content_type: application/java-archive

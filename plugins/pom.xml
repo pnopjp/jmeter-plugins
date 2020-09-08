@@ -12,11 +12,4 @@
     <modules>
         <module>functions</module>
     </modules>
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub pnop Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/pnopjp/jmeter-plugins</url>
-        </repository>
-     </distributionManagement>
 </project>
