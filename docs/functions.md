@@ -1,5 +1,10 @@
 # Functions
 
+- **[AzCosmosDbAuthZ](#azcosmosdbauthz)**  
+    generate a string to be specified in the Authorization header for accessing Cosmos DB.
+- **[hmac](#hmac)**  
+    generate a HMAC in the specific hash algorithm with the key and variable name.
+
 ## __AzCosmosDbAuthZ
 
 AzCosmosDbAuthZ frunction returns a string to be specified in the Authorization header for accessing Cosmos DB.
