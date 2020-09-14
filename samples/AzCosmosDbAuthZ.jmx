@@ -93,7 +93,7 @@
               </elementProp>
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">Authorization</stringProp>
-                <stringProp name="Header.value">${__AzCosmosDbAuthZ(${cosmosdb.Key},headers.x-ms-date,GET,${cosmosdb.ResourceType},${cosmosdb.ResourceLink})}</stringProp>
+                <stringProp name="Header.value">${__AzCosmosDbAuthZ(${cosmosdb.Key},headers.x-ms-date,${request.method},${cosmosdb.ResourceType},${cosmosdb.ResourceLink})}</stringProp>
               </elementProp>
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">Content-Type</stringProp>
@@ -167,7 +167,7 @@
               </elementProp>
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">Authorization</stringProp>
-                <stringProp name="Header.value">${__AzCosmosDbAuthZ(${cosmosdb.Key},headers.x-ms-date,POST,${cosmosdb.ResourceType},${cosmosdb.ResourceLink})}</stringProp>
+                <stringProp name="Header.value">${__AzCosmosDbAuthZ(${cosmosdb.Key},headers.x-ms-date,${request.method},${cosmosdb.ResourceType},${cosmosdb.ResourceLink})}</stringProp>
               </elementProp>
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">Content-Type</stringProp>
