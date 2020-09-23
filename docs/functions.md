@@ -1,9 +1,51 @@
 # Functions
 
+- **[AzAdAccessToken](#__azadaccesstoken)**  
+    Get an access token from Azure AD.
 - **[AzCosmosDbAuthZ](#__azcosmosdbauthz)**  
-    generate a string to be specified in the Authorization header for accessing Cosmos DB.
+    Generate a string to be specified in the Authorization header for accessing Cosmos DB.
 - **[hmac](#__hmac)**  
-    generate a HMAC in the specific hash algorithm with the key and variable name.
+    Generate a HMAC in the specific hash algorithm with the key and variable name.
+
+## __AzAdAccessToken
+
+This function gets the access token for the Azure AD application from the Azure AD token endpoint with a password flow.
+
+### Parameters
+
+|Attribute|Description|Required|
+|----|----|----|
+|Azure AD tenant ID|Tenant ID of Azure AD.|Yes|
+|Grant type|Only "password" can be used.|Yes|
+|Application \(Client\) ID|The client identifier of Azure AD application.|Yes|
+|Client secret|Client secret of Azure AD application.|Yes|
+|Username|Access user account name. \(ex. name<span></span>@example.onmicrosoft.com\)|Yes|
+|Password|Access user password.|Yes|
+|Scope|Acess Token Scope.|No|
+|Name of variable|The name of the variable to set.|No|
+
+### Examples
+
+```text
+${__AzAdAccessToken(example.onmicrosoft.com,password,01234567-89ab-cdef-0123-456789abcdef,TX2********pJ-,user1@example.onmicrosoft.com,<PASSWORD>)}
+```
+
+**returns** eyJ\*\*\*\*\*\*\*\*\*\*yJ9.eyJ\*\*\*\*\*\*\*\*\*\*CJ9.px9\*\*\*\*\*\*\*\*\*\*S5O
+
+### Sample files
+
+- [AzAdAccessToken.jmx](../samples/AzAdAccessToken.jmx)
+- [AzAdAccessToken_users.csv](../samples/AzAdAccessToken_users.csv)
+
+### Examples of usage scenarios
+
+- Creating Authorization header for requesting to the Easy Authed Azure App Service.
+
+<!--
+### Tutorial
+
+<https://blog.pnop.co.jp/jmeter-webapps-azuread-auth_en/>
+-->
 
 ## __AzCosmosDbAuthZ
 
@@ -26,8 +68,16 @@ AzCosmosDbAuthZ frunction returns a string to be specified in the Authorization 
 ${__AzCosmosDbAuthZ(dxN************79w==,headers.x-ms-date,GET,docs,dbs/SampleDB/colls/Persons)}
 ```
 
-**returns** type%3Dmaster%26ver%3D1.0%26sig%3DEeW************sW4%3D  
+**returns** type%3Dmaster%26ver%3D1.0%26sig%3DEeW\*\*\*\*\*\*\*\*\*\*\*\*sW4%3D  
 headers.x-ms-date=Mon, 07 Sep 2020 00:34:57 GMT
+
+### Sample files
+
+[AzCosmosDbAuthZ.jmx](../samples/AzCosmosDbAuthZ.jmx)
+
+### Tutorial
+
+<https://blog.pnop.co.jp/jmeter-azure-cosmosdb_en/>
 
 ## __hmac
 
@@ -50,7 +100,10 @@ ${__hmac(HmacSHA256,Hello World,SGVsbG8gQXp1cmUh,)}
 
 **returns** qLGOpn6DRZMiXdjA2RLctf5Ya0ZPtgGP97ZkBkCW3xg=
 
+### Sample files
+
+[HmacEncodeFunction.jmx](../samples/HmacEncodeFunction.jmx)
+
 ### Examples of usage scenarios
 
 - Creating Authorization header for requesting to the CosmosDB via REST API  
-    <!--use case: <https://blog.pnop.co.jp/jmeter-azure-cosmosdb_en/>-->
