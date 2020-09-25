@@ -41,11 +41,9 @@ ${__AzAdAccessToken(example.onmicrosoft.com,password,01234567-89ab-cdef-0123-456
 
 - Creating Authorization header for requesting to the Easy Authed Azure App Service.
 
-<!--
 ### Tutorial
 
-<https://blog.pnop.co.jp/jmeter-webapps-azuread-auth_en/>
--->
+- [Using Apache JMeter™ to perform load testing for the Azure App Service that requires Azure AD authentication](https://blog.pnop.co.jp/jmeter-webapps-azuread-auth_en/)
 
 ## __AzCosmosDbAuthZ
 
@@ -73,11 +71,11 @@ headers.x-ms-date=Mon, 07 Sep 2020 00:34:57 GMT
 
 ### Sample files
 
-[AzCosmosDbAuthZ.jmx](../samples/AzCosmosDbAuthZ.jmx)
+- [AzCosmosDbAuthZ.jmx](../samples/AzCosmosDbAuthZ.jmx)
 
 ### Tutorial
 
-<https://blog.pnop.co.jp/jmeter-azure-cosmosdb_en/>
+- [Load test with Apache JMeter™ against Azure Cosmos DB \(SQL API\)](https://blog.pnop.co.jp/jmeter-azure-cosmosdb_en/)
 
 ## __hmac
 
@@ -102,7 +100,7 @@ ${__hmac(HmacSHA256,Hello World,SGVsbG8gQXp1cmUh,)}
 
 ### Sample files
 
-[HmacEncodeFunction.jmx](../samples/HmacEncodeFunction.jmx)
+- [HmacEncodeFunction.jmx](../samples/HmacEncodeFunction.jmx)
 
 ### Examples of usage scenarios
 
