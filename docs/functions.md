@@ -2,6 +2,8 @@
 
 - **[AzAdAccessToken](#__azadaccesstoken)**  
     Get an access token from Azure AD.
+- **[AzAppServiceAuthenticationToken](#__AzAppServiceAuthenticationToken)**
+    Get an authentication token for Azure App Service
 - **[AzCosmosDbAuthZ](#__azcosmosdbauthz)**  
     Generate a string to be specified in the Authorization header for accessing Cosmos DB.
 - **[hmac](#__hmac)**  
@@ -39,11 +41,38 @@ ${__AzAdAccessToken(example.onmicrosoft.com,password,01234567-89ab-cdef-0123-456
 
 ### Examples of usage scenarios
 
-- Creating Authorization header for requesting to the Easy Authed Azure App Service.
+- Creating Authorization header for requesting to the Azure App Service with Easy Auth configured.
 
 ### Tutorial
 
 - [Using Apache JMeter™ to perform load testing for the Azure App Service that requires Azure AD authentication](https://blog.pnop.co.jp/jmeter-webapps-azuread-auth_en/)
+
+## __AzAppServiceAuthenticationToken
+
+AzAppServiceAuthenticationToken gets the authentication token that should be specified in X-ZUMO-AUTH when accessing the Easy Auth-rated Azure App Service.
+
+### Parameters
+
+|Attribute|Description|Required|
+|----|----|----|
+|Azure App Service hostname|Your Azure App Service hosname \(ex. example<span></span>.azurewebsites.net, www<span></span>.example.com\)|Yes|
+|Provider|Authentication provider. \(aad, facebook, twitter\)|Yes|
+|access_token|Access token obtained from the provider.|Yes|
+|twitter access_token_secret|In the case of twitter, set Access token secret.|No|
+|Name of variable|The name of the variable to set.|No|
+
+### Examples
+
+```text
+${__AzAppServiceAuthenticationToken(example.azurewebsites.net,facebook,EAA****WQM)}
+${__AzAppServiceAuthenticationToken(www.example.com,twitter,423****o3G,JmG****2V1)}
+```
+
+**returns** eyJ\*\*\*\*\*\*\*\*lZw
+
+### Examples of usage scenarios
+
+- Creating X-ZUMO-AUTH header for requesting to the Azrue App Service with Easy Auth configured.
 
 ## __AzCosmosDbAuthZ
 
