@@ -24,6 +24,7 @@ This function gets the access token for the Azure AD application from the Azure 
 |Username|Access user account name. \(ex. name<span></span>@example.onmicrosoft.com\)|Yes|
 |Password|Access user password.|Yes|
 |Scope|Acess Token Scope.|No|
+|Azure AD version|v2.0 or empty string|No|
 |Name of variable|The name of the variable to set.|No|
 
 ### Examples
@@ -69,6 +70,10 @@ ${__AzAppServiceAuthenticationToken(www.example.com,twitter,423****o3G,JmG****2V
 ```
 
 **returns** eyJ\*\*\*\*\*\*\*\*lZw
+
+### Sample files
+
+- [AzAppServiceAuthenticationToken.jmx](../samples/AzAppServiceAuthenticationToken.jmx)
 
 ### Examples of usage scenarios
 

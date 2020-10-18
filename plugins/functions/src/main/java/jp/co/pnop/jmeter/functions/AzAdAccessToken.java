@@ -5,12 +5,11 @@ import org.apache.jmeter.functions.AbstractFunction;
 import org.apache.jmeter.functions.InvalidVariableException;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.samplers.Sampler;
-
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -40,7 +39,7 @@ public class AzAdAccessToken extends AbstractFunction {
 
     // Number of parameters expected - used to reject invalid calls
     private static final int MIN_PARAMETER_COUNT = 6;
-    private static final int MAX_PARAMETER_COUNT = 8;
+    private static final int MAX_PARAMETER_COUNT = 9;
 
     static {
         desc.add("Azure AD Tenant ID");
@@ -50,6 +49,7 @@ public class AzAdAccessToken extends AbstractFunction {
         desc.add("Username");
         desc.add("Password");
         desc.add("Acess Token Scope (optional)");
+        desc.add("Azure AD version (optional)");
         desc.add("Name of variable in which to store the result (optional)");
     }
 
@@ -68,12 +68,19 @@ public class AzAdAccessToken extends AbstractFunction {
         if (values.length > 6) {
             scope = values[6].execute().trim();
         }
+        String aadVersion = "";
+        if (values.length > 7) {
+            aadVersion = values[7].execute().trim();
+            if (aadVersion.length() > 0) {
+                aadVersion = "/" + aadVersion;
+            }
+        }
 
         String accessToken = null;
 
         try {
             CloseableHttpClient httpclient = HttpClients.createDefault();
-            HttpPost request = new HttpPost("https://login.microsoftonline.com/" + URLEncoder.encode(tenantId, "UTF-8") + "/oauth2/token");
+            HttpPost request = new HttpPost("https://login.microsoftonline.com/" + URLEncoder.encode(tenantId, "UTF-8").replace("+", "%20") + "/oauth2" + aadVersion + "/token");
 
             request.setHeader("Content-Type", "application/x-www-form-urlencoded");
 
@@ -81,14 +88,21 @@ public class AzAdAccessToken extends AbstractFunction {
             parameters.add(new BasicNameValuePair("grant_type", grantType));
             parameters.add(new BasicNameValuePair("client_id", clientId));
             parameters.add(new BasicNameValuePair("client_secret", clientSecret));
-            parameters.add(new BasicNameValuePair("resource", clientId));
+            if (aadVersion.length() == 0) {
+                parameters.add(new BasicNameValuePair("resource", clientId));
+            }
             parameters.add(new BasicNameValuePair("username", username));
             parameters.add(new BasicNameValuePair("password", password));
             if (scope.length() > 0) {
-                parameters.add(new BasicNameValuePair("scope", URLEncoder.encode(scope, "UTF-8")));
+                parameters.add(new BasicNameValuePair("scope", scope));
             }
 
-            request.setEntity(new UrlEncodedFormEntity(parameters));
+            String body = "";
+            for (NameValuePair parameter: parameters) {
+                body += "&" + parameter.getName() + "=" + URLEncoder.encode(parameter.getValue(), "UTF-8").replace("+", "%20");
+            }
+            request.setEntity(new StringEntity(body.substring(1)));
+
 
             CloseableHttpResponse response = httpclient.execute(request);
 
@@ -96,9 +110,9 @@ public class AzAdAccessToken extends AbstractFunction {
             String responseMessage = EntityUtils.toString(response.getEntity(), "UTF-8");
             ObjectMapper mapper = new ObjectMapper();
             JsonNode node = mapper.readTree(responseMessage);
-            if (status == HttpStatus.SC_OK){
+            if (status == HttpStatus.SC_OK) {
                 accessToken = node.get("access_token").textValue();
-                addVariableValue(accessToken, values, 7);
+                addVariableValue(accessToken, values, 8);
             } else {
                 String errorDescription = node.get("error_description").textValue();
                 log.warn("Warn calling {} Azure AD request, {}: {}", KEY, response.getStatusLine().toString(), errorDescription);
