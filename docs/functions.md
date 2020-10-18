@@ -57,8 +57,8 @@ AzAppServiceAuthenticationToken gets the authentication token that should be spe
 |Attribute|Description|Required|
 |----|----|----|
 |Azure App Service hostname|Your Azure App Service hosname \(ex. example<span></span>.azurewebsites.net, www<span></span>.example.com\)|Yes|
-|Provider|Authentication provider. \(aad, facebook, twitter\)|Yes|
-|access_token|Access token obtained from the provider.|Yes|
+|Provider|Authentication provider. \(aad, google, facebook, twitter\)|Yes|
+|access_token or id_token|Access token (aad, facebook, twitter) or id_token (google) obtained from the provider.|Yes|
 |twitter access_token_secret|In the case of twitter, set Access token secret.|No|
 |Name of variable|The name of the variable to set.|No|
 
