@@ -5,23 +5,14 @@ import org.apache.jmeter.functions.AbstractFunction;
 import org.apache.jmeter.functions.InvalidVariableException;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.samplers.Sampler;
-import org.apache.jmeter.util.JMeterUtils;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.NameValuePair;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.IOException;
@@ -87,25 +78,9 @@ public class AzAdAccessToken extends AbstractFunction {
         String accessToken = null;
 
         try {
-            CloseableHttpClient httpclient = HttpClients.createDefault();
-            HttpPost request = new HttpPost("https://login.microsoftonline.com/" + URLEncoder.encode(tenantId, "UTF-8").replace("+", "%20") + "/oauth2" + aadVersion + "/token");
-            
-            // proxy
-            String proxyHost = JMeterUtils.getPropDefault("https.proxyHost", "").trim();
-            if (!proxyHost.isEmpty()) {
-                int proxyPort = Integer.parseInt(JMeterUtils.getPropDefault("https.proxyPort", "8080").trim());
-                String nonProxyHosts = JMeterUtils.getPropDefault("https.nonProxyHost", "").trim();
-                /* Auth
-                String proxyUser = JMeterUtils.getPropDefault("http.proxyUser", "").trim();
-                String proxyPass = URLEncoder.encode(JMeterUtils.getPropDefault("http.proxyPass", ""), "UTF-8");
-                if (proxyUser.length() > 0) {
-                }
-                */
-                HttpHost proxy = new HttpHost(proxyHost, proxyPort);
-                RequestConfig config = RequestConfig.custom().setProxy(proxy).build();
-                request.setConfig(config);
-            }
-
+            String targetHost = "login.microsoftonline.com";
+            HttpPost request = new HttpPost("https://" + targetHost + "/"
+                    + URLEncoder.encode(tenantId, "UTF-8").replace("+", "%20") + "/oauth2" + aadVersion + "/token");
             request.setHeader("Content-Type", "application/x-www-form-urlencoded");
 
             List<NameValuePair> parameters = new ArrayList<NameValuePair>();
@@ -122,12 +97,13 @@ public class AzAdAccessToken extends AbstractFunction {
             }
 
             String body = "";
-            for (NameValuePair parameter: parameters) {
-                body += "&" + parameter.getName() + "=" + URLEncoder.encode(parameter.getValue(), "UTF-8").replace("+", "%20");
+            for (NameValuePair parameter : parameters) {
+                body += "&" + parameter.getName() + "="
+                        + URLEncoder.encode(parameter.getValue(), "UTF-8").replace("+", "%20");
             }
             request.setEntity(new StringEntity(body.substring(1)));
 
-
+            CloseableHttpClient httpclient = common.setProxy(targetHost).build();
             CloseableHttpResponse response = httpclient.execute(request);
 
             int status = response.getStatusLine().getStatusCode();
@@ -139,7 +115,8 @@ public class AzAdAccessToken extends AbstractFunction {
                 addVariableValue(accessToken, values, 8);
             } else {
                 String errorDescription = node.get("error_description").textValue();
-                log.warn("Warn calling {} Azure AD request, {}: {}", KEY, response.getStatusLine().toString(), errorDescription);
+                log.warn("Warn calling {} Azure AD request, {}: {}", KEY, response.getStatusLine().toString(),
+                        errorDescription);
                 log.info(responseMessage);
             }
         } catch (IllegalArgumentException e) {
