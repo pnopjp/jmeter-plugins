@@ -24,6 +24,7 @@ This function gets the access token for the Azure AD application from the Azure 
 |Username|Access user account name. \(ex. name<span></span>@example.onmicrosoft.com\)|Yes|
 |Password|Access user password.|Yes|
 |Scope|Acess Token Scope.|No|
+|Resource|App ID URI of the receiving web service.<br />Valid only for Azure AD version 1.<br />If you omit this, the "Application ID" value is applied.|No|
 |Azure AD version|v2.0 or empty string|No|
 |Name of variable|The name of the variable to set.|No|
 
