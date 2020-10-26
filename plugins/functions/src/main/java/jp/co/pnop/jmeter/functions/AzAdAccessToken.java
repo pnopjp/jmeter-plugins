@@ -19,8 +19,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.net.URLEncoder;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,9 +38,20 @@ public class AzAdAccessToken extends AbstractFunction {
     private static final List<String> desc = new ArrayList<String>();
     private static final String KEY = "__AzAdAccessToken";
 
+    private static final int TENANT_ID = 0;
+    private static final int GRANT_TYPE = 1;
+    private static final int CLIENT_ID = 2;
+    private static final int CLIENT_SECRET = 3;
+    private static final int USERNAME = 4;
+    private static final int PASSWORD = 5;
+    private static final int SCOPE = 6;
+    private static final int RESOURCE = 7;
+    private static final int AAD_VERSION = 8;
+    private static final int NAME_OF_VAL = 9;
+
     // Number of parameters expected - used to reject invalid calls
     private static final int MIN_PARAMETER_COUNT = 6;
-    private static final int MAX_PARAMETER_COUNT = 9;
+    private static final int MAX_PARAMETER_COUNT = NAME_OF_VAL + 1;
 
     static {
         desc.add("Azure AD Tenant ID");
@@ -48,6 +61,7 @@ public class AzAdAccessToken extends AbstractFunction {
         desc.add("Username");
         desc.add("Password");
         desc.add("Acess Token Scope (optional)");
+        desc.add("Resource (optional)");
         desc.add("Azure AD version (optional)");
         desc.add("Name of variable in which to store the result (optional)");
     }
@@ -57,19 +71,26 @@ public class AzAdAccessToken extends AbstractFunction {
     @Override
     public synchronized String execute(SampleResult previousResult, Sampler currentSampler)
             throws InvalidVariableException {
-        String tenantId = values[0].execute().trim();
-        String grantType = values[1].execute().trim();
-        String clientId = values[2].execute().trim();
-        String clientSecret = values[3].execute().trim();
-        String username = values[4].execute().trim();
-        String password = values[5].execute();
+        String tenantId = values[TENANT_ID].execute().trim();
+        String grantType = values[GRANT_TYPE].execute().trim();
+        String clientId = values[CLIENT_ID].execute().trim();
+        String clientSecret = values[CLIENT_SECRET].execute().trim();
+        String username = values[USERNAME].execute().trim();
+        String password = values[PASSWORD].execute();
         String scope = "";
-        if (values.length > 6) {
-            scope = values[6].execute().trim();
+        if (values.length > SCOPE) {
+            scope = values[SCOPE].execute().trim();
+        }
+        String resource = clientId;
+        if (values.length > RESOURCE) {
+            String temp = values[RESOURCE].execute().trim();
+            if (temp.length() > 0) {
+                resource = temp;
+            }
         }
         String aadVersion = "";
-        if (values.length > 7) {
-            aadVersion = values[7].execute().trim();
+        if (values.length > AAD_VERSION) {
+            aadVersion = values[AAD_VERSION].execute().trim();
             if (aadVersion.length() > 0) {
                 aadVersion = "/" + aadVersion;
             }
@@ -88,7 +109,7 @@ public class AzAdAccessToken extends AbstractFunction {
             parameters.add(new BasicNameValuePair("client_id", clientId));
             parameters.add(new BasicNameValuePair("client_secret", clientSecret));
             if (aadVersion.length() == 0) {
-                parameters.add(new BasicNameValuePair("resource", clientId));
+                parameters.add(new BasicNameValuePair("resource", resource));
             }
             parameters.add(new BasicNameValuePair("username", username));
             parameters.add(new BasicNameValuePair("password", password));
@@ -112,7 +133,7 @@ public class AzAdAccessToken extends AbstractFunction {
             JsonNode node = mapper.readTree(responseMessage);
             if (status == HttpStatus.SC_OK) {
                 accessToken = node.get("access_token").textValue();
-                addVariableValue(accessToken, values, 8);
+                addVariableValue(accessToken, values, NAME_OF_VAL);
             } else {
                 String errorDescription = node.get("error_description").textValue();
                 log.warn("Warn calling {} Azure AD request, {}: {}", KEY, response.getStatusLine().toString(),
