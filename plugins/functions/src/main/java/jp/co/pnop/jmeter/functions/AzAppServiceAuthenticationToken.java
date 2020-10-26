@@ -60,9 +60,7 @@ public class AzAppServiceAuthenticationToken extends AbstractFunction {
         String authenticationToken = null;
 
         try {
-            CloseableHttpClient httpclient = HttpClients.createDefault();
             HttpPost request = new HttpPost("https://" + appServiceHost + "/.auth/login/" + provider);
-
             request.setHeader("Content-Type", "application/json");
 
             String body = null;
@@ -84,6 +82,7 @@ public class AzAppServiceAuthenticationToken extends AbstractFunction {
             }
             request.setEntity(new StringEntity(body, "UTF-8"));
             
+            CloseableHttpClient httpclient = common.setProxy(appServiceHost).build();
             CloseableHttpResponse response = httpclient.execute(request);
 
             int status = response.getStatusLine().getStatusCode();
