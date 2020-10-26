@@ -11,7 +11,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.entity.StringEntity;
 
@@ -60,9 +59,7 @@ public class AzAppServiceAuthenticationToken extends AbstractFunction {
         String authenticationToken = null;
 
         try {
-            CloseableHttpClient httpclient = HttpClients.createDefault();
             HttpPost request = new HttpPost("https://" + appServiceHost + "/.auth/login/" + provider);
-
             request.setHeader("Content-Type", "application/json");
 
             String body = null;
@@ -84,6 +81,7 @@ public class AzAppServiceAuthenticationToken extends AbstractFunction {
             }
             request.setEntity(new StringEntity(body, "UTF-8"));
             
+            CloseableHttpClient httpclient = common.setProxy(appServiceHost).build();
             CloseableHttpResponse response = httpclient.execute(request);
 
             int status = response.getStatusLine().getStatusCode();

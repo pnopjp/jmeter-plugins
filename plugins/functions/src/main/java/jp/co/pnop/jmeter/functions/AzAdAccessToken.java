@@ -11,7 +11,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -79,9 +78,9 @@ public class AzAdAccessToken extends AbstractFunction {
         String accessToken = null;
 
         try {
-            CloseableHttpClient httpclient = HttpClients.createDefault();
-            HttpPost request = new HttpPost("https://login.microsoftonline.com/" + URLEncoder.encode(tenantId, "UTF-8").replace("+", "%20") + "/oauth2" + aadVersion + "/token");
-
+            String targetHost = "login.microsoftonline.com";
+            HttpPost request = new HttpPost("https://" + targetHost + "/"
+                    + URLEncoder.encode(tenantId, "UTF-8").replace("+", "%20") + "/oauth2" + aadVersion + "/token");
             request.setHeader("Content-Type", "application/x-www-form-urlencoded");
 
             List<NameValuePair> parameters = new ArrayList<NameValuePair>();
@@ -98,12 +97,13 @@ public class AzAdAccessToken extends AbstractFunction {
             }
 
             String body = "";
-            for (NameValuePair parameter: parameters) {
-                body += "&" + parameter.getName() + "=" + URLEncoder.encode(parameter.getValue(), "UTF-8").replace("+", "%20");
+            for (NameValuePair parameter : parameters) {
+                body += "&" + parameter.getName() + "="
+                        + URLEncoder.encode(parameter.getValue(), "UTF-8").replace("+", "%20");
             }
             request.setEntity(new StringEntity(body.substring(1)));
 
-
+            CloseableHttpClient httpclient = common.setProxy(targetHost).build();
             CloseableHttpResponse response = httpclient.execute(request);
 
             int status = response.getStatusLine().getStatusCode();
@@ -115,7 +115,8 @@ public class AzAdAccessToken extends AbstractFunction {
                 addVariableValue(accessToken, values, 8);
             } else {
                 String errorDescription = node.get("error_description").textValue();
-                log.warn("Warn calling {} Azure AD request, {}: {}", KEY, response.getStatusLine().toString(), errorDescription);
+                log.warn("Warn calling {} Azure AD request, {}: {}", KEY, response.getStatusLine().toString(),
+                        errorDescription);
                 log.info(responseMessage);
             }
         } catch (IllegalArgumentException e) {
