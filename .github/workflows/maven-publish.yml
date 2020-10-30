@@ -25,7 +25,7 @@ jobs:
       run: |
         export MVN_ARGS="-DbuildNumberSuffix= -B --file plugins/functions/pom.xml"
         mvn ${MVN_ARGS} package
-        echo "::set-env name=FILENAME::$(mvn ${MVN_ARGS} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)"
+        echo "FILENAME=$(mvn ${MVN_ARGS} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
 
     - name: Upload built jar of functions
       uses: actions/upload-release-asset@v1
