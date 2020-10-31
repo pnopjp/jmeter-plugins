@@ -25,7 +25,8 @@ This function gets the access token for the Azure AD application from the Azure 
 |Password|Access user password.|Yes|
 |Scope|Acess Token Scope.|No|
 |Resource|App ID URI of the receiving web service.<br />Valid only for Azure AD version 1.<br />If you omit this, the "Application ID" value is applied.|No|
-|Azure AD version|v2.0 or empty string|No|
+|Azure AD version|v2.0 or empty string.|No|
+|Azure AD endpoint URI|Specify when using an Azure AD endpoint, such as Azure Government or Azure China.<br />\(ex. login<span></span>.partner.microsoftonline.cn\)<br />Or you can use some abbreviations. \(us / cn / de\)<br />The default is Azure global endpoint.<br />\* But I haven't been able to test with Azure Govement, Azure China or Azure Germany, because I don't have subscriptions there. If you use these Azure, I would be happy to have you report your results to [here](https://github.com/pnopjp/jmeter-plugins/issues).|No|
 |Name of variable|The name of the variable to set.|No|
 
 ### Examples

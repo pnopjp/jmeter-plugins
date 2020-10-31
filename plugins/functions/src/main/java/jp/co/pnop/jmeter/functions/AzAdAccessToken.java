@@ -45,7 +45,8 @@ public class AzAdAccessToken extends AbstractFunction {
     private static final int SCOPE = 6;
     private static final int RESOURCE = 7;
     private static final int AAD_VERSION = 8;
-    private static final int NAME_OF_VAL = 9;
+    private static final int AAD_URI = 9;
+    private static final int NAME_OF_VAL = 10;
 
     // Number of parameters expected - used to reject invalid calls
     private static final int MIN_PARAMETER_COUNT = 6;
@@ -61,6 +62,7 @@ public class AzAdAccessToken extends AbstractFunction {
         desc.add("Acess Token Scope (optional)");
         desc.add("Resource (optional)");
         desc.add("Azure AD version (optional)");
+        desc.add("Azure AD endpoint URI (optional)");
         desc.add("Name of variable in which to store the result (optional)");
     }
 
@@ -93,12 +95,30 @@ public class AzAdAccessToken extends AbstractFunction {
                 aadVersion = "/" + aadVersion;
             }
         }
+        String aadUri = "login.microsoftonline.com";
+        if (values.length > AAD_URI) {
+            String temp = values[AAD_URI].execute().trim();
+            switch (temp) {
+            case "":
+                break;
+            case "us":
+                aadUri = "login.microsoftonline.us";
+                break;
+            case "cn":
+                aadUri = "login.partner.microsoftonline.cn";
+                break;
+            case "de":
+                aadUri = "login.microsoftonline.de";
+                break;
+            default:
+                aadUri = temp;
+            }
+        }
 
         String accessToken = null;
 
         try {
-            String targetHost = "login.microsoftonline.com";
-            HttpPost request = new HttpPost("https://" + targetHost + "/"
+            HttpPost request = new HttpPost("https://" + aadUri + "/"
                     + URLEncoder.encode(tenantId, "UTF-8").replace("+", "%20") + "/oauth2" + aadVersion + "/token");
             request.setHeader("Content-Type", "application/x-www-form-urlencoded");
 
@@ -122,7 +142,7 @@ public class AzAdAccessToken extends AbstractFunction {
             }
             request.setEntity(new StringEntity(body.substring(1)));
 
-            CloseableHttpClient httpclient = common.setProxy(targetHost).build();
+            CloseableHttpClient httpclient = common.setProxy(aadUri).build();
             CloseableHttpResponse response = httpclient.execute(request);
 
             int status = response.getStatusLine().getStatusCode();
