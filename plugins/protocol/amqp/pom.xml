@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>jp.co.pnop</groupId>
+    <artifactId>jmeter-plugins-azure-amqp</artifactId>
+    <version>0.1</version>
+
+    <name>Azure AMQP Configure</name>
+    <description>Conigure of AMQP</description>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <url>https://www.pnop.co.jp/</url>
+    <organization>
+        <name>pnop, Inc.</name>
+        <url>https://www.pnop.co.jp/</url>
+    </organization>
+    <developers>
+        <developer>
+            <id>kuniteru</id>
+            <name>Kuniteru Asami</name>
+            <url>https://www.linkedin.com/in/kuniteru-asami-ab58a933/</url>
+            <organization>pnop, Inc.</organization>
+            <organizationUrl>https://www.pnop.co.jp/</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>Asia/Tokyo</timezone>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>Masahito Morishima</name>
+            <roles>
+                <role>reviewer</role>
+            </roles>
+            <timezone>Asia/Tokyo</timezone>
+        </contributor>
+    </contributors>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/pnopjp/jmeter-plugins/issues</url>
+    </issueManagement>
+    <scm>
+        <url>https://github.com/pnopjp/jmeter-plugins</url>
+        <connection>https://github.com/pnopjp/jmeter-plugins.git</connection>
+        <developerConnection>git@github.com:pnopjp/jmeter-plugins.git</developerConnection>
+    </scm>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.jmeter</groupId>
+            <artifactId>jorphan</artifactId>
+            <version>5.4.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-math3</groupId>
+                    <artifactId>commons-math3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-pool2</groupId>
+                    <artifactId>commons-pool2</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jmeter</groupId>
+            <artifactId>ApacheJMeter_core</artifactId>
+            <version>5.4.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-math3</groupId>
+                    <artifactId>commons-math3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-pool2</groupId>
+                    <artifactId>commons-pool2</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+</project>
