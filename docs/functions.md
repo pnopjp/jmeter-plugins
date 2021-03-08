@@ -9,6 +9,10 @@
 - **[hmac](#__hmac)**  
     Generate a HMAC in the specific hash algorithm with the key and variable name.
 
+## How to install
+
+Download jmeter-plugins-functions-azure-?.?.?.jar file from [latest release](https://github.com/pnopjp/jmeter-plugins/releases/latest) and put it into lib/ext directory of JMeter \(ex. /usr/local/jmeter/lib/ext\), then restart JMeter.
+
 ## __AzAdAccessToken
 
 This function gets the access token for the Azure AD application from the Azure AD token endpoint with a password flow.

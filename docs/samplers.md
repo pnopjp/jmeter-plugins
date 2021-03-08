@@ -9,6 +9,10 @@ This sampler lets you send an AMQP request to an Azure Event Hubs.
 Currently, this sampler does not support all Azure Event Hubs features. For example, authentication with Azure AD, send properties, etc are not supported.  
 I will prioritize the implementation of the ones that are most frequently requested by everyone.
 
+### How to install
+
+Download jmeter-plugins-azure-event-hubs.?.?.?.jar file from [latest release](https://github.com/pnopjp/jmeter-plugins/releases/latest) and put it into lib/ext directory of JMeter \(ex. /usr/local/jmeter/lib/ext\), then restart JMeter.
+
 ### Parameters
 
 |Attribute|Description|Required|
