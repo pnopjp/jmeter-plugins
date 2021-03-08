@@ -1,6 +1,6 @@
 # Samplers
 
-- [Azure Event Hubs](#azureeventhubs)
+- [Azure Event Hubs](#azure-event-hubs)
 
 ## Azure Event Hubs
 
