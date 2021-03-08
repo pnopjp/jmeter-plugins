@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.co.pnop.jmeter.protocol.azureeventhubs.control.gui;
+package jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
