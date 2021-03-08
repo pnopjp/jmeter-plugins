@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import com.azure.messaging.eventhubs.*;
 import com.azure.messaging.eventhubs.models.CreateBatchOptions;
+import com.azure.core.amqp.AmqpRetryOptions;
 import com.azure.core.amqp.exception.*;
 
 import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessage;
@@ -177,12 +178,12 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
             .concat("Shared Access Policy: ").concat(getSharedAccessKeyName()). concat("\n")
             .concat("Event Hub: ").concat(getEventHubName());
 
+        // create a producer using the namespace connection string and event hub name
+        EventHubProducerClient producer = new EventHubClientBuilder()
+            .connectionString(connectionString, getEventHubName())
+            .buildProducerClient();
+        
         try {
-            // create a producer using the namespace connection string and event hub name
-            EventHubProducerClient producer = new EventHubClientBuilder()
-                .connectionString(connectionString, getEventHubName())
-                .buildProducerClient();
-    
             // prepare a batch of events to send to the event hub
             CreateBatchOptions batchOptions = new CreateBatchOptions();
             if (getPartitionValue().length() > 0) {
@@ -248,8 +249,6 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
             res.sampleStart(); // Start timing
             producer.send(batch);
     
-            // close the producer
-            producer.close();
             res.latencyEnd();
 
             res.setDataType(SampleResult.TEXT);
@@ -277,6 +276,7 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
             responseMessage = ex.getMessage();
             log.info("Error calling {} sampler. ", threadName, ex);
         } finally {
+            producer.close();
             res.setSamplerData(requestBody); // Request Body
             res.setBodySize(bodySize);
             res.setHeadersSize((int)propertiesSize);
