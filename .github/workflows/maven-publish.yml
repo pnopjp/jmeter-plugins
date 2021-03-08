@@ -21,11 +21,11 @@ jobs:
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
-    - name: Build with Maven
+    - name: Build with Maven of functions
       run: |
-        export MVN_ARGS="-DbuildNumberSuffix= -B --file plugins/functions/pom.xml"
-        mvn ${MVN_ARGS} package
-        echo "FILENAME=$(mvn ${MVN_ARGS} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
+        export MVN_ARGS_FUNCTIONS="-DbuildNumberSuffix= -B --file plugins/functions/pom.xml"
+        mvn ${MVN_ARGS_FUNCTIONS} package
+        echo "FILENAME_FUNCTIONS=$(mvn ${MVN_ARGS_FUNCTIONS} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
 
     - name: Upload built jar of functions
       uses: actions/upload-release-asset@v1
@@ -33,6 +33,23 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }} 
-        asset_path: ./plugins/functions/target/${{ env.FILENAME }}.jar
-        asset_name: ${{ env.FILENAME }}.jar
+        asset_path: ./plugins/functions/target/${{ env.FILENAME_FUNCTIONS }}.jar
+        asset_name: ${{ env.FILENAME_FUNCTIONS }}.jar
+        asset_content_type: application/java-archive
+
+    - name: Build with Maven of samplers
+      run: |
+        export MVN_ARGS_PROTOCOL="-DbuildNumberSuffix= -B --file plugins/protocol/pom.xml"
+        mvn ${MVN_ARGS_PROTOCOL} package
+        export MVN_ARGS_PROTOCOL_EVENTHUBS="-DbuildNumberSuffix= -B --file plugins/protocol/eventhubs/pom.xml"
+        echo "FILENAME_PROTOCOL_EVENTHUBS=$(mvn ${MVN_ARGS_PROTOCOL_EVENTHUBS} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
+    
+    - name: Upload built jar of AzEventHubs sampler
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }} 
+        asset_path: ./plugins/protocol/eventhubs/target/${{ env.FILENAME_PROTOCOL_EVENTHUBS }}.jar
+        asset_name: ${{ env.FILENAME_PROTOCOL_EVENTHUBS }}.jar
         asset_content_type: application/java-archive
