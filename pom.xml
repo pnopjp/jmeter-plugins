@@ -6,9 +6,10 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
     <packaging>pom</packaging>
     <modules>
-        <module>plugins</module>
+        <module>plugins/functions</module>
+        <module>plugins/protocol</module>
     </modules>
 </project>
