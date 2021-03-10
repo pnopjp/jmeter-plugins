@@ -28,4 +28,7 @@ Download jmeter-plugins-azure-event-hubs.?.?.?.jar file from [latest release](ht
 ### Sample files
 
 - [AzEventHubsSampler.jmx](../samples/AzEventHubsSampler.jmx)
-<!-- ### Tutorial -->
+
+### Tutorial
+
+- [How to request to Azure Event Hubs with Apache JMeter™](https://blog.pnop.co.jp/jmeter-azure-event-hubs_en/)
