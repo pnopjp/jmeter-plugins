@@ -4,7 +4,7 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins-azure-eventhubs</artifactId>
-    <version>0.1.1</version>
+    <version>0.2.0</version>
 
     <name>Azure Event Hubs Sampler</name>
     <description>Sample to Azure Event Hubs</description>
@@ -111,6 +111,11 @@
             <artifactId>jmeter-plugins-azure-amqp</artifactId>
             <version>0.1</version>
         </dependency>
+        <dependency>
+            <groupId>jp.co.pnop</groupId>
+            <artifactId>jmeter-plugins-azure-ad</artifactId>
+            <version>0.1</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -125,25 +130,6 @@
                     <arg>-Xlint:unchecked</arg>
                   </compilerArgs>
                 </configuration>
-            </plugin>
-            -->
-            <!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.2</version>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeGroupIds>com.azure,org.reactivestreams,io.projectreactor,org.apache.qpid</includeGroupIds>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             -->
             <plugin>
@@ -161,13 +147,11 @@
                 <configuration>
                     <artifactSet>
                         <includes>
+                            <include>jp.co.pnop:jmeter-plugins-azure-amqp</include>
+                            <include>jp.co.pnop:jmeter-plugins-azure-ad</include>
                             <include>com.azure:azure-messaging-eventhubs</include>
                             <include>com.azure:azure-core-amqp</include>
-                            <include>com.azure:azure-core</include>
-                            <include>org.reactivestreams:reactive-streams</include>
-                            <include>io.projectreactor:reactor-core</include>
                             <include>org.apache.qpid:proton-j</include>
-                            <include>jp.co.pnop:jmeter-plugins-azure-amqp</include>
                         </includes>
                     </artifactSet>
                     <filters>

@@ -28,11 +28,91 @@
       <hashTree>
         <jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.AzEventHubsSampler guiclass="jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.gui.AzEventHubsSamplerGui" testclass="jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.AzEventHubsSampler" testname="Azure Event Hubs Sampler" enabled="true">
           <stringProp name="namespaceName">**********.servicebus.windows.net</stringProp>
+          <stringProp name="authType">Shared access signature</stringProp>
           <stringProp name="sharedAccessKeyName">YourSharedAccessKey</stringProp>
           <stringProp name="sharedAccessKey">********************</stringProp>
           <stringProp name="eventHubName">youreventhubname</stringProp>
           <stringProp name="partitionType">Not specified</stringProp>
           <stringProp name="partitionValue"></stringProp>
+          <elementProp name="messages" elementType="jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessages" guiclass="jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessagesPanel" testclass="jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessages" testname="[res_key=Azure Event Hubs Default]" enabled="true">
+            <collectionProp name="Messages.messages">
+              <elementProp name="SGVsbG8sIEF6dXJlIEV2ZW50IEh1YnMh" elementType="jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessage">
+                <stringProp name="Message.messageType">Base64 encoded binary</stringProp>
+                <stringProp name="Message.message">SGVsbG8sIEF6dXJlIEV2ZW50IEh1YnMh</stringProp>
+                <objProp>
+                  <name>Message.systemProperties</name>
+                  <value class="java.lang.String"></value>
+                </objProp>
+                <objProp>
+                  <name>Message.appProperties</name>
+                  <value class="java.lang.String"></value>
+                </objProp>
+              </elementProp>
+              <elementProp name="Hello, Azure Event Hubs!" elementType="jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessage">
+                <stringProp name="Message.messageType">String</stringProp>
+                <stringProp name="Message.message">Hello, Azure Event Hubs!</stringProp>
+                <objProp>
+                  <name>Message.systemProperties</name>
+                  <value class="java.lang.String"></value>
+                </objProp>
+                <objProp>
+                  <name>Message.appProperties</name>
+                  <value class="java.lang.String"></value>
+                </objProp>
+              </elementProp>
+              <elementProp name="/tmp/eventhubs-sample.gif" elementType="jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessage">
+                <stringProp name="Message.messageType">File</stringProp>
+                <stringProp name="Message.message">/tmp/eventhubs-sample.gif</stringProp>
+                <objProp>
+                  <name>Message.systemProperties</name>
+                  <value class="java.lang.String"></value>
+                </objProp>
+                <objProp>
+                  <name>Message.appProperties</name>
+                  <value class="java.lang.String"></value>
+                </objProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.AzEventHubsSampler>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential guiclass="jp.co.pnop.jmeter.protocol.aad.config.gui.AzAdCredentialGui" testclass="jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential" testname="Azure AD Credential" enabled="true">
+          <stringProp name="credentialName">cred</stringProp>
+          <stringProp name="credentialType">Client secret</stringProp>
+          <stringProp name="authorityHost">login.microsoftonline.com</stringProp>
+          <stringProp name="tenantId">**********.onmicrosoft.com</stringProp>
+          <stringProp name="clientId">********-****-****-****-***********</stringProp>
+          <stringProp name="clientSecret">************</stringProp>
+          <stringProp name="filetype"></stringProp>
+          <stringProp name="filename"></stringProp>
+          <stringProp name="filePassword"></stringProp>
+          <stringProp name="username"></stringProp>
+          <stringProp name="password"></stringProp>
+          <stringProp name="redirectUrl"></stringProp>
+        </jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential>
+        <hashTree/>
+        <jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.AzEventHubsSampler guiclass="jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.gui.AzEventHubsSamplerGui" testclass="jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.AzEventHubsSampler" testname="Azure Event Hubs Sampler" enabled="true">
+          <stringProp name="namespaceName">**********.servicebus.windows.net</stringProp>
+          <stringProp name="authType">Azure AD credential</stringProp>
+          <stringProp name="aadCredential">cred</stringProp>
+          <stringProp name="eventHubName">youreventhubname</stringProp>
+          <stringProp name="partitionType">Key</stringProp>
+          <stringProp name="partitionValue">x</stringProp>
           <elementProp name="messages" elementType="jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessages" guiclass="jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessagesPanel" testclass="jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessages" testname="[res_key=Azure Event Hubs Default]" enabled="true">
             <collectionProp name="Messages.messages">
               <elementProp name="SGVsbG8sIEF6dXJlIEV2ZW50IEh1YnMh" elementType="jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessage">

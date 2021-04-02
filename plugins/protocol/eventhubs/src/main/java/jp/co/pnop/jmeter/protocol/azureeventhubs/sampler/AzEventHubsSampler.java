@@ -13,10 +13,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
- * # memo
- * http://docs.oasis-open.org/amqp/core/v1.0/amqp-core-complete-v1.0.pdf
- * https://qpid.apache.org/releases/qpid-proton-j-0.22.0/api/org/apache/qpid/proton/amqp/messaging/Properties.html
  */
 
 package jp.co.pnop.jmeter.protocol.azureeventhubs.sampler;
@@ -24,11 +20,9 @@ package jp.co.pnop.jmeter.protocol.azureeventhubs.sampler;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -48,12 +42,13 @@ import org.slf4j.LoggerFactory;
 
 import com.azure.messaging.eventhubs.*;
 import com.azure.messaging.eventhubs.models.CreateBatchOptions;
-import com.azure.core.amqp.AmqpRetryOptions;
 import com.azure.core.amqp.exception.*;
 
 import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessage;
 import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessages;
 
+import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential;
+import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential.AzAdCredentialComponentImpl;
 
 /**
  * Azure Event Hubs Sampler (non-Bean version)
@@ -74,18 +69,28 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
     private static final Logger log = LoggerFactory.getLogger(AzEventHubsSampler.class);
 
     private static final Set<String> APPLIABLE_CONFIG_CLASSES = new HashSet<>(
-            Arrays.asList(
-                    "jp.co.pnop.jmeter.protocol.azureeventhubs.config.gui.AzEventHubsConfigGui",
-                    "org.apache.jmeter.config.gui.SimpleConfigGui"
-            ));
+        Arrays.asList(
+            "jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.gui.AzEventHubsConfigGui",
+            "org.apache.jmeter.config.gui.SimpleConfigGui"
+        )
+    );
 
     public static final String NAMESPACE_NAME = "namespaceName";
+    public static final String AUTH_TYPE = "authType";
     public static final String SHARED_ACCESS_KEY_NAME = "sharedAccessKeyName";
     public static final String SHARED_ACCESS_KEY = "sharedAccessKey";
+    public static final String AAD_CREDENTIAL = "aadCredential";
     public static final String EVENT_HUB_NAME = "eventHubName";
     public static final String PARTITION_TYPE = "partitionType";
     public static final String PARTITION_VALUE = "partitionValue";
     public static final String MESSAGES = "messages";
+
+    public static final String AUTHTYPE_SAS = "Shared access signature";
+    public static final String AUTHTYPE_AAD = "Azure AD credential";
+
+    public static final String PARTITION_TYPE_NOT_SPECIFIED = "Not specified";
+    public static final String PARTITION_TYPE_ID = "ID";
+    public static final String PARTITION_TYPE_KEY = "Key";
 
     private static AtomicInteger classCount = new AtomicInteger(0); // keep track of classes created
 
@@ -103,6 +108,14 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
         return getPropertyAsString(NAMESPACE_NAME);
     }
 
+    public void setAuthType(String authType) {
+        setProperty(new StringProperty(AUTH_TYPE, authType));
+    }
+
+    public String getAuthType() {
+        return getPropertyAsString(AUTH_TYPE);
+    }
+
     public void setSharedAccessKeyName(String sharedAccessKeyName) {
         setProperty(new StringProperty(SHARED_ACCESS_KEY_NAME, sharedAccessKeyName));
     }
@@ -117,6 +130,14 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
 
     public String getSharedAccessKey() {
         return getPropertyAsString(SHARED_ACCESS_KEY);
+    }
+
+    public void setAadCredential(String aadCredential) {
+        setProperty(new StringProperty(AAD_CREDENTIAL, aadCredential));
+    }
+
+    public String getAadCredential() {
+        return getPropertyAsString(AAD_CREDENTIAL);
     }
 
     public void setEventHubName(String eventHubName) {
@@ -168,31 +189,40 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
         long bodySize = 0;
         long propertiesSize = 0;
 
-        final String connectionString
-            = "Endpoint=sb://".concat(getNamespaceName()).concat("/;")
-            .concat("SharedAccessKeyName=").concat(getSharedAccessKeyName()).concat(";")
-            .concat("SharedAccessKey=").concat(getSharedAccessKey());
+        EventHubProducerClient producer = null;
+        EventHubClientBuilder producerBuilder = new EventHubClientBuilder();
 
-        requestBody
-            = "Endpoint: sb://".concat(getNamespaceName()).concat("\n")
-            .concat("Shared Access Policy: ").concat(getSharedAccessKeyName()). concat("\n")
-            .concat("Event Hub: ").concat(getEventHubName());
-
-        // create a producer using the namespace connection string and event hub name
-        EventHubProducerClient producer = new EventHubClientBuilder()
-            .connectionString(connectionString, getEventHubName())
-            .buildProducerClient();
-        
         try {
+            res.sampleStart(); // Start timing
+            requestBody
+                = "Endpoint: sb://".concat(getNamespaceName()).concat("\n")
+                .concat("Event Hub: ").concat(getEventHubName());
+
+            if (getAuthType() == AUTHTYPE_SAS) {
+                final String connectionString
+                    = "Endpoint=sb://".concat(getNamespaceName()).concat("/;")
+                    .concat("SharedAccessKeyName=").concat(getSharedAccessKeyName()).concat(";")
+                    .concat("SharedAccessKey=").concat(getSharedAccessKey());
+                requestBody = requestBody.concat("\n")
+                    .concat("Shared Access Policy: ").concat(getSharedAccessKeyName()).concat("\n")
+                    .concat("Shared Access Key: **********");
+                producerBuilder = producerBuilder.connectionString(connectionString, getEventHubName());
+            } else { // AUTHTYPE_AAD
+                AzAdCredentialComponentImpl credential = AzAdCredential.getCredential(getAadCredential());
+                requestBody = requestBody.concat(credential.getRequestBody());
+                producerBuilder = producerBuilder.credential(getNamespaceName(), getEventHubName(), credential.getCredential());
+            }
+            producer = producerBuilder.buildProducerClient();
+
             // prepare a batch of events to send to the event hub
             CreateBatchOptions batchOptions = new CreateBatchOptions();
             if (getPartitionValue().length() > 0) {
                 switch (getPartitionType()) {
-                    case "ID":
+                    case PARTITION_TYPE_ID:
                         batchOptions.setPartitionId(getPartitionValue());
                         requestBody = requestBody.concat("\n").concat("Partition ID: ").concat(getPartitionValue());
                         break;
-                    case "Key":
+                    case PARTITION_TYPE_KEY:
                         batchOptions.setPartitionKey(getPartitionValue());
                         requestBody = requestBody.concat("\n").concat("Partition Key: ").concat(getPartitionValue());
                         break;
@@ -211,17 +241,17 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
                             .concat("Message type: ").concat(msg.getMessageType()).concat("\n")
                             .concat("Body: ").concat(msg.getMessage());
                 switch (msg.getMessageType()) {
-                    case "Base64 encoded binary":
+                    case AzAmqpMessages.MESSAGE_TYPE_BASE64:
                         byte[] binMsg = Base64.getDecoder().decode(msg.getMessage().getBytes());
                         batch.tryAdd(new EventData(binMsg));
                         bodySize += binMsg.length;
                         break;
-                    case "File":
+                    case AzAmqpMessages.MESSAGE_TYPE_FILE:
                         BufferedInputStream bi = null;
                         bi = new BufferedInputStream(new FileInputStream(msg.getMessage()));
                         batch.tryAdd(new EventData(IOUtils.toByteArray(bi)));
                         break;
-                    default: // "String"
+                    default: // AzAmqpMessages.MESSAGE_TYPE_STRING
                         batch.tryAdd(new EventData(msg.getMessage()));
                         bodySize += msg.getMessage().getBytes("UTF-8").length;
                     }
@@ -246,9 +276,7 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
             */
     
             // send the batch of events to the event hub
-            res.sampleStart(); // Start timing
             producer.send(batch);
-    
             res.latencyEnd();
 
             res.setDataType(SampleResult.TEXT);
@@ -276,7 +304,9 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
             responseMessage = ex.getMessage();
             log.info("Error calling {} sampler. ", threadName, ex);
         } finally {
-            producer.close();
+            if (producer != null) {
+                producer.close();
+            }
             res.setSamplerData(requestBody); // Request Body
             res.setBodySize(bodySize);
             res.setHeadersSize((int)propertiesSize);

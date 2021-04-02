@@ -1,0 +1,413 @@
+package jp.co.pnop.jmeter.protocol.aad.config.gui;
+
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.BorderFactory;
+import javax.swing.JRadioButton;
+
+import org.apache.jmeter.gui.util.HorizontalPanel;
+import org.apache.jmeter.gui.util.VerticalPanel;
+import org.apache.jmeter.config.gui.AbstractConfigGui;
+import org.apache.jmeter.testelement.TestElement;
+import org.apache.jorphan.gui.JLabeledChoice;
+import org.apache.jorphan.gui.JLabeledTextField;
+import org.apache.jmeter.testelement.property.StringProperty;
+import javax.swing.ButtonGroup;
+import org.apache.jorphan.gui.JLabeledPasswordField;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential;
+
+
+public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListener {
+    private static final long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(AzAdCredentialGui.class);
+
+    private String[] AUTHORITY_HOST_LABELS = {
+        AzAdCredential.AUTHORITYHOST_PUBLIC,
+        AzAdCredential.AUTHORITYHOST_GOVENMENT,
+        AzAdCredential.AUTHORITYHOST_CHINA,
+        AzAdCredential.AUTHORITYHOST_GERMANY
+    };
+
+    private String[] CREDENTIAL_TYPE_LABELS = {
+        AzAdCredential.CREDENTIALTYPE_CLIENT_CERTIFICATE,
+        AzAdCredential.CREDENTIALTYPE_CLIENT_SECRET,
+        AzAdCredential.CREDENTIALTYPE_MANAGED_ID,
+        //AzAdCredential.CREDENTIALTYPE_USERNAME_PASSWORD,
+        //AzAdCredential.CREDENTIALTYPE_INTERACTIVE_BROWSER
+    };
+    private JLabeledTextField credentialName;
+    private JLabel credentialTypeLabel;
+    private JLabeledChoice credentialType;
+    private JPanel credentialPanel;
+    private JLabeledTextField managedIdClientId;
+    private JLabeledChoice clientSecretAuthorityHost;
+    private JLabeledTextField clientSecretTenantId;
+    private JLabeledTextField clientSecretClientId;
+    private JLabeledPasswordField clientSecretClientSecret;
+    private JLabeledChoice clientCertificateAuthorityHost;
+    private JLabeledTextField clientCertificateTenantId;
+    private JLabeledTextField clientCertificateClientId;
+    private JRadioButton clientCertificateFiletypePEM;
+    private JRadioButton clientCertificateFiletypePFX;
+    private JLabeledTextField clientCertificateFilename;
+    private JLabeledPasswordField clientCertificateFilePassword;
+    private JLabeledChoice usernamepasswordAuthorityHost;
+    private JLabeledTextField usernamepasswordTenantId;
+    private JLabeledTextField usernamepasswordClientId;
+    private JLabeledTextField usernamepasswordUsername;
+    private JLabeledPasswordField usernamepasswordPassword;
+    private JLabeledChoice interactiveBrowserAuthorityHost;
+    private JLabeledTextField interactiveBrowserTenantId;
+    private JLabeledTextField interactiveBrowserClientId;
+    private JLabeledTextField interactiveBrowserRedirectUrl;
+    
+    private ButtonGroup clientCertificateFiletypeGroup = new ButtonGroup();
+
+    public AzAdCredentialGui() {
+        init();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void configure(TestElement element) {
+        super.configure(element);
+        credentialName.setText(element.getPropertyAsString(AzAdCredential.CREDENTIAL_NAME));
+        credentialType.setText(element.getPropertyAsString(AzAdCredential.CREDENTIAL_TYPE));
+        toggleCredentialTypeValue();
+        switch (credentialType.getText()) {
+            case AzAdCredential.CREDENTIALTYPE_MANAGED_ID:
+                managedIdClientId.setText(element.getPropertyAsString(AzAdCredential.CLIENT_ID));
+                break;
+            case AzAdCredential.CREDENTIALTYPE_CLIENT_SECRET:
+                clientSecretAuthorityHost.setText(element.getPropertyAsString(AzAdCredential.AUTHORITY_HOST));
+                clientSecretTenantId.setText(element.getPropertyAsString(AzAdCredential.TENANT_ID));
+                clientSecretClientId.setText(element.getPropertyAsString(AzAdCredential.CLIENT_ID));
+                clientSecretClientSecret.setText(element.getPropertyAsString(AzAdCredential.CLIENT_SECRET));
+                break;
+            case AzAdCredential.CREDENTIALTYPE_CLIENT_CERTIFICATE:
+                clientCertificateAuthorityHost.setText(element.getPropertyAsString(AzAdCredential.AUTHORITY_HOST));
+                clientCertificateTenantId.setText(element.getPropertyAsString(AzAdCredential.TENANT_ID));
+                clientCertificateClientId.setText(element.getPropertyAsString(AzAdCredential.CLIENT_ID));
+                final String fileType = element.getPropertyAsString(AzAdCredential.FILETYPE);
+                if (fileType.equals(AzAdCredential.FILETYPE_PFX)) {
+                    clientCertificateFiletypePFX.setSelected(true);
+                } else {
+                    clientCertificateFiletypePEM.setSelected(true);
+                }
+                clientCertificateFilename.setText(element.getPropertyAsString(AzAdCredential.FILENAME));
+                clientCertificateFilePassword.setText(element.getPropertyAsString(AzAdCredential.FILE_PASSWORD));
+                toggleClientCertificateFilePasswordValue();
+                break;
+            case AzAdCredential.CREDENTIALTYPE_USERNAME_PASSWORD:
+                usernamepasswordAuthorityHost.setText(element.getPropertyAsString(AzAdCredential.AUTHORITY_HOST));
+                usernamepasswordTenantId.setText(element.getPropertyAsString(AzAdCredential.TENANT_ID));
+                usernamepasswordClientId.setText(element.getPropertyAsString(AzAdCredential.CLIENT_ID));
+                usernamepasswordUsername.setText(element.getPropertyAsString(AzAdCredential.UNAME));
+                usernamepasswordPassword.setText(element.getPropertyAsString(AzAdCredential.PWD));
+                break;
+            case AzAdCredential.CREDENTIALTYPE_INTERACTIVE_BROWSER:
+                interactiveBrowserAuthorityHost.setText(element.getPropertyAsString(AzAdCredential.AUTHORITY_HOST));
+                interactiveBrowserTenantId.setText(element.getPropertyAsString(AzAdCredential.TENANT_ID));
+                interactiveBrowserClientId.setText(element.getPropertyAsString(AzAdCredential.CLIENT_ID));
+                interactiveBrowserRedirectUrl.setText(element.getPropertyAsString(AzAdCredential.REDIRECT_URL));
+                break;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getLabelResource() {
+        return null;
+    }
+
+    public String getStaticLabel() {
+        return "Azure AD Credential";
+    }
+
+    @Override
+    public void modifyTestElement(TestElement element) {
+        element.clear();
+        super.configureTestElement(element);
+        element.setProperty(AzAdCredential.CREDENTIAL_NAME, credentialName.getText());
+        element.setProperty(AzAdCredential.CREDENTIAL_TYPE, credentialType.getText());
+        switch (credentialType.getText()) {
+            case AzAdCredential.CREDENTIALTYPE_MANAGED_ID:
+                element.setProperty(AzAdCredential.CLIENT_ID, managedIdClientId.getText());
+                break;
+            case AzAdCredential.CREDENTIALTYPE_CLIENT_SECRET:
+                element.setProperty(AzAdCredential.AUTHORITY_HOST, clientSecretAuthorityHost.getText());
+                element.setProperty(AzAdCredential.TENANT_ID, clientSecretTenantId.getText());
+                element.setProperty(AzAdCredential.CLIENT_ID, clientSecretClientId.getText());
+                element.setProperty(AzAdCredential.CLIENT_SECRET, clientSecretClientSecret.getText());
+                break;
+            case AzAdCredential.CREDENTIALTYPE_CLIENT_CERTIFICATE:
+                element.setProperty(AzAdCredential.AUTHORITY_HOST, clientCertificateAuthorityHost.getText());
+                element.setProperty(AzAdCredential.TENANT_ID, clientCertificateTenantId.getText());
+                element.setProperty(AzAdCredential.CLIENT_ID, clientCertificateClientId.getText());
+                if (clientCertificateFiletypePFX.isSelected()) {
+                    element.setProperty(new StringProperty(AzAdCredential.FILETYPE, AzAdCredential.FILETYPE_PFX));
+                } else { // PEM
+                    element.setProperty(new StringProperty(AzAdCredential.FILETYPE, AzAdCredential.FILETYPE_PEM));
+                }
+                element.setProperty(AzAdCredential.FILENAME, clientCertificateFilename.getText());
+                element.setProperty(AzAdCredential.FILE_PASSWORD, clientCertificateFilePassword.getText());
+                break;
+            case AzAdCredential.CREDENTIALTYPE_USERNAME_PASSWORD:
+                element.setProperty(AzAdCredential.AUTHORITY_HOST, usernamepasswordAuthorityHost.getText());
+                element.setProperty(AzAdCredential.TENANT_ID, usernamepasswordTenantId.getText());
+                element.setProperty(AzAdCredential.CLIENT_ID, usernamepasswordClientId.getText());
+                element.setProperty(AzAdCredential.UNAME, usernamepasswordUsername.getText());
+                element.setProperty(AzAdCredential.PWD, usernamepasswordPassword.getText());
+                break;
+            case AzAdCredential.CREDENTIALTYPE_INTERACTIVE_BROWSER:
+                element.setProperty(AzAdCredential.AUTHORITY_HOST, interactiveBrowserAuthorityHost.getText());
+                element.setProperty(AzAdCredential.TENANT_ID, interactiveBrowserTenantId.getText());
+                element.setProperty(AzAdCredential.CLIENT_ID, interactiveBrowserClientId.getText());
+                element.setProperty(AzAdCredential.REDIRECT_URL, interactiveBrowserRedirectUrl.getText());
+                break;                
+        }
+    }
+
+    @Override
+    public void clearGui() {
+        super.clearGui();
+
+        credentialName.setText("");
+        credentialType.setText(AzAdCredential.CREDENTIALTYPE_CLIENT_CERTIFICATE);
+        managedIdClientId.setText("");
+        clientSecretAuthorityHost.setText(AzAdCredential.AUTHORITYHOST_PUBLIC);
+        clientSecretTenantId.setText("");
+        clientSecretClientId.setText("");
+        clientSecretClientSecret.setText("");
+        clientCertificateAuthorityHost.setText(AzAdCredential.AUTHORITYHOST_PUBLIC);
+        clientCertificateTenantId.setText("");
+        clientCertificateClientId.setText("");
+        clientCertificateFiletypePEM.setSelected(true);
+        clientCertificateFiletypePFX.setSelected(false);
+        clientCertificateFilename.setText("");
+        clientCertificateFilePassword.setText("");
+        usernamepasswordAuthorityHost.setText(AzAdCredential.AUTHORITYHOST_PUBLIC);
+        usernamepasswordTenantId.setText("");
+        usernamepasswordClientId.setText("");
+        usernamepasswordUsername.setText("");
+        usernamepasswordPassword.setText("");
+        interactiveBrowserAuthorityHost.setText(AzAdCredential.AUTHORITYHOST_PUBLIC);
+        interactiveBrowserTenantId.setText("");
+        interactiveBrowserClientId.setText("");
+        interactiveBrowserRedirectUrl.setText("");
+    }
+
+    @Override
+    public TestElement createTestElement() {
+        AzAdCredential credentail = new AzAdCredential();
+        modifyTestElement(credentail);
+        return credentail;
+    }
+
+    private JPanel createCredentialNamePanel() {
+        credentialName = new JLabeledTextField("Variable Name for created credentail:");
+        credentialName.setName(AzAdCredential.CREDENTIAL_NAME);
+
+        JPanel panel = new JPanel(new BorderLayout(5, 0));
+        panel.setBorder(BorderFactory.createTitledBorder("Variable Name Bound to Credential"));
+        panel.add(credentialName);
+        
+        return panel;
+    }
+
+    private JPanel createCredentialTypePanel() {
+        credentialTypeLabel = new JLabel("Credential type:");
+
+        credentialType = new JLabeledChoice("", CREDENTIAL_TYPE_LABELS);
+        credentialType.setName(AzAdCredential.CREDENTIAL_TYPE);
+        credentialType.addChangeListener(this);
+
+        JPanel panel = new JPanel(new BorderLayout(5, 0));
+        panel.setBorder(BorderFactory.createTitledBorder("Credential configuration"));
+        panel.add(credentialTypeLabel, BorderLayout.WEST);
+        panel.add(credentialType, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel createCredentialPanel() {
+        credentialPanel = new JPanel(new CardLayout());
+        credentialPanel.add(createManagedIdPanel(), AzAdCredential.CREDENTIALTYPE_MANAGED_ID);
+        credentialPanel.add(createClientSecretPanel(), AzAdCredential.CREDENTIALTYPE_CLIENT_SECRET);
+        credentialPanel.add(createClientCertificatePanel(), AzAdCredential.CREDENTIALTYPE_CLIENT_CERTIFICATE);
+        credentialPanel.add(createUsernamePasswordPanel(), AzAdCredential.CREDENTIALTYPE_USERNAME_PASSWORD);
+        credentialPanel.add(createInteractiveBrowserPanel(), AzAdCredential.CREDENTIALTYPE_INTERACTIVE_BROWSER);
+
+        return credentialPanel;
+    }
+
+    private JPanel createManagedIdPanel() {
+        managedIdClientId = new JLabeledTextField("Client Id:");
+        managedIdClientId.setName(AzAdCredential.CLIENT_ID);
+
+        JPanel panel = new VerticalPanel();
+        panel.add(managedIdClientId);
+
+        return panel;
+    }
+
+    private JPanel createClientSecretPanel() {
+        JPanel authorityHostPanel = new HorizontalPanel();
+        JLabel authorityHostLabel = new JLabel("Authority host:");
+        clientSecretAuthorityHost = new JLabeledChoice("", AUTHORITY_HOST_LABELS, true, false);
+        clientSecretAuthorityHost.setName(AzAdCredential.AUTHORITY_HOST);
+        authorityHostPanel.add(authorityHostLabel);
+        authorityHostPanel.add(clientSecretAuthorityHost);
+
+        clientSecretTenantId = new JLabeledTextField("Tenant Id:");
+        clientSecretTenantId.setName(AzAdCredential.TENANT_ID);
+        clientSecretClientId = new JLabeledTextField("Client Id:");
+        clientSecretClientId.setName(AzAdCredential.CLIENT_ID);
+        clientSecretClientSecret = new JLabeledPasswordField("Client Secret:");
+        clientSecretClientSecret.setName(AzAdCredential.CLIENT_SECRET);
+        
+        JPanel panel = new VerticalPanel();
+        panel.add(authorityHostPanel);
+        panel.add(clientSecretTenantId);
+        panel.add(clientSecretClientId);
+        panel.add(clientSecretClientSecret);
+
+        return panel;
+    }
+
+    private JPanel createClientCertificatePanel() {
+        JPanel authorityHostPanel = new HorizontalPanel();
+        JLabel authorityHostLabel = new JLabel("Authority host:");
+        clientCertificateAuthorityHost = new JLabeledChoice("", AUTHORITY_HOST_LABELS, true, false);
+        clientCertificateAuthorityHost.setName(AzAdCredential.AUTHORITY_HOST);
+        authorityHostPanel.add(authorityHostLabel);
+        authorityHostPanel.add(clientCertificateAuthorityHost);
+
+        clientCertificateTenantId = new JLabeledTextField("Tenant Id:");
+        clientCertificateTenantId.setName(AzAdCredential.TENANT_ID);
+        clientCertificateClientId = new JLabeledTextField("Client Id:");
+        clientCertificateClientId.setName(AzAdCredential.CLIENT_ID);
+        JLabel clientCertificateFiletypeLabel = new JLabel("File type:");
+        clientCertificateFiletypePEM = new JRadioButton("PEM");
+        clientCertificateFiletypePFX = new JRadioButton("PFX");
+        clientCertificateFilename = new JLabeledTextField("Filename:");
+        clientCertificateFilename.setName(AzAdCredential.FILENAME);
+        clientCertificateFilePassword = new JLabeledPasswordField("Password:");
+        clientCertificateFilePassword.setName(AzAdCredential.FILE_PASSWORD);
+
+        JPanel filetypePanel = new HorizontalPanel();
+        filetypePanel.add(clientCertificateFiletypeLabel);
+        filetypePanel.add(clientCertificateFiletypePEM);
+        filetypePanel.add(clientCertificateFiletypePFX);
+        clientCertificateFiletypeGroup.add(clientCertificateFiletypePEM);
+        clientCertificateFiletypeGroup.add(clientCertificateFiletypePFX);
+        clientCertificateFiletypePFX.addChangeListener(this);
+
+        JPanel panel = new VerticalPanel();
+        panel.add(authorityHostPanel);
+        panel.add(clientCertificateTenantId);
+        panel.add(clientCertificateClientId);
+        panel.add(filetypePanel);
+        panel.add(clientCertificateFilename);
+        panel.add(clientCertificateFilePassword);
+        return panel;
+    }
+
+    private JPanel createUsernamePasswordPanel() {
+        JPanel authorityHostPanel = new HorizontalPanel();
+        JLabel authorityHostLabel = new JLabel("Authority host:");
+        usernamepasswordAuthorityHost = new JLabeledChoice("", AUTHORITY_HOST_LABELS, true, false);
+        usernamepasswordAuthorityHost.setName(AzAdCredential.AUTHORITY_HOST);
+        authorityHostPanel.add(authorityHostLabel);
+        authorityHostPanel.add(usernamepasswordAuthorityHost);
+
+        usernamepasswordTenantId = new JLabeledTextField("Tenant Id:");
+        usernamepasswordTenantId.setName(AzAdCredential.TENANT_ID);
+        usernamepasswordClientId = new JLabeledTextField("Client Id:");
+        usernamepasswordClientId.setName(AzAdCredential.CLIENT_ID);
+        usernamepasswordUsername = new JLabeledTextField("Username:");
+        usernamepasswordUsername.setName(AzAdCredential.UNAME);
+        usernamepasswordPassword = new JLabeledPasswordField("Password:");
+        usernamepasswordPassword.setName(AzAdCredential.PWD);
+        
+        JPanel panel = new VerticalPanel();
+        panel.add(authorityHostPanel);
+        panel.add(usernamepasswordTenantId);
+        panel.add(usernamepasswordClientId);
+        panel.add(usernamepasswordUsername);
+        panel.add(usernamepasswordPassword);
+
+        return panel;
+    }
+
+    private JPanel createInteractiveBrowserPanel() {
+        JPanel authorityHostPanel = new HorizontalPanel();
+        JLabel authorityHostLabel = new JLabel("Authority host:");
+        interactiveBrowserAuthorityHost = new JLabeledChoice("", AUTHORITY_HOST_LABELS, true, false);
+        interactiveBrowserAuthorityHost.setName(AzAdCredential.AUTHORITY_HOST);
+        authorityHostPanel.add(authorityHostLabel);
+        authorityHostPanel.add(interactiveBrowserAuthorityHost);
+
+        interactiveBrowserTenantId = new JLabeledTextField("Tenant Id:");
+        interactiveBrowserTenantId.setName(AzAdCredential.TENANT_ID);
+        interactiveBrowserClientId = new JLabeledTextField("Client Id:");
+        interactiveBrowserClientId.setName(AzAdCredential.CLIENT_ID);
+        interactiveBrowserRedirectUrl = new JLabeledTextField("Redirect Url:");
+        interactiveBrowserRedirectUrl.setName(AzAdCredential.REDIRECT_URL);
+
+        JPanel panel = new VerticalPanel();
+        panel.add(authorityHostPanel);
+        panel.add(interactiveBrowserTenantId);
+        panel.add(interactiveBrowserClientId);
+        panel.add(interactiveBrowserRedirectUrl);
+
+        return panel;
+    }
+
+    private void init() { // WARNING: called from ctor so must not be overridden (i.e. must be private or final)
+        setLayout(new BorderLayout(0, 5));
+        setBorder(makeBorder());
+        add(makeTitlePanel(), BorderLayout.NORTH);
+        // MAIN PANEL
+        VerticalPanel mainPanel = new VerticalPanel();
+        mainPanel.add(createCredentialNamePanel());
+        mainPanel.add(createCredentialTypePanel());
+        mainPanel.add(createCredentialPanel());
+
+        add(mainPanel, BorderLayout.CENTER);
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent event) {
+        if (event.getSource().equals(credentialType)) {
+            toggleCredentialTypeValue();
+        } else if (event.getSource().equals(clientCertificateFiletypePFX)) {
+            toggleClientCertificateFilePasswordValue();
+        }
+    }
+
+    /**
+     * Visualize selected credential type.
+     */
+    private void toggleCredentialTypeValue() {
+        CardLayout credentialTypeLayout = (CardLayout) credentialPanel.getLayout();
+        credentialTypeLayout.show(credentialPanel, credentialType.getText());
+    }
+
+    private void toggleClientCertificateFilePasswordValue() {
+        clientCertificateFilePassword.setEnabled(clientCertificateFiletypePFX.isSelected());
+    }
+}

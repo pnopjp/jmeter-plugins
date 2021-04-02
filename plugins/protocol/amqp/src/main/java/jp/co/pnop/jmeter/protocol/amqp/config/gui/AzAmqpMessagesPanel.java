@@ -27,7 +27,7 @@ import java.awt.event.ActionListener;
 import java.awt.FlowLayout;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
+//import javax.swing.Box;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -342,9 +342,9 @@ public class AzAmqpMessagesPanel extends AbstractConfigGui implements ActionList
 
         public MessageTypeCelEditor() {
             super (new JComboBox<>(new String[]{
-                "String",
-                "Base64 encoded binary",
-                "File"
+                AzAmqpMessages.MESSAGE_TYPE_STRING,
+                AzAmqpMessages.MESSAGE_TYPE_BASE64,
+                AzAmqpMessages.MESSAGE_TYPE_FILE
             }));
         }
 

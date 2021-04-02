@@ -17,8 +17,6 @@
 
 package jp.co.pnop.jmeter.protocol.amqp.config.gui;
 
-import java.io.Serializable;
-
 import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.property.ObjectProperty;
 import org.apache.jmeter.testelement.property.StringProperty;
@@ -26,7 +24,7 @@ import org.apache.jmeter.testelement.property.StringProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AzAmqpMessage extends AbstractTestElement implements Serializable {
+public class AzAmqpMessage extends AbstractTestElement {
 
     private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(AzAmqpMessage.class);

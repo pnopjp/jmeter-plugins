@@ -17,11 +17,8 @@
 
 package jp.co.pnop.jmeter.protocol.amqp.config.gui;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.testelement.property.CollectionProperty;
@@ -31,12 +28,16 @@ import org.apache.jmeter.testelement.property.TestElementProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AzAmqpMessages extends ConfigTestElement implements Serializable {
+public class AzAmqpMessages extends ConfigTestElement {
     
     private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(AzAmqpMessages.class);
 
     public static final String MESSAGES = "Messages.messages"; //$NON-NLS$
+
+    public static final String MESSAGE_TYPE_STRING = "String";
+    public static final String MESSAGE_TYPE_BASE64 = "Base64 encoded binary";
+    public static final String MESSAGE_TYPE_FILE = "File";
 
     /**
      * Create a new Messages object with no messages.

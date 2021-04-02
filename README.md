@@ -19,3 +19,4 @@ Download \*.jar file from [latest release](https://github.com/pnopjp/jmeter-plug
 
 - [Functions](docs/functions.md)
 - [Samplers](docs/samplers.md)
+- [Configurations](docs/configurations.md)

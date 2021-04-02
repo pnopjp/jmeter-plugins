@@ -17,33 +17,27 @@
 package jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.CardLayout;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.BorderFactory;
 
-import org.apache.jmeter.samplers.gui.AbstractSamplerGui;
-import org.apache.jmeter.gui.util.VerticalPanel;
 import org.apache.jmeter.gui.util.HorizontalPanel;
+import org.apache.jmeter.gui.util.VerticalPanel;
+import org.apache.jmeter.samplers.gui.AbstractSamplerGui;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.property.TestElementProperty;
-import org.apache.jmeter.util.JMeterUtils;
-
 import org.apache.jorphan.gui.JLabeledChoice;
 import org.apache.jorphan.gui.JLabeledTextField;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessagesPanel;
-import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessages;
-import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessage;
 import jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.AzEventHubsSampler;
 
 public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeListener {
@@ -51,20 +45,26 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
     private static final Logger log = LoggerFactory.getLogger(AzEventHubsSamplerGui.class);
 
     private JLabeledTextField namespaceName;
+    private String[] AUTH_TYPE_LABELS = {
+        AzEventHubsSampler.AUTHTYPE_SAS,
+        AzEventHubsSampler.AUTHTYPE_AAD
+    };
+    private JLabel authTypeLabel;
+    private JPanel authPanel;
+    private JLabeledChoice authType;
     private JLabeledTextField sharedAccessKeyName;
-    private JLabeledTextField sharedAccessKey;
+    private JPasswordField sharedAccessKey;
+    private JLabeledTextField aadCredential;
     private JLabeledTextField eventHubName;
     private JLabel partitionTypeLabel;
     private String[] PARTITION_TYPE_LABELS = {
-        "Not specified",
-        "ID",
-        "Key"
+        AzEventHubsSampler.PARTITION_TYPE_NOT_SPECIFIED,
+        AzEventHubsSampler.PARTITION_TYPE_ID,
+        AzEventHubsSampler.PARTITION_TYPE_KEY
     };
     private JLabeledChoice partitionType;
     private JTextField partitionValue;
     private AzAmqpMessagesPanel messagesPanel = new AzAmqpMessagesPanel("Event data"); // $NON-NLS-1$
-
-    //private boolean displayName = true;
 
     public AzEventHubsSamplerGui() {
         init();
@@ -83,8 +83,11 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
     public void configure(TestElement element) {
         super.configure(element);
         namespaceName.setText(element.getPropertyAsString(AzEventHubsSampler.NAMESPACE_NAME));
+        authType.setText(element.getPropertyAsString(AzEventHubsSampler.AUTH_TYPE));
+        toggleAuthTypeValue();
         sharedAccessKeyName.setText(element.getPropertyAsString(AzEventHubsSampler.SHARED_ACCESS_KEY_NAME));
         sharedAccessKey.setText(element.getPropertyAsString(AzEventHubsSampler.SHARED_ACCESS_KEY));
+        aadCredential.setText(element.getPropertyAsString(AzEventHubsSampler.AAD_CREDENTIAL));
         eventHubName.setText(element.getPropertyAsString(AzEventHubsSampler.EVENT_HUB_NAME));
         partitionType.setText(element.getPropertyAsString(AzEventHubsSampler.PARTITION_TYPE));
         togglePartitionValue();
@@ -109,8 +112,13 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
         sampler.clear();
         super.configureTestElement(sampler);
         sampler.setProperty(AzEventHubsSampler.NAMESPACE_NAME, namespaceName.getText());
-        sampler.setProperty(AzEventHubsSampler.SHARED_ACCESS_KEY_NAME, sharedAccessKeyName.getText());
-        sampler.setProperty(AzEventHubsSampler.SHARED_ACCESS_KEY, sharedAccessKey.getText());
+        sampler.setProperty(AzEventHubsSampler.AUTH_TYPE, authType.getText());
+        if (authType.getText() == AzEventHubsSampler.AUTHTYPE_AAD) {
+            sampler.setProperty(AzEventHubsSampler.AAD_CREDENTIAL, aadCredential.getText());
+        } else { // AUTHTYPE_SAS
+            sampler.setProperty(AzEventHubsSampler.SHARED_ACCESS_KEY_NAME, sharedAccessKeyName.getText());
+            sampler.setProperty(AzEventHubsSampler.SHARED_ACCESS_KEY, new String(sharedAccessKey.getPassword()));
+        }
         sampler.setProperty(AzEventHubsSampler.EVENT_HUB_NAME, eventHubName.getText());
         sampler.setProperty(AzEventHubsSampler.PARTITION_TYPE, partitionType.getText());
         sampler.setProperty(AzEventHubsSampler.PARTITION_VALUE, partitionValue.getText());
@@ -125,10 +133,12 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
         super.clearGui();
 
         namespaceName.setText("");
+        authType.setText(AzEventHubsSampler.AUTHTYPE_SAS);
         sharedAccessKeyName.setText("");
         sharedAccessKey.setText("");
+        aadCredential.setText("");
         eventHubName.setText("");
-        partitionType.setText("Not specified");
+        partitionType.setText(AzEventHubsSampler.PARTITION_TYPE_NOT_SPECIFIED);
         partitionValue.setText("");
         messagesPanel.clear();
     }
@@ -163,11 +173,31 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
     }
 
     private JPanel createSharedAccessKeyPanel() {
-        sharedAccessKey = new JLabeledTextField("Shared Access Key:");
+        sharedAccessKey = new JPasswordField();
         sharedAccessKey.setName(AzEventHubsSampler.SHARED_ACCESS_KEY);
 
+        JLabel label = new JLabel("Shared Access Key:");
+        label.setLabelFor(sharedAccessKey);
         JPanel panel = new JPanel(new BorderLayout(5, 0));
-        panel.add(sharedAccessKey);
+        panel.add(label, BorderLayout.WEST);
+        panel.add(sharedAccessKey, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel createAadCredentialPanel() {
+        aadCredential = new JLabeledTextField("Variable Name of credential declared in Azure AD Credential:");
+        aadCredential.setName(AzEventHubsSampler.AAD_CREDENTIAL);
+        JPanel panel = new VerticalPanel();
+        panel.add(aadCredential);
+        
+        return panel;
+    }
+
+    private JPanel createSharedAccessSignaturePanel() {
+        JPanel panel = new VerticalPanel();
+        panel.add(createSharedAccessKeyNamePanel());
+        panel.add(createSharedAccessKeyPanel());
 
         return panel;
     }
@@ -209,6 +239,29 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
         return panel;
     }
 
+    private JPanel createAuthTypePanel() {
+        authTypeLabel = new JLabel("Auth type:");
+
+        authType = new JLabeledChoice("", AUTH_TYPE_LABELS);
+        authType.setName(AzEventHubsSampler.AUTH_TYPE);
+        authType.addChangeListener(this);
+
+        JPanel panel = new JPanel(new BorderLayout(5, 0));
+        panel.setBorder(BorderFactory.createTitledBorder("Auth Configuration"));
+        panel.add(authTypeLabel, BorderLayout.WEST);
+        panel.add(authType, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel createAuthPanel() {
+        authPanel = new JPanel(new CardLayout());
+        authPanel.add(createSharedAccessSignaturePanel(), AzEventHubsSampler.AUTHTYPE_SAS);
+        authPanel.add(createAadCredentialPanel(), AzEventHubsSampler.AUTHTYPE_AAD);
+
+        return authPanel;
+    }
+
     private void init() { // WARNING: called from ctor so must not be overridden (i.e. must be private or final)
         setLayout(new BorderLayout(0, 5));
         setBorder(makeBorder());
@@ -216,11 +269,12 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
         // MAIN PANEL
         VerticalPanel mainPanel = new VerticalPanel();
         VerticalPanel eventHubsConfigPanel = new VerticalPanel();
+        eventHubsConfigPanel.setBorder(BorderFactory.createTitledBorder("Event Hubs Configuration"));
         eventHubsConfigPanel.add(createNamespaceNamePanel());
         eventHubsConfigPanel.add(createEventHubNamePanel());
-        eventHubsConfigPanel.add(createSharedAccessKeyNamePanel());
-        eventHubsConfigPanel.add(createSharedAccessKeyPanel());
         eventHubsConfigPanel.add(createPartitionPanel());
+        eventHubsConfigPanel.add(createAuthTypePanel());
+        eventHubsConfigPanel.add(createAuthPanel());
         mainPanel.add(eventHubsConfigPanel, BorderLayout.NORTH);
         mainPanel.add(createMessagesPanel(), BorderLayout.CENTER);
 
@@ -231,14 +285,28 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
     public void stateChanged(ChangeEvent event) {
         if (event.getSource().equals(partitionType)) {
             togglePartitionValue();
+        } else if (event.getSource().equals(authType)) {
+            toggleAuthTypeValue();
         }
     }
 
     /**
-     * @param enable boolean used to enable/disable fields related to partitionType
+     * Visualize selected auth type.
+     */
+    private void toggleAuthTypeValue() {
+        CardLayout authTypeLayout = (CardLayout) authPanel.getLayout();
+        if (authType.getText() == AzEventHubsSampler.AUTHTYPE_SAS) {
+            authTypeLayout.show(authPanel, AzEventHubsSampler.AUTHTYPE_SAS);
+        } else { // AUTHTYPE_AAD
+            authTypeLayout.show(authPanel, AzEventHubsSampler.AUTHTYPE_AAD);
+        }
+    }
+
+    /**
+     * enable/disable fields related to partitionType
      */
     private void togglePartitionValue() {
-        partitionValue.setEnabled(partitionType.getText() != "Not specified");
+        partitionValue.setEnabled(partitionType.getText() != AzEventHubsSampler.PARTITION_TYPE_NOT_SPECIFIED);
     }
 
 }
