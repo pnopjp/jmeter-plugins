@@ -2,7 +2,7 @@
 
 - **[AzAdAccessToken](#__azadaccesstoken)**  
     Get an access token from Azure AD.
-- **[AzAppServiceAuthenticationToken](#__AzAppServiceAuthenticationToken)**
+- **[AzAppServiceAuthenticationToken](#__AzAppServiceAuthenticationToken)**  
     Get an authentication token for Azure App Service
 - **[AzCosmosDbAuthZ](#__azcosmosdbauthz)**  
     Generate a string to be specified in the Authorization header for accessing Cosmos DB.
