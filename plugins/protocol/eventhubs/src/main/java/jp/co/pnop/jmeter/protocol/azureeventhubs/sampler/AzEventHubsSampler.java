@@ -198,7 +198,7 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
                 = "Endpoint: sb://".concat(getNamespaceName()).concat("\n")
                 .concat("Event Hub: ").concat(getEventHubName());
 
-            if (getAuthType() == AUTHTYPE_SAS) {
+            if (getAuthType().equals(AUTHTYPE_SAS)) {
                 final String connectionString
                     = "Endpoint=sb://".concat(getNamespaceName()).concat("/;")
                     .concat("SharedAccessKeyName=").concat(getSharedAccessKeyName()).concat(";")
