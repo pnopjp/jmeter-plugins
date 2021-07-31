@@ -153,10 +153,10 @@ public class AzAdAccessToken extends AbstractFunction {
                 accessToken = node.get("access_token").textValue();
                 addVariableValue(accessToken, values, NAME_OF_VAL);
             } else {
+                log.info("Warn calling {} Azure AD request, Response status: {}, Response body {}", KEY, status, responseMessage);
                 String errorDescription = node.get("error_description").textValue();
                 log.warn("Warn calling {} Azure AD request, {}: {}", KEY, response.getStatusLine().toString(),
                         errorDescription);
-                log.info(responseMessage);
             }
         } catch (IllegalArgumentException e) {
             log.error(
@@ -168,6 +168,10 @@ public class AzAdAccessToken extends AbstractFunction {
             log.error("Error calling {}, ", KEY, e);
         } catch (IOException e) {
             log.error("Error calling {}, ", KEY, e);
+        } catch (Exception e) {
+            log.error(
+                    "Error calling {} function with Tenant ID {}, grant_type {}, client_id {}, username {}, scope {}, resource {}, aadVersion {}, aadUri {}, ",
+                    KEY, tenantId, grantType, clientId, username, scope, resource, aadVersion, aadUri, e);
         }
 
         return accessToken;
