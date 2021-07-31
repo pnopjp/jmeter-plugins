@@ -23,7 +23,6 @@ public class common {
 
     public static HttpClientBuilder setProxy(String host) {
         HttpClientBuilder httpclientbuilder = HttpClientBuilder.create();
-        String targetHost = "login.microsoftonline.com";
 
         String proxyHost = JMeterUtils.getPropDefault("https.proxyHost", "").trim();
         int proxyPort = Integer.parseInt(JMeterUtils.getPropDefault("https.proxyPort", "3128").trim());
@@ -43,7 +42,7 @@ public class common {
         }
         NON_PROXY_HOST_SUFFIX_SIZE = nonProxyHostSuffix.size();
 
-        if (proxyHost.length() > 0 && !nonProxyHostFull.contains(targetHost) && !isPartialMatch(targetHost)) {
+        if (proxyHost.length() > 0 && !nonProxyHostFull.contains(host) && !isPartialMatch(host)) {
             HttpHost proxy = new HttpHost(proxyHost, proxyPort);
             DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
             httpclientbuilder = httpclientbuilder.setRoutePlanner(routePlanner);
