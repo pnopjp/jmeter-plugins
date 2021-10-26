@@ -4,7 +4,7 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins-azure-amqp</artifactId>
-    <version>0.1</version>
+    <version>0.1.1</version>
 
     <name>Azure AMQP Configure</name>
     <description>Conigure of AMQP</description>
@@ -90,5 +90,64 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-core-http-netty</artifactId>
+            <version>1.9.1</version>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-core-amqp</artifactId>
+            <version>2.0.2</version>
+        </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <!--
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                  <compilerArgs>
+                    <arg>-Xlint:deprecation</arg>
+                    <arg>-Xlint:unchecked</arg>
+                  </compilerArgs>
+                </configuration>
+            </plugin>
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <artifactSet>
+                        <includes>
+                            <include>com.azure:azure-core</include>
+                        </includes>
+                    </artifactSet>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exdlude>META-INF/*.RSA</exdlude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

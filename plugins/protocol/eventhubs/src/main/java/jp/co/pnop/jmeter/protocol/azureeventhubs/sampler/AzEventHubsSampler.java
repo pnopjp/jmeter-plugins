@@ -25,6 +25,7 @@ import java.util.Base64;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Set;
 import java.util.HashSet;
+//import java.util.HashMap;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.jmeter.config.ConfigTestElement;
@@ -240,40 +241,31 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
                             .concat("[Event data #").concat(String.valueOf(msgCount)).concat("]\n")
                             .concat("Message type: ").concat(msg.getMessageType()).concat("\n")
                             .concat("Body: ").concat(msg.getMessage());
+                EventData eventData;
                 switch (msg.getMessageType()) {
                     case AzAmqpMessages.MESSAGE_TYPE_BASE64:
                         byte[] binMsg = Base64.getDecoder().decode(msg.getMessage().getBytes());
-                        batch.tryAdd(new EventData(binMsg));
+                        eventData = new EventData(binMsg);
                         bodySize += binMsg.length;
                         break;
                     case AzAmqpMessages.MESSAGE_TYPE_FILE:
                         BufferedInputStream bi = null;
                         bi = new BufferedInputStream(new FileInputStream(msg.getMessage()));
-                        batch.tryAdd(new EventData(IOUtils.toByteArray(bi)));
+                        eventData = new EventData(IOUtils.toByteArray(bi));
                         break;
                     default: // AzAmqpMessages.MESSAGE_TYPE_STRING
-                        batch.tryAdd(new EventData(msg.getMessage()));
+                        eventData = new EventData(msg.getMessage());
                         bodySize += msg.getMessage().getBytes("UTF-8").length;
                     }
-                propertiesSize += 0;
+                    /*
+                    HashMap<String, Object> systemProps = new HashMap<String, Object>();
+                    systemProps.put("message-id", "abc");
+                    systemProps.put("Label", "label1");
+                    eventData.getSystemProperties().putAll(systemProps);
+                    */
+                    batch.tryAdd(eventData);
+                    propertiesSize += 0;
             }
-
-            /*
-            EventData eventData = new EventData("Sixth event");
-            HashMap<String, Object> systemProps = new HashMap<String, Object>();
-            systemProps.put("message-id", "six");
-            systemProps.put("Label", "sixLabel");
-            eventData.getSystemProperties().putAll(systemProps);
-            eventData.getProperties().put("CustomProp1", "CustomProp1val");
-            batch.tryAdd(eventData);
-
-            eventData = new EventData("Seventh event");
-            eventData.getSystemProperties().put("message-id", 6);
-            eventData.getSystemProperties().put("Label", "sixLabel");
-            eventData.getSystemProperties().put("message-id", "sevenLabel");
-            eventData.getProperties().put("message-id", "seven");
-            batch.tryAdd(eventData);
-            */
     
             // send the batch of events to the event hub
             producer.send(batch);
