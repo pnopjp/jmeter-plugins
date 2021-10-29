@@ -88,6 +88,18 @@
                     <groupId>commons-pool2</groupId>
                     <artifactId>commons-pool2</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -106,7 +118,7 @@
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-messaging-eventhubs</artifactId>
-            <version>5.5.0</version>
+            <version>5.10.1</version>
         </dependency>
         <dependency>
             <groupId>jp.co.pnop</groupId>
@@ -156,6 +168,12 @@
                             <include>org.apache.qpid:proton-j</include>
                         </includes>
                     </artifactSet>
+                    <relocations>
+                        <relocatioin>
+                            <pattern>com.fasterxml.jackson</pattern>
+                            <shadedPattern>shaded.com.fasterxml.jackson</shadedPattern>
+                        </relocatioin>
+                    </relocations>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>

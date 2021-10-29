@@ -88,12 +88,24 @@
                     <groupId>commons-pool2</groupId>
                     <artifactId>commons-pool2</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-identity</artifactId>
-            <version>1.2.3</version>
+            <version>1.3.6</version>
         </dependency>
     </dependencies>
     <build>
@@ -138,7 +150,8 @@
                             <include>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</include>
                             <include>org.reactivestreams:reactive-streams</include>
                             <include>io.projectreactor:reactor-core</include>
-                            <include>io.projectreactor.netty:reactor-netty</include>
+                            <include>io.projectreactor.netty:reactor-netty-core</include>
+                            <include>io.projectreactor.netty:reactor-netty-http</include>
                             <include>io.netty:netty-all</include>
                             <include>io.netty:netty-transport</include>
                             <include>io.netty:netty-common</include>
@@ -150,12 +163,19 @@
                             <include>io.netty:netty-codec</include>
                             <include>io.netty:netty-handler-proxy</include>
                             <include>io.netty:netty-codec-http2</include>
+                            <include>io.netty:netty-transport-native-unix-common</include>
                             <include>com.nimbusds:oauth2-oidc-sdk</include>
                             <include>com.nimbusds:content-type</include>
                             <include>com.nimbusds:nimbus-jose-jwt</include>
 
                         </includes>
                     </artifactSet>
+                    <relocations>
+                        <relocatioin>
+                            <pattern>com.fasterxml.jackson</pattern>
+                            <shadedPattern>shaded.com.fasterxml.jackson</shadedPattern>
+                        </relocatioin>
+                    </relocations>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
