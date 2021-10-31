@@ -25,13 +25,13 @@ import org.apache.jmeter.testelement.property.CollectionProperty;
 import org.apache.jmeter.testelement.property.PropertyIterator;
 import org.apache.jmeter.testelement.property.TestElementProperty;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 public class AzAmqpMessages extends ConfigTestElement {
     
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LoggerFactory.getLogger(AzAmqpMessages.class);
+    //private static final Logger log = LoggerFactory.getLogger(AzAmqpMessages.class);
 
     public static final String MESSAGES = "Messages.messages"; //$NON-NLS$
 
@@ -72,22 +72,6 @@ public class AzAmqpMessages extends ConfigTestElement {
      */
     public void setMessages(List<Object> messages) {
         setProperty(new CollectionProperty(MESSAGES, messages));
-    }
-
-    /**
-     * Add a new message with the given System Properties and Application Properties.
-     *
-     * @param messageType
-     *            Message type of message column
-     * @param message
-     *            AMQP Message
-     * @param systemProperties
-     *            AMQP system properties
-     * @param appProperties
-     *            AMQP application properties
-     */
-    public void addMessage(String messageType, String message, Object systemProperties, Object appProperties) {
-        addMessage(new AzAmqpMessage(messageType, message, null, null));
     }
 
     /**
@@ -162,14 +146,6 @@ public class AzAmqpMessages extends ConfigTestElement {
      */
     public void removeAllMessages() {
         getMessages().clear();
-    }
-
-    /**
-     * Add a new empty message to the list. The new message will have the
-     * empty string as its name and value, and null metadata.
-     */
-    public void addEmptyMessage() {
-        addMessage(new AzAmqpMessage("", "", "", ""));
     }
 
     /**

@@ -18,21 +18,21 @@
 package jp.co.pnop.jmeter.protocol.amqp.config.gui;
 
 import org.apache.jmeter.testelement.AbstractTestElement;
-import org.apache.jmeter.testelement.property.ObjectProperty;
 import org.apache.jmeter.testelement.property.StringProperty;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 public class AzAmqpMessage extends AbstractTestElement {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LoggerFactory.getLogger(AzAmqpMessage.class);
+    //private static final Logger log = LoggerFactory.getLogger(AzAmqpMessage.class);
 
     private static final String MESSAGE_TYPE = "Message.messageType"; //$NON-NLS$
     private static final String MESSAGE = "Message.message"; //$NON-NLS$
-    private static final String SYSTEM_PROPERTIES = "Message.systemProperties"; //$NON-NLS$
-    private static final String APP_PROPERTIES = "Message.appProperties"; //$NON-NLS$
+    private static final String MESSAGE_ID = "Message.messageId"; //$NON-NLS$
+    private static final String GROUP_ID = "Message.groupId"; //$NON-NLS$
+    private static final String PARTITION_KEY = "Message.partitionKey"; //$NON-NLS$
 
     public AzAmqpMessage() {
     }
@@ -42,25 +42,21 @@ public class AzAmqpMessage extends AbstractTestElement {
      *
      * @param messageType
      *            type of message
-     * @param message
-     *            AMQP message
-     * @param systemProperties
-     *            AMQP system properties
-     * @param appProperties
-     *            AMQP application properties
      */
-    public AzAmqpMessage(String messageType, String message, Object systemProperties, Object appProperties) {
+
+    public AzAmqpMessage(String messageType) {
         setProperty(new StringProperty(MESSAGE_TYPE, messageType));
-        setProperty(new StringProperty(MESSAGE, message));
-        setProperty(new ObjectProperty(SYSTEM_PROPERTIES, systemProperties));
-        setProperty(new ObjectProperty(APP_PROPERTIES, appProperties));
+        setProperty(new StringProperty(MESSAGE, ""));
+        setProperty(new StringProperty(PARTITION_KEY, ""));
+        setProperty(new StringProperty(MESSAGE_ID, ""));
+        setProperty(new StringProperty(GROUP_ID, ""));
     }
 
     /**
      * Set the message type of the Message.
      *
      * @param newMessageType
-     *            the new message
+     *            the new message type
      */
     public void setMessageType(String newMessageType) {
         setProperty(new StringProperty(MESSAGE_TYPE, newMessageType));
@@ -95,41 +91,60 @@ public class AzAmqpMessage extends AbstractTestElement {
     }
 
     /**
-     * Sets the systemProperties of the Message.
+     * Set the message Id of the Message.
      *
-     * @param newSystemProperties
-     *            the new system properties
+     * @param newMessageId
+     *            the new message Id
      */
-    public void setSystemProperties(Object newSystemProperties) {
-        setProperty(new ObjectProperty(SYSTEM_PROPERTIES, newSystemProperties));
+    public void setMessageId(String newMessageId) {
+        setProperty(new StringProperty(MESSAGE_ID, newMessageId));
     }
 
     /**
-     * Gets the system properties of Message object.
+     * Get the messageId.
      *
-     * @return the system properties's value
+     * @return the message Id
      */
-    public Object getSystemProperties() {
-        return getPropertyAsString(SYSTEM_PROPERTIES);
+    public String getMessageId() {
+        return getPropertyAsString(MESSAGE_ID);
     }
 
     /**
-     * Sets the application properties of the Messages.
+     * Set the group Id of the Message.
      *
-     * @param newAppProperties
-     *            the new application properties
+     * @param newGroupId
+     *            the new group Id
      */
-    public void setAppProperties(Object newAppProperties) {
-        setProperty(new ObjectProperty(APP_PROPERTIES, newAppProperties));
+    public void setGroupId(String newGroupId) {
+        setProperty(new StringProperty(GROUP_ID, newGroupId));
     }
 
     /**
-     * Gets the opcode of the properties object.
+     * Get the groupId.
      *
-     * @return the properties's value
+     * @return the group Id
      */
-    public Object getAppProperties() {
-        return getPropertyAsString(APP_PROPERTIES);
+    public String getGroupId() {
+        return getPropertyAsString(GROUP_ID);
+    }
+
+    /**
+     * Set the partition key of the Message.
+     *
+     * @param newPartitionKey
+     *            the new message Id
+     */
+    public void setPartitionKey(String newPartitionKey) {
+        setProperty(new StringProperty(PARTITION_KEY, newPartitionKey));
+    }
+
+    /**
+     * Get the partitionKey.
+     *
+     * @return the partition key
+     */
+    public String getPartitionKey() {
+        return getPropertyAsString(PARTITION_KEY);
     }
 
 }

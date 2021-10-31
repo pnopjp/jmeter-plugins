@@ -159,6 +159,7 @@
                             <include>io.netty:netty-handler</include>
                             <include>io.netty:netty-codec-http</include>
                             <include>io.netty:netty-resolver-dns</include>
+                            <include>io.netty:netty-codec-dns</include>
                             <include>io.netty:netty-buffer</include>
                             <include>io.netty:netty-codec</include>
                             <include>io.netty:netty-handler-proxy</include>

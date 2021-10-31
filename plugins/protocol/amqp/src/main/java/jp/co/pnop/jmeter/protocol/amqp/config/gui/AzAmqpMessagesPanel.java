@@ -19,6 +19,8 @@ package jp.co.pnop.jmeter.protocol.amqp.config.gui;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.HashMap;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -27,7 +29,6 @@ import java.awt.event.ActionListener;
 import java.awt.FlowLayout;
 
 import javax.swing.BorderFactory;
-//import javax.swing.Box;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -35,7 +36,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import org.apache.jmeter.config.gui.AbstractConfigGui;
 import org.apache.jmeter.gui.util.HeaderAsPropertyRenderer;
@@ -47,13 +50,13 @@ import org.apache.jorphan.gui.GuiUtils;
 import org.apache.jorphan.gui.ObjectTableModel;
 import org.apache.jorphan.reflect.Functor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 public class AzAmqpMessagesPanel extends AbstractConfigGui implements ActionListener {
     
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LoggerFactory.getLogger(AzAmqpMessagesPanel.class);
+    //private static final Logger log = LoggerFactory.getLogger(AzAmqpMessagesPanel.class);
 
     /** The title label for this component. */
     private JLabel tableLabel;
@@ -63,7 +66,7 @@ public class AzAmqpMessagesPanel extends AbstractConfigGui implements ActionList
 
     /** The model for the messages table. */
     // needs to be accessible from test code
-    transient ObjectTableModel tableModel; // Only contains AzAmqpMessage entries
+    protected transient ObjectTableModel tableModel; // Only contains AzAmqpMessage entries
 
     /** A button for removing messages from the table. */
     private JButton delete;
@@ -74,12 +77,13 @@ public class AzAmqpMessagesPanel extends AbstractConfigGui implements ActionList
     /** Command for removing a row from the table. */
     private static final String DELETE = "delete"; //$NON-NLS-1$
 
-    private static final String[] COLUMN_NAMES = {
-        "message type", //$NON-NLS-1$
-        "message", //$NON-NLS-1$
-        "system properties", //$NON-NLS-1$
-        "application properties" //$NON-NLS-1$
-    }; //$NON-NLS-1$
+    protected static Map<String, String> COLUMN_NAMES = new HashMap<>();
+    static {
+        COLUMN_NAMES.put("MESSAGE_TYPE", "message type");
+        COLUMN_NAMES.put("MESSAGE", "message");
+        COLUMN_NAMES.put("MESSAGE_ID", "message Id");
+        COLUMN_NAMES.put("GROUP_ID", "group Id");
+    }
 
     public AzAmqpMessagesPanel() {
         this("Event data"); //$NON-NLS-1$
@@ -241,26 +245,22 @@ public class AzAmqpMessagesPanel extends AbstractConfigGui implements ActionList
      * @return a new AzAmqpMessage object
      */
     private AzAmqpMessage makeNewAzAmqpMessage() {
-        return new AzAmqpMessage("String", "", "", "");
+        //return new AzAmqpMessage("String", "", "", "", "");
+        return new AzAmqpMessage("String");
     }
     
 
     /**
      * Initialize the table model used for the messages table.
      */
-    private void initializeTableModel() {
-        /*
-        tableModel = new ObjectTableModel(new String[] { COLUMN_NAMES[0], COLUMN_NAMES[1], COLUMN_NAMES[2], COLUMN_NAMES[3] },
-                AzAmqpMessage.class,
-                new Functor[] { new Functor("getMessageType"), new Functor("getMessage"), new Functor("getSystemProperties"), new Functor("getAppProperties") },
-                new Functor[] { new Functor("setMessageType"), new Functor("setMessage"), new Functor("setSystemProperties"), new Functor("setAppProperties") },
-                new Class[] { String.class, String.class, String.class, String.class });
-        */
-        tableModel = new ObjectTableModel(new String[] { COLUMN_NAMES[0], COLUMN_NAMES[1] },
-                AzAmqpMessage.class,
-                new Functor[] { new Functor("getMessageType"), new Functor("getMessage") },
-                new Functor[] { new Functor("setMessageType"), new Functor("setMessage") },
-                new Class[] { String.class, String.class });
+    protected void initializeTableModel() {
+        tableModel = new ObjectTableModel(
+            new String[] { COLUMN_NAMES.get("MESSAGE_TYPE"), COLUMN_NAMES.get("MESSAGE") },
+            AzAmqpMessage.class,
+            new Functor[] { new Functor("getMessageType"), new Functor("getMessage") },
+            new Functor[] { new Functor("setMessageType"), new Functor("setMessage") },
+            new Class[] { String.class, String.class }
+        );
     }
     
     public static boolean testFunctors(){
@@ -283,9 +283,35 @@ public class AzAmqpMessagesPanel extends AbstractConfigGui implements ActionList
 
         TableColumn messageTypeColumn = table.getColumnModel().getColumn(0);
         messageTypeColumn.setCellEditor(new MessageTypeCelEditor());
+
+        tableModel.addRow(new AzAmqpMessage(AzAmqpMessages.MESSAGE_TYPE_BASE64));
+        resizeColumnWidth(table, 0);
+        tableModel.clearData();
+        //hideColumn(table, 2);
         
         return makeScrollPane(table);
     }
+
+    private void resizeColumnWidth(JTable table, int column) {
+        final TableColumnModel columnModel = table.getColumnModel();
+        int width = 10;
+        for (int row = 0; row < table.getRowCount(); row++) {
+            TableCellRenderer renderer = table.getCellRenderer(row, column);
+            Component comp = table.prepareRenderer(renderer, row, column);
+            width = Math.max(comp.getPreferredSize().width + 1 , width);
+        }
+        columnModel.getColumn(column).setMaxWidth(width);
+        columnModel.getColumn(column).setMinWidth(width);
+        columnModel.getColumn(column).setResizable(false);
+    }
+
+    /*
+    private void hideColumn(JTable table, int column) {
+        final TableColumnModel columnModel = table.getColumnModel();
+        columnModel.getColumn(column).setMinWidth(0);
+        columnModel.getColumn(column).setMaxWidth(0);
+    }
+    */
     
     /**
      * Create a panel containing the title label for the table.

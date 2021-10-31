@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package jp.co.pnop.jmeter.protocol.azureeventhubs.sampler;
+package jp.co.pnop.jmeter.protocol.azureservicebus.sampler;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -25,7 +25,6 @@ import java.util.Base64;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Set;
 import java.util.HashSet;
-//import java.util.HashMap;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.jmeter.config.ConfigTestElement;
@@ -41,8 +40,8 @@ import org.apache.jmeter.testelement.property.PropertyIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.azure.messaging.eventhubs.*;
-import com.azure.messaging.eventhubs.models.CreateBatchOptions;
+import com.azure.messaging.servicebus.*;
+import com.azure.core.amqp.AmqpTransportType;
 import com.azure.core.amqp.exception.*;
 
 import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessage;
@@ -51,8 +50,11 @@ import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessages;
 import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential;
 import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential.AzAdCredentialComponentImpl;
 
+import jp.co.pnop.jmeter.protocol.amqp.util.AzAmqpProxyOptions;
+import com.azure.core.amqp.ProxyOptions;
+
 /**
- * Azure Event Hubs Sampler (non-Bean version)
+ * Azure Service Bus Sampler (non-Bean version)
  * <p>
  * JMeter creates an instance of a sampler class for every occurrence of the
  * element in every thread. [some additional copies may be created before the
@@ -64,14 +66,14 @@ import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential.AzAdCredentialCompon
  * However, access to class fields must be synchronized.
  *
  */
-public class AzEventHubsSampler extends AbstractSampler implements TestStateListener {
+public class AzServiceBusSampler extends AbstractSampler implements TestStateListener {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LoggerFactory.getLogger(AzEventHubsSampler.class);
+    private static final Logger log = LoggerFactory.getLogger(AzServiceBusSampler.class);
 
     private static final Set<String> APPLIABLE_CONFIG_CLASSES = new HashSet<>(
         Arrays.asList(
-            "jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.gui.AzEventHubsConfigGui",
+            "jp.co.pnop.jmeter.protocol.azureservicebus.sampler.gui.AzServiceBusConfigGui",
             "org.apache.jmeter.config.gui.SimpleConfigGui"
         )
     );
@@ -81,24 +83,26 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
     public static final String SHARED_ACCESS_KEY_NAME = "sharedAccessKeyName";
     public static final String SHARED_ACCESS_KEY = "sharedAccessKey";
     public static final String AAD_CREDENTIAL = "aadCredential";
-    public static final String EVENT_HUB_NAME = "eventHubName";
-    public static final String PARTITION_TYPE = "partitionType";
-    public static final String PARTITION_VALUE = "partitionValue";
+    public static final String DEST_TYPE = "destType";
+    public static final String QUEUE_NAME = "queueName";
+    public static final String PROTOCOL = "protocol";
     public static final String MESSAGES = "messages";
 
     public static final String AUTHTYPE_SAS = "Shared access signature";
     public static final String AUTHTYPE_AAD = "Azure AD credential";
 
-    public static final String PARTITION_TYPE_NOT_SPECIFIED = "Not specified";
-    public static final String PARTITION_TYPE_ID = "ID";
-    public static final String PARTITION_TYPE_KEY = "Key";
+    public static final String DEST_TYPE_QUEUE = "Queue";
+    public static final String DEST_TYPE_TOPIC = "Topic";
+
+    public static final String PROTOCOL_AMQP = "AMQP";
+    public static final String PROTOCOL_AMQP_OVER_WEBSOCKETS = "AMQP over Web Sockets";
 
     private static AtomicInteger classCount = new AtomicInteger(0); // keep track of classes created
 
-    public AzEventHubsSampler() {
+    public AzServiceBusSampler() {
         super();
         classCount.incrementAndGet();
-        trace("AzEventHubsSampler()");
+        trace("AzServiceBusSampler()");
     }
 
     public void setNamespaceName(String namespaceName) {
@@ -141,28 +145,28 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
         return getPropertyAsString(AAD_CREDENTIAL);
     }
 
-    public void setEventHubName(String eventHubName) {
-        setProperty(new StringProperty(EVENT_HUB_NAME, eventHubName));
+    public void setDestType(String destType) {
+        setProperty(new StringProperty(DEST_TYPE, destType));
     }
 
-    public String getEventHubName() {
-        return getPropertyAsString(EVENT_HUB_NAME);
+    public String getDestType() {
+        return getPropertyAsString(DEST_TYPE);
     }
 
-    public void setPartitionType(String partitionType) {
-        setProperty(new StringProperty(PARTITION_TYPE, partitionType));
+    public void setQueueName(String queueName) {
+        setProperty(new StringProperty(QUEUE_NAME, queueName));
     }
 
-    public String getPartitionType() {
-        return getPropertyAsString(PARTITION_TYPE);
+    public String getQueueName() {
+        return getPropertyAsString(QUEUE_NAME);
     }
 
-    public void setPartitionValue(String partitionValue) {
-        setProperty(new StringProperty(PARTITION_VALUE, partitionValue));
+    public void setProtocol(String protocol) {
+        setProperty(new StringProperty(PROTOCOL, protocol));
     }
 
-    public String getPartitionValue() {
-        return getPropertyAsString(PARTITION_VALUE).trim();
+    public String getProtocol() {
+        return getPropertyAsString(PROTOCOL);
     }
 
     public void setMessages(AzAmqpMessages messages) {
@@ -190,16 +194,15 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
         long bodySize = 0;
         long propertiesSize = 0;
 
-        EventHubProducerClient producer = null;
-        EventHubClientBuilder producerBuilder = new EventHubClientBuilder();
+        ServiceBusSenderClient producer = null;
+        ServiceBusClientBuilder producerBuilder = new ServiceBusClientBuilder();
 
         try {
             res.sampleStart(); // Start timing
             requestBody
                 = "Endpoint: sb://".concat(getNamespaceName()).concat("\n")
-                .concat("Event Hub: ").concat(getEventHubName());
-
-            if (getAuthType().equals(AUTHTYPE_SAS)) {
+                .concat(getDestType()).concat(" name: ").concat(getQueueName());
+            if (getAuthType() == AUTHTYPE_SAS) {
                 final String connectionString
                     = "Endpoint=sb://".concat(getNamespaceName()).concat("/;")
                     .concat("SharedAccessKeyName=").concat(getSharedAccessKeyName()).concat(";")
@@ -207,29 +210,31 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
                 requestBody = requestBody.concat("\n")
                     .concat("Shared Access Policy: ").concat(getSharedAccessKeyName()).concat("\n")
                     .concat("Shared Access Key: **********");
-                producerBuilder = producerBuilder.connectionString(connectionString, getEventHubName());
+                producerBuilder = producerBuilder.connectionString(connectionString);
             } else { // AUTHTYPE_AAD
                 AzAdCredentialComponentImpl credential = AzAdCredential.getCredential(getAadCredential());
                 requestBody = requestBody.concat(credential.getRequestBody());
-                producerBuilder = producerBuilder.credential(getNamespaceName(), getEventHubName(), credential.getCredential());
+                producerBuilder = producerBuilder.credential(getNamespaceName(), credential.getCredential());
             }
-            producer = producerBuilder.buildProducerClient();
 
-            // prepare a batch of events to send to the event hub
-            CreateBatchOptions batchOptions = new CreateBatchOptions();
-            if (getPartitionValue().length() > 0) {
-                switch (getPartitionType()) {
-                    case PARTITION_TYPE_ID:
-                        batchOptions.setPartitionId(getPartitionValue());
-                        requestBody = requestBody.concat("\n").concat("Partition ID: ").concat(getPartitionValue());
-                        break;
-                    case PARTITION_TYPE_KEY:
-                        batchOptions.setPartitionKey(getPartitionValue());
-                        requestBody = requestBody.concat("\n").concat("Partition Key: ").concat(getPartitionValue());
-                        break;
-                }
+            AmqpTransportType protocol = null;
+            if (getProtocol() == PROTOCOL_AMQP_OVER_WEBSOCKETS) {
+                protocol = AmqpTransportType.AMQP_WEB_SOCKETS;
+                producerBuilder = producerBuilder.proxyOptions(new AzAmqpProxyOptions().ProxyOptions());
+                ProxyOptions proxyOptions = new AzAmqpProxyOptions().ProxyOptions();
+                producerBuilder.proxyOptions(proxyOptions);
+            } else {
+                protocol = AmqpTransportType.AMQP;
             }
-            EventDataBatch batch = producer.createBatch(batchOptions);
+            producerBuilder = producerBuilder.transportType(protocol);
+
+            if (getDestType().equals(AzServiceBusSampler.DEST_TYPE_TOPIC)) {
+                producer = producerBuilder.sender().topicName(getQueueName()).buildClient();
+            } else {
+                producer = producerBuilder.sender().queueName(getQueueName()).buildClient();
+            }
+            
+            ServiceBusMessageBatch batch = producer.createMessageBatch();
     
             PropertyIterator iter = getMessages().iterator();
             int msgCount = 0;
@@ -238,32 +243,54 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
                 AzAmqpMessage msg = (AzAmqpMessage) iter.next().getObjectValue();
 
                 requestBody = requestBody.concat("\n\n")
-                            .concat("[Event data #").concat(String.valueOf(msgCount)).concat("]\n")
-                            .concat("Message type: ").concat(msg.getMessageType()).concat("\n")
-                            .concat("Body: ").concat(msg.getMessage());
-                EventData eventData;
+                            .concat("[Message #").concat(String.valueOf(msgCount)).concat("]");
+                
+                ServiceBusMessage serviceBusMessage = null;
                 switch (msg.getMessageType()) {
                     case AzAmqpMessages.MESSAGE_TYPE_BASE64:
                         byte[] binMsg = Base64.getDecoder().decode(msg.getMessage().getBytes());
-                        eventData = new EventData(binMsg);
+                        serviceBusMessage = new ServiceBusMessage(binMsg);
                         bodySize += binMsg.length;
                         break;
                     case AzAmqpMessages.MESSAGE_TYPE_FILE:
                         BufferedInputStream bi = null;
                         bi = new BufferedInputStream(new FileInputStream(msg.getMessage()));
-                        eventData = new EventData(IOUtils.toByteArray(bi));
+                        serviceBusMessage = new ServiceBusMessage(IOUtils.toByteArray(bi));
                         break;
                     default: // AzAmqpMessages.MESSAGE_TYPE_STRING
-                        eventData = new EventData(msg.getMessage());
+                        serviceBusMessage = new ServiceBusMessage(msg.getMessage());
                         bodySize += msg.getMessage().getBytes("UTF-8").length;
                 }
 
-                batch.tryAdd(eventData);
+                String messageId = msg.getMessageId();
+                if (!messageId.isEmpty()) {
+                    serviceBusMessage.setMessageId(messageId);
+                    requestBody = requestBody.concat("\n").concat("Message ID: ").concat(messageId);
+                }
+
+                String groupId = msg.getGroupId();
+                if (!groupId.isEmpty()) {
+                    serviceBusMessage.setSessionId(groupId);
+                    requestBody = requestBody.concat("\n").concat("Session ID: ").concat(groupId);
+                }
+
+                String partitionKey = msg.getPartitionKey();
+                if (!partitionKey.isEmpty()) {
+                    serviceBusMessage.setPartitionKey(partitionKey);
+                    requestBody = requestBody.concat("\n").concat("Partition Key: ").concat(partitionKey);
+                }
+                
+                batch.tryAddMessage(serviceBusMessage);
+
                 propertiesSize += 0;
+
+                requestBody = requestBody.concat("\n")
+                    .concat("Message type: ").concat(msg.getMessageType()).concat("\n")
+                    .concat("Body: ").concat(msg.getMessage());
             }
     
-            // send the batch of events to the event hub
-            producer.send(batch);
+            // send the batch of messages to the Service Bus
+            producer.sendMessages(batch);
             res.latencyEnd();
 
             res.setDataType(SampleResult.TEXT);
