@@ -17,57 +17,53 @@
 package jp.co.pnop.jmeter.protocol.azureservicebus.sampler.gui;
 
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.BorderFactory;
-import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JRadioButton;
 
 import org.apache.jmeter.gui.util.HorizontalPanel;
 import org.apache.jmeter.gui.util.VerticalPanel;
 import org.apache.jmeter.samplers.gui.AbstractSamplerGui;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.property.TestElementProperty;
-import org.apache.jorphan.gui.JLabeledChoice;
 import org.apache.jorphan.gui.JLabeledTextField;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import jp.co.pnop.jmeter.protocol.azureservicebus.common.AzServiceBusClientParams;
+import jp.co.pnop.jmeter.protocol.azureservicebus.common.gui.AzServiceBusClientParamsPanel;
 import jp.co.pnop.jmeter.protocol.azureservicebus.sampler.AzServiceBusSampler;
 
-public class AzServiceBusSamplerGui extends AbstractSamplerGui implements ChangeListener {
+public class AzServiceBusSamplerGui extends AbstractSamplerGui implements PropertyChangeListener, ChangeListener {
     private static final long serialVersionUID = 1L;
-    //private static final Logger log = LoggerFactory.getLogger(AzServiceBusSamplerGui.class);
+    private static final Logger log = LoggerFactory.getLogger(AzServiceBusSamplerGui.class);
 
-    private JLabeledTextField namespaceName;
-    private String[] PROTOCOL_LABELS = {
-        AzServiceBusSampler.PROTOCOL_AMQP,
-        AzServiceBusSampler.PROTOCOL_AMQP_OVER_WEBSOCKETS
-    };
-    private String[] AUTH_TYPE_LABELS = {
-        AzServiceBusSampler.AUTHTYPE_SAS,
-        AzServiceBusSampler.AUTHTYPE_AAD
-    };
-    private JPanel authPanel;
-    private JLabeledChoice authType;
-    private JLabeledTextField sharedAccessKeyName;
-    private JPasswordField sharedAccessKey;
-    private JLabeledTextField aadCredential;
-    private JRadioButton destTypeQueue;
-    private JRadioButton destTypeTopic;
-    private JLabeledTextField queueName;
-    private JLabeledChoice protocol;
-    private AzServiceBusMessagesPanel messagesPanel = new AzServiceBusMessagesPanel(); // $NON-NLS-1$
+    private JCheckBox createTransaction;
+    private JLabeledTextField createTransactionName;
+    private JRadioButton continueTransaction;
+    private JRadioButton commitTransaction;
+    private JRadioButton rollbackTransaction;
 
-    private ButtonGroup destTypeGroup = new ButtonGroup();
+    private AzServiceBusClientParamsPanel sbclientPanel = new AzServiceBusClientParamsPanel();
+    private AzServiceBusMessagesPanel messagesPanel = new AzServiceBusMessagesPanel();
+
+    private ButtonGroup transactionStatusGroup = new ButtonGroup();
+
+    private static AtomicInteger classCount = new AtomicInteger(0); // keep track of classes created
 
     public AzServiceBusSamplerGui() {
         init();
+        classCount.incrementAndGet();
+        trace("AzServiceBusSamplerGui()");
     }
 
     /**
@@ -82,21 +78,14 @@ public class AzServiceBusSamplerGui extends AbstractSamplerGui implements Change
     @Override
     public void configure(TestElement element) {
         super.configure(element);
-        namespaceName.setText(element.getPropertyAsString(AzServiceBusSampler.NAMESPACE_NAME));
-        authType.setText(element.getPropertyAsString(AzServiceBusSampler.AUTH_TYPE));
-        toggleAuthTypeValue();
-        sharedAccessKeyName.setText(element.getPropertyAsString(AzServiceBusSampler.SHARED_ACCESS_KEY_NAME));
-        sharedAccessKey.setText(element.getPropertyAsString(AzServiceBusSampler.SHARED_ACCESS_KEY));
-        aadCredential.setText(element.getPropertyAsString(AzServiceBusSampler.AAD_CREDENTIAL));
-        final String destType = element.getPropertyAsString(AzServiceBusSampler.DEST_TYPE);
-        if (destType.equals(AzServiceBusSampler.DEST_TYPE_TOPIC)) {
-            destTypeTopic.setSelected(true);
-        } else {
-            destTypeQueue.setSelected(true);
-        }
-        queueName.setText(element.getPropertyAsString(AzServiceBusSampler.QUEUE_NAME));
-        protocol.setText(element.getPropertyAsString(AzServiceBusSampler.PROTOCOL));
-        messagesPanel.configure((TestElement) element.getProperty(AzServiceBusSampler.MESSAGES).getObjectValue());
+
+        createTransaction.setSelected(element.getPropertyAsBoolean(AzServiceBusSampler.CREATE_TRANSACTION));
+        createTransactionName.setText(element.getPropertyAsString(AzServiceBusSampler.CREATE_TRANSACTION_NAME));
+        continueTransaction.setSelected(element.getPropertyAsBoolean(AzServiceBusSampler.CONTINUE_TRANSACTION));
+        commitTransaction.setSelected(element.getPropertyAsBoolean(AzServiceBusSampler.COMMIT_TRANSACTION));
+        rollbackTransaction.setSelected(element.getPropertyAsBoolean(AzServiceBusSampler.ROLLBACK_TRANSACTION));
+        sbclientPanel.configure((TestElement)element.getProperty(AzServiceBusClientParams.SERVICEBUS_CLIENT_PARAMS).getObjectValue());
+        messagesPanel.configure((TestElement)element.getProperty(AzServiceBusSampler.MESSAGES).getObjectValue());
     }
 
     @Override
@@ -115,23 +104,13 @@ public class AzServiceBusSamplerGui extends AbstractSamplerGui implements Change
     public void modifyTestElement(TestElement sampler) {
         sampler.clear();
         super.configureTestElement(sampler);
-        sampler.setProperty(AzServiceBusSampler.NAMESPACE_NAME, namespaceName.getText());
-        sampler.setProperty(AzServiceBusSampler.AUTH_TYPE, authType.getText());
-        if (authType.getText() == AzServiceBusSampler.AUTHTYPE_AAD) {
-            sampler.setProperty(AzServiceBusSampler.AAD_CREDENTIAL, aadCredential.getText());
-        } else { // AUTHTYPE_SAS
-            sampler.setProperty(AzServiceBusSampler.SHARED_ACCESS_KEY_NAME, sharedAccessKeyName.getText());
-            sampler.setProperty(AzServiceBusSampler.SHARED_ACCESS_KEY, new String(sharedAccessKey.getPassword()));
-        }
-        String destType = "";
-        if (destTypeTopic.isSelected()) {
-            destType = AzServiceBusSampler.DEST_TYPE_TOPIC;
-        } else {
-            destType = AzServiceBusSampler.DEST_TYPE_QUEUE;
-        };
-        sampler.setProperty(AzServiceBusSampler.DEST_TYPE, destType);
-        sampler.setProperty(AzServiceBusSampler.QUEUE_NAME, queueName.getText());
-        sampler.setProperty(AzServiceBusSampler.PROTOCOL, protocol.getText());
+
+        sampler.setProperty(new TestElementProperty(AzServiceBusClientParams.SERVICEBUS_CLIENT_PARAMS, sbclientPanel.createTestElement()));
+        sampler.setProperty(AzServiceBusSampler.CREATE_TRANSACTION, createTransaction.isSelected());
+        sampler.setProperty(AzServiceBusSampler.CREATE_TRANSACTION_NAME, createTransactionName.getText());
+        sampler.setProperty(AzServiceBusSampler.CONTINUE_TRANSACTION, continueTransaction.isSelected());
+        sampler.setProperty(AzServiceBusSampler.COMMIT_TRANSACTION, commitTransaction.isSelected());
+        sampler.setProperty(AzServiceBusSampler.ROLLBACK_TRANSACTION, rollbackTransaction.isSelected());
         sampler.setProperty(new TestElementProperty(AzServiceBusSampler.MESSAGES, messagesPanel.createTestElement()));
     }
 
@@ -142,114 +121,67 @@ public class AzServiceBusSamplerGui extends AbstractSamplerGui implements Change
     public void clearGui() {
         super.clearGui();
 
-        namespaceName.setText("");
-        authType.setText(AzServiceBusSampler.AUTHTYPE_SAS);
-        sharedAccessKeyName.setText("");
-        sharedAccessKey.setText("");
-        aadCredential.setText("");
-        destTypeQueue.setSelected(true);
-        destTypeTopic.setSelected(false);
-        queueName.setText("");
-        protocol.setText(AzServiceBusSampler.PROTOCOL_AMQP);
+        sbclientPanel.clearGui();
+        createTransaction.setSelected(false);
+        createTransactionName.setText("");
+        createTransactionName.setEnabled(false);
+        continueTransaction.setSelected(true);
+        continueTransaction.setEnabled(false);
+        commitTransaction.setSelected(false);
+        commitTransaction.setEnabled(false);
+        rollbackTransaction.setSelected(false);
+        rollbackTransaction.setEnabled(false);
         messagesPanel.clear();
     }
 
     @Override
     public String getLabelResource() {
-        return null; // $NON-NLS-1$
+        return null;
     }
 
     public String getStaticLabel() {
         return "Azure Service Bus Sampler";
     }
 
-    private JPanel createNamespaceNamePanel() {
-        namespaceName = new JLabeledTextField("Service Bus Namespace:");
-        namespaceName.setName(AzServiceBusSampler.NAMESPACE_NAME);
+    private JPanel createCreateTransactionPanel() {
+        JPanel createTransactionPanel = new JPanel(new BorderLayout(0, 5));
+        JLabel createTransactionLabel = new JLabel("Create transaction before sending messages:");
+        createTransactionLabel.setLabelFor(createTransaction);
 
-        JPanel panel = new JPanel(new BorderLayout(5, 0));
-        panel.add(namespaceName);
+        createTransaction = new JCheckBox();
+        createTransaction.setName(AzServiceBusSampler.CREATE_TRANSACTION);
+        createTransaction.addChangeListener(this);
 
-        return panel;
-    }
+        createTransactionPanel.add(createTransactionLabel, BorderLayout.WEST);
+        createTransactionPanel.add(createTransaction, BorderLayout.CENTER);
 
-    private JPanel createSharedAccessKeyNamePanel() {
-        sharedAccessKeyName = new JLabeledTextField("Shared Access Policy:");
-        sharedAccessKeyName.setName(AzServiceBusSampler.SHARED_ACCESS_KEY_NAME);
-
-        JPanel panel = new JPanel(new BorderLayout(5, 0));
-        panel.add(sharedAccessKeyName);
-
-        return panel;
-    }
-
-    private JPanel createSharedAccessKeyPanel() {
-        sharedAccessKey = new JPasswordField();
-        sharedAccessKey.setName(AzServiceBusSampler.SHARED_ACCESS_KEY);
-
-        JLabel label = new JLabel("Shared Access Key:");
-        label.setLabelFor(sharedAccessKey);
-        JPanel panel = new JPanel(new BorderLayout(5, 0));
-        panel.add(label, BorderLayout.WEST);
-        panel.add(sharedAccessKey, BorderLayout.CENTER);
-
-        return panel;
-    }
-
-    private JPanel createAadCredentialPanel() {
-        aadCredential = new JLabeledTextField("Variable Name of credential declared in Azure AD Credential:");
-        aadCredential.setName(AzServiceBusSampler.AAD_CREDENTIAL);
-        JPanel panel = new VerticalPanel();
-        panel.add(aadCredential);
+        createTransactionName = new JLabeledTextField("Variable name for created transaction:");
+        createTransactionName.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 0));
         
-        return panel;
-    }
-
-    private JPanel createSharedAccessSignaturePanel() {
-        JPanel panel = new VerticalPanel();
-        panel.add(createSharedAccessKeyNamePanel());
-        panel.add(createSharedAccessKeyPanel());
+        JPanel panel = new JPanel(new BorderLayout(0, 5));
+        panel.add(createTransactionPanel, BorderLayout.WEST);
+        panel.add(createTransactionName, BorderLayout.CENTER);
 
         return panel;
     }
 
-    private JPanel createDestTypePanel() {
-        JLabel destTypeLabel = new JLabel("Send messages to:");
-        destTypeQueue = new JRadioButton(AzServiceBusSampler.DEST_TYPE_QUEUE);
-        destTypeTopic = new JRadioButton(AzServiceBusSampler.DEST_TYPE_TOPIC);
-        destTypeQueue.addChangeListener(this);
-        destTypeTopic.addChangeListener(this);
+    private JPanel createTransactionStatusPanel() {
+        continueTransaction = new JRadioButton(AzServiceBusSampler.CONTINUE_TRANSACTION);
+        continueTransaction.setText("Continue transaction");
+        transactionStatusGroup.add(continueTransaction);
+        
+        commitTransaction = new JRadioButton(AzServiceBusSampler.COMMIT_TRANSACTION);
+        commitTransaction.setText("Commit transaction after sending messages");
+        transactionStatusGroup.add(commitTransaction);
 
-        JPanel panel = new HorizontalPanel();
-        panel.add(destTypeLabel);
-        panel.add(destTypeQueue);
-        panel.add(destTypeTopic);
-        destTypeGroup.add(destTypeQueue);
-        destTypeGroup.add(destTypeTopic);
+        rollbackTransaction = new JRadioButton(AzServiceBusSampler.ROLLBACK_TRANSACTION);
+        rollbackTransaction.setText("Rollback transaction before sending messages");
+        transactionStatusGroup.add(rollbackTransaction);
 
-        return panel;
-    }
-
-    private JPanel createQueueNamePanel() {
-        queueName = new JLabeledTextField("Queue name:");
-        queueName.setName(AzServiceBusSampler.QUEUE_NAME);
-
-        JPanel panel = new JPanel(new BorderLayout(5, 0));
-        panel.add(queueName);
-
-        return panel;
-    }
-
-    private JPanel createProtocolPanel() {
-        JLabel protocolLabel = new JLabel("Protocol:");
-
-        protocol = new JLabeledChoice("", PROTOCOL_LABELS);
-        protocol.setName(AzServiceBusSampler.PROTOCOL);
-        protocol.addChangeListener(this);
-
-        JPanel panel = new JPanel(new BorderLayout(5, 0));
-        panel.add(protocolLabel, BorderLayout.WEST);
-        panel.add(protocol, BorderLayout.CENTER);
+        HorizontalPanel panel = new HorizontalPanel();
+        panel.add(continueTransaction);
+        panel.add(commitTransaction);
+        panel.add(rollbackTransaction);
 
         return panel;
     }
@@ -260,81 +192,63 @@ public class AzServiceBusSamplerGui extends AbstractSamplerGui implements Change
         return panel;
     }
 
-    private JPanel createAuthTypePanel() {
-        JLabel authTypeLabel = new JLabel("Auth type:");
-
-        authType = new JLabeledChoice("", AUTH_TYPE_LABELS);
-        authType.setName(AzServiceBusSampler.AUTH_TYPE);
-        authType.addChangeListener(this);
-
-        JPanel panel = new JPanel(new BorderLayout(5, 0));
-        panel.setBorder(BorderFactory.createTitledBorder("Auth Configuration"));
-        panel.add(authTypeLabel, BorderLayout.WEST);
-        panel.add(authType, BorderLayout.CENTER);
-
-        return panel;
-    }
-
-    private JPanel createAuthPanel() {
-        authPanel = new JPanel(new CardLayout());
-        authPanel.add(createSharedAccessSignaturePanel(), AzServiceBusSampler.AUTHTYPE_SAS);
-        authPanel.add(createAadCredentialPanel(), AzServiceBusSampler.AUTHTYPE_AAD);
-
-        return authPanel;
-    }
-
     private void init() { // WARNING: called from ctor so must not be overridden (i.e. must be private or final)
         setLayout(new BorderLayout(0, 5));
         setBorder(makeBorder());
         add(makeTitlePanel(), BorderLayout.NORTH);
         // MAIN PANEL
         VerticalPanel mainPanel = new VerticalPanel();
-        VerticalPanel ServiceBusConfigPanel = new VerticalPanel();
-        ServiceBusConfigPanel.setBorder(BorderFactory.createTitledBorder("Service Bus Configuration"));
-        ServiceBusConfigPanel.add(createNamespaceNamePanel());
-        ServiceBusConfigPanel.add(createDestTypePanel());
-        ServiceBusConfigPanel.add(createQueueNamePanel());
-        ServiceBusConfigPanel.add(createProtocolPanel());
-        ServiceBusConfigPanel.add(createAuthTypePanel());
-        ServiceBusConfigPanel.add(createAuthPanel());
-        mainPanel.add(ServiceBusConfigPanel, BorderLayout.NORTH);
+        VerticalPanel servicebusPanel = new VerticalPanel();
+        
+        servicebusPanel.add(sbclientPanel);
+        sbclientPanel.addPropertyChangeListener(this);
+        servicebusPanel.add(createCreateTransactionPanel());
+        servicebusPanel.add(createTransactionStatusPanel());
+
+        mainPanel.add(servicebusPanel, BorderLayout.NORTH);
         mainPanel.add(createMessagesPanel(), BorderLayout.CENTER);
 
         add(mainPanel, BorderLayout.CENTER);
     }
 
     @Override
-    public void stateChanged(ChangeEvent event) {
-        if (event.getSource().equals(destTypeQueue) || event.getSource().equals(destTypeTopic)) {
-            toggleDestTypeLabel();
-        } else if (event.getSource().equals(authType)) {
-            toggleAuthTypeValue();
+    public void propertyChange(PropertyChangeEvent e) {
+        if (e.getPropertyName().equals(AzServiceBusClientParams.CONNECTION_TYPE)) {
+            Boolean status = e.getNewValue().equals(AzServiceBusClientParams.CONNECTION_TYPE_DEFINED_TRANSACTION);
+            continueTransaction.setEnabled(status);
+            commitTransaction.setEnabled(status);
+            rollbackTransaction.setEnabled(status);
+            createTransaction.setEnabled(!status);
+            if (status) {
+                createTransaction.setSelected(false);
+                createTransactionName.setEnabled(false);
+                createTransactionName.setText("");
+            }
         }
     }
 
-    /**
-     * Visualize selected auth type.
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        if (e.getSource().equals(createTransaction)) {
+            toggleCreateTransaction();
+        }
+    }
+
+    /*
+     * Updated "Create transaction before sending messages" checkbox.
      */
-    private void toggleDestTypeLabel() {
-        String label = "";
-        if (destTypeTopic.isSelected()) {
-            label = AzServiceBusSampler.DEST_TYPE_TOPIC;
-        } else {
-            label = AzServiceBusSampler.DEST_TYPE_QUEUE;
-        }
-        queueName.setLabel(label.concat(" name:"));
+    private void toggleCreateTransaction() {
+        Boolean status = createTransaction.isSelected();
+        createTransactionName.setEnabled(status);
     }
 
-    /**
-     * Visualize selected auth type.
+    /*
+     * Helper method
      */
-    private void toggleAuthTypeValue() {
-        CardLayout authTypeLayout = (CardLayout) authPanel.getLayout();
-        if (authType.getText() == AzServiceBusSampler.AUTHTYPE_SAS) {
-            authTypeLayout.show(authPanel, AzServiceBusSampler.AUTHTYPE_SAS);
-        } else { // AUTHTYPE_AAD
-            authTypeLayout.show(authPanel, AzServiceBusSampler.AUTHTYPE_AAD);
+    private void trace(String s) {
+        if (log.isDebugEnabled()) {
+            log.debug("{} ({}) {} {} {}", Thread.currentThread().getName(), classCount.get(),
+                    this.getName(), s, this.toString());
         }
     }
-
 }

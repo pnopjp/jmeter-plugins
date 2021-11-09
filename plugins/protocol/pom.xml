@@ -12,6 +12,7 @@
         <module>amqp</module>
         <module>aad</module>
         <module>eventhubs</module>
+        <module>servicebus</module>
         <!-- <module>iothub</module> -->
     </modules>
 </project>

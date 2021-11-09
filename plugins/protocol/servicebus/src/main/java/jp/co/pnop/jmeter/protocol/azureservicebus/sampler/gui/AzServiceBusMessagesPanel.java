@@ -3,8 +3,8 @@ package jp.co.pnop.jmeter.protocol.azureservicebus.sampler.gui;
 import org.apache.jorphan.gui.ObjectTableModel;
 import org.apache.jorphan.reflect.Functor;
 
-import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessagesPanel;
-import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessage;
+import jp.co.pnop.jmeter.protocol.amqp.sampler.AzAmqpMessage;
+import jp.co.pnop.jmeter.protocol.amqp.sampler.gui.AzAmqpMessagesPanel;
 
 public class AzServiceBusMessagesPanel extends AzAmqpMessagesPanel {
 

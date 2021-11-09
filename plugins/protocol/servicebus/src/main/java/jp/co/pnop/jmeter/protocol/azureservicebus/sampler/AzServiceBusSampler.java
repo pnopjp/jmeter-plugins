@@ -17,6 +17,7 @@
 
 package jp.co.pnop.jmeter.protocol.azureservicebus.sampler;
 
+import java.lang.ClassCastException;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,24 +35,20 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.property.StringProperty;
 import org.apache.jmeter.testelement.property.TestElementProperty;
+import org.apache.jorphan.util.JOrphanUtils;
 import org.apache.jmeter.testelement.TestStateListener;
+import org.apache.jmeter.testelement.property.BooleanProperty;
 import org.apache.jmeter.testelement.property.PropertyIterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.azure.messaging.servicebus.*;
-import com.azure.core.amqp.AmqpTransportType;
 import com.azure.core.amqp.exception.*;
 
-import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessage;
-import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessages;
-
-import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential;
-import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential.AzAdCredentialComponentImpl;
-
-import jp.co.pnop.jmeter.protocol.amqp.util.AzAmqpProxyOptions;
-import com.azure.core.amqp.ProxyOptions;
+import jp.co.pnop.jmeter.protocol.amqp.sampler.AzAmqpMessage;
+import jp.co.pnop.jmeter.protocol.amqp.sampler.AzAmqpMessages;
+import jp.co.pnop.jmeter.protocol.azureservicebus.common.AzServiceBusClientParams;
 
 /**
  * Azure Service Bus Sampler (non-Bean version)
@@ -59,7 +56,7 @@ import com.azure.core.amqp.ProxyOptions;
  * JMeter creates an instance of a sampler class for every occurrence of the
  * element in every thread. [some additional copies may be created before the
  * test run starts]
- * <p>
+* <p>
  * Thus each sampler is guaranteed to be called by a single thread - there is no
  * need to synchronize access to instance variables.
  * <p>
@@ -73,29 +70,34 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
 
     private static final Set<String> APPLIABLE_CONFIG_CLASSES = new HashSet<>(
         Arrays.asList(
-            "jp.co.pnop.jmeter.protocol.azureservicebus.sampler.gui.AzServiceBusConfigGui",
             "org.apache.jmeter.config.gui.SimpleConfigGui"
         )
     );
 
-    public static final String NAMESPACE_NAME = "namespaceName";
-    public static final String AUTH_TYPE = "authType";
-    public static final String SHARED_ACCESS_KEY_NAME = "sharedAccessKeyName";
-    public static final String SHARED_ACCESS_KEY = "sharedAccessKey";
-    public static final String AAD_CREDENTIAL = "aadCredential";
-    public static final String DEST_TYPE = "destType";
-    public static final String QUEUE_NAME = "queueName";
-    public static final String PROTOCOL = "protocol";
+    public static final String CREATE_TRANSACTION = "createTransaction";
+    public static final String CREATE_TRANSACTION_NAME = "createTransacionName";
+    public static final String CONTINUE_TRANSACTION = "continueTransaction";
+    public static final String COMMIT_TRANSACTION = "commitTransaction";
+    public static final String ROLLBACK_TRANSACTION = "rollbackTransaction";
     public static final String MESSAGES = "messages";
 
-    public static final String AUTHTYPE_SAS = "Shared access signature";
-    public static final String AUTHTYPE_AAD = "Azure AD credential";
+    class TransactionClass {
+        private ServiceBusSenderClient producer;
+        private ServiceBusTransactionContext transaction;
+        TransactionClass(ServiceBusSenderClient prod, ServiceBusTransactionContext tran) {
+            producer = prod;
+            transaction = tran;
+        }
 
-    public static final String DEST_TYPE_QUEUE = "Queue";
-    public static final String DEST_TYPE_TOPIC = "Topic";
+        public ServiceBusSenderClient getProducer() {
+            return producer;
+        }
 
-    public static final String PROTOCOL_AMQP = "AMQP";
-    public static final String PROTOCOL_AMQP_OVER_WEBSOCKETS = "AMQP over Web Sockets";
+        public ServiceBusTransactionContext getTransaction() {
+            return transaction;
+        }
+
+    }
 
     private static AtomicInteger classCount = new AtomicInteger(0); // keep track of classes created
 
@@ -105,68 +107,68 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
         trace("AzServiceBusSampler()");
     }
 
-    public void setNamespaceName(String namespaceName) {
-        setProperty(new StringProperty(NAMESPACE_NAME, namespaceName));
+    /**
+     * Clear the messages.
+     */
+    @Override
+    public void clear() {
+        super.clear();
+        
+        setProperty(new BooleanProperty(CREATE_TRANSACTION, false));
+        setProperty(new StringProperty(CREATE_TRANSACTION_NAME, ""));
+        setProperty(new BooleanProperty(CONTINUE_TRANSACTION, false));
+        setProperty(new BooleanProperty(COMMIT_TRANSACTION, false));
+        setProperty(new BooleanProperty(ROLLBACK_TRANSACTION, false));
+        setProperty(new TestElementProperty(MESSAGES, null));
+        setProperty(new TestElementProperty(AzServiceBusClientParams.SERVICEBUS_CLIENT_PARAMS, null));
     }
 
-    public String getNamespaceName() {
-        return getPropertyAsString(NAMESPACE_NAME);
+    public void setServiceBusClientParams(AzServiceBusClientParams sbcParams) {
+        setProperty(new TestElementProperty(AzServiceBusClientParams.SERVICEBUS_CLIENT_PARAMS, sbcParams));
     }
 
-    public void setAuthType(String authType) {
-        setProperty(new StringProperty(AUTH_TYPE, authType));
+    public AzServiceBusClientParams getServiceBusClientParams() {
+        return (AzServiceBusClientParams) getProperty(AzServiceBusClientParams.SERVICEBUS_CLIENT_PARAMS).getObjectValue();
     }
 
-    public String getAuthType() {
-        return getPropertyAsString(AUTH_TYPE);
+    public void setCreateTransaction(String createTransaction) {
+        setProperty(new StringProperty(CREATE_TRANSACTION, createTransaction));
     }
 
-    public void setSharedAccessKeyName(String sharedAccessKeyName) {
-        setProperty(new StringProperty(SHARED_ACCESS_KEY_NAME, sharedAccessKeyName));
+    public Boolean getCreateTransaction() {
+        return getPropertyAsBoolean(CREATE_TRANSACTION);
     }
 
-    public String getSharedAccessKeyName() {
-        return getPropertyAsString(SHARED_ACCESS_KEY_NAME);
+    public void setCreateTransactionName(String createTransactionName) {
+        setProperty(new StringProperty(CREATE_TRANSACTION_NAME, createTransactionName));
     }
 
-    public void setSharedAccessKey(String sharedAccessKey) {
-        setProperty(new StringProperty(SHARED_ACCESS_KEY, sharedAccessKey));
+    public String getCreateTransactionName() {
+        return getPropertyAsString(CREATE_TRANSACTION_NAME);
     }
 
-    public String getSharedAccessKey() {
-        return getPropertyAsString(SHARED_ACCESS_KEY);
+    public void setContinueTransaction(String continueTransaction) {
+        setProperty(new StringProperty(CONTINUE_TRANSACTION, continueTransaction));
     }
 
-    public void setAadCredential(String aadCredential) {
-        setProperty(new StringProperty(AAD_CREDENTIAL, aadCredential));
+    public Boolean getContinueTransaction() {
+        return getPropertyAsBoolean(CONTINUE_TRANSACTION);
     }
 
-    public String getAadCredential() {
-        return getPropertyAsString(AAD_CREDENTIAL);
+    public void setCommitTransaction(String commitTransaction) {
+        setProperty(new StringProperty(COMMIT_TRANSACTION, commitTransaction));
     }
 
-    public void setDestType(String destType) {
-        setProperty(new StringProperty(DEST_TYPE, destType));
+    public Boolean getCommitTransaction() {
+        return getPropertyAsBoolean(COMMIT_TRANSACTION);
     }
 
-    public String getDestType() {
-        return getPropertyAsString(DEST_TYPE);
+    public void setRollbackTransaction(String rollbackTransaction) {
+        setProperty(new StringProperty(ROLLBACK_TRANSACTION, rollbackTransaction));
     }
 
-    public void setQueueName(String queueName) {
-        setProperty(new StringProperty(QUEUE_NAME, queueName));
-    }
-
-    public String getQueueName() {
-        return getPropertyAsString(QUEUE_NAME);
-    }
-
-    public void setProtocol(String protocol) {
-        setProperty(new StringProperty(PROTOCOL, protocol));
-    }
-
-    public String getProtocol() {
-        return getPropertyAsString(PROTOCOL);
+    public Boolean getRollabckTransaction() {
+        return getPropertyAsBoolean(ROLLBACK_TRANSACTION);
     }
 
     public void setMessages(AzAmqpMessages messages) {
@@ -191,49 +193,42 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
         String threadName = Thread.currentThread().getName();
         String responseMessage = "";
         String requestBody = "";
-        long bodySize = 0;
-        long propertiesSize = 0;
+        long bodyBytes = 0;
+        long bytes = 0;
+        long sentBytes = 0;
 
         ServiceBusSenderClient producer = null;
-        ServiceBusClientBuilder producerBuilder = new ServiceBusClientBuilder();
+        ServiceBusTransactionContext transaction = null;
+        AzServiceBusClientParams serviceBusClientParams = getServiceBusClientParams();
+        String connectionType = serviceBusClientParams.getConnectionType().toString();
 
         try {
             res.sampleStart(); // Start timing
+
+            if (connectionType.equals(AzServiceBusClientParams.CONNECTION_TYPE_DEFINED_TRANSACTION)) {
+                String definedConnectionName = serviceBusClientParams.getDefinedConnectionName();
+                Object tempObject;
+                try {
+                    tempObject = getThreadContext().getVariables().getObject(definedConnectionName);
+                    if (!tempObject.getClass().getSimpleName().equals("TransactionClass")) {
+                        throw new ClassCastException("The \"".concat(definedConnectionName).concat("\" you specified is not a transaction."));
+                    }
+                } catch (NullPointerException ex) {
+                    throw new NullPointerException("Transaction \"".concat(definedConnectionName).concat("\" is not defined."));
+                }
+                TransactionClass tran = (TransactionClass) tempObject;
+                
+                transaction = tran.getTransaction();
+                producer = tran.getProducer();
+                log.debug("Get defined connection: {}", transaction.toString());
+            } else { // CONNECTION_TYPE_NEW_CONNECTION or CONNECTION_TYPE_DEFINED_CONNECTION
+                producer = serviceBusClientParams.getProducer();
+            }
             requestBody
-                = "Endpoint: sb://".concat(getNamespaceName()).concat("\n")
-                .concat(getDestType()).concat(" name: ").concat(getQueueName());
-            if (getAuthType() == AUTHTYPE_SAS) {
-                final String connectionString
-                    = "Endpoint=sb://".concat(getNamespaceName()).concat("/;")
-                    .concat("SharedAccessKeyName=").concat(getSharedAccessKeyName()).concat(";")
-                    .concat("SharedAccessKey=").concat(getSharedAccessKey());
-                requestBody = requestBody.concat("\n")
-                    .concat("Shared Access Policy: ").concat(getSharedAccessKeyName()).concat("\n")
-                    .concat("Shared Access Key: **********");
-                producerBuilder = producerBuilder.connectionString(connectionString);
-            } else { // AUTHTYPE_AAD
-                AzAdCredentialComponentImpl credential = AzAdCredential.getCredential(getAadCredential());
-                requestBody = requestBody.concat(credential.getRequestBody());
-                producerBuilder = producerBuilder.credential(getNamespaceName(), credential.getCredential());
-            }
+                = "Endpoint: sb://".concat(producer.getFullyQualifiedNamespace()).concat("\n")
+                .concat("Queue/Topic name: ").concat(producer.getEntityPath());
 
-            AmqpTransportType protocol = null;
-            if (getProtocol() == PROTOCOL_AMQP_OVER_WEBSOCKETS) {
-                protocol = AmqpTransportType.AMQP_WEB_SOCKETS;
-                producerBuilder = producerBuilder.proxyOptions(new AzAmqpProxyOptions().ProxyOptions());
-                ProxyOptions proxyOptions = new AzAmqpProxyOptions().ProxyOptions();
-                producerBuilder.proxyOptions(proxyOptions);
-            } else {
-                protocol = AmqpTransportType.AMQP;
-            }
-            producerBuilder = producerBuilder.transportType(protocol);
-
-            if (getDestType().equals(AzServiceBusSampler.DEST_TYPE_TOPIC)) {
-                producer = producerBuilder.sender().topicName(getQueueName()).buildClient();
-            } else {
-                producer = producerBuilder.sender().queueName(getQueueName()).buildClient();
-            }
-            
+            log.info("AzServiceBusSampler.sampler() createMessageBatch: {}", producer.toString());
             ServiceBusMessageBatch batch = producer.createMessageBatch();
     
             PropertyIterator iter = getMessages().iterator();
@@ -250,7 +245,6 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                     case AzAmqpMessages.MESSAGE_TYPE_BASE64:
                         byte[] binMsg = Base64.getDecoder().decode(msg.getMessage().getBytes());
                         serviceBusMessage = new ServiceBusMessage(binMsg);
-                        bodySize += binMsg.length;
                         break;
                     case AzAmqpMessages.MESSAGE_TYPE_FILE:
                         BufferedInputStream bi = null;
@@ -259,7 +253,6 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                         break;
                     default: // AzAmqpMessages.MESSAGE_TYPE_STRING
                         serviceBusMessage = new ServiceBusMessage(msg.getMessage());
-                        bodySize += msg.getMessage().getBytes("UTF-8").length;
                 }
 
                 String messageId = msg.getMessageId();
@@ -281,18 +274,47 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                 }
                 
                 batch.tryAddMessage(serviceBusMessage);
-
-                propertiesSize += 0;
-
+                bodyBytes += serviceBusMessage.getBody().toBytes().length;
+                
                 requestBody = requestBody.concat("\n")
                     .concat("Message type: ").concat(msg.getMessageType()).concat("\n")
                     .concat("Body: ").concat(msg.getMessage());
             }
     
-            // send the batch of messages to the Service Bus
-            producer.sendMessages(batch);
-            res.latencyEnd();
+            bytes = batch.getSizeInBytes();
 
+            // send the batch of messages to the Service Bus
+            if (connectionType.equals(AzServiceBusClientParams.CONNECTION_TYPE_DEFINED_TRANSACTION)) {
+                producer.sendMessages(batch, transaction);
+                
+                if (getCommitTransaction()) {
+                    producer.commitTransaction(transaction);
+                    getThreadContext().getVariables().remove(serviceBusClientParams.getDefinedConnectionName());
+                    transaction = null;
+                } else if (getRollabckTransaction()) {
+                    producer.rollbackTransaction(transaction);
+                    getThreadContext().getVariables().remove(serviceBusClientParams.getDefinedConnectionName());
+                    transaction = null;
+                }
+            } else { // CONNECTION_TYPE_NEW_CONNECTION or CONNECTION_TYPE_DEFINED_CONNECTION
+                if (getCreateTransaction()) {
+                    String tranName = getCreateTransactionName();
+                    if (JOrphanUtils.isBlank(tranName)) {
+                        throw new Exception("Name for transaction must not be empty in " + getName());
+                    } else if (getThreadContext().getVariables().getObject(tranName) != null) {
+                        throw new Exception("Transaction already defined for ".concat(tranName));
+                    } else {
+                        transaction = producer.createTransaction();
+                        getThreadContext().getVariables().putObject(getCreateTransactionName(), new TransactionClass(producer, transaction));
+                    }
+                    producer.sendMessages(batch, transaction);
+                } else {
+                    producer.sendMessages(batch);
+                }
+            }
+
+            sentBytes = batch.getSizeInBytes();
+            res.latencyEnd();
             res.setDataType(SampleResult.TEXT);
 
             //res.setResponseHeaders();
@@ -307,24 +329,31 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                 responseMessage = "A transient error occurred in ".concat(threadName).concat(" sampler. Please try again later.\n");
             }
             responseMessage = responseMessage.concat(ex.getMessage());
-            res.setResponseData(ex.toString(), "UTF-8");
-            res.setResponseCode(ex.getErrorCondition().getErrorCondition());
+            res.setResponseData(ex.getMessage(), "UTF-8");
         } catch (FileNotFoundException ex) {
-            res.setResponseData(ex.toString(), "UTF-8");
-            responseMessage = ex.getMessage();
             log.info("Error calling {} sampler. ", threadName, ex);
+            res.setResponseData(ex.getMessage(), "UTF-8");
+            responseMessage = responseMessage.concat(ex.getMessage());
+        } catch (ServiceBusException ex) {
+            log.info("Error calling {} sampler. ", threadName, ex);
+            res.setResponseData(ex.toString(), "UTF-8");
+            responseMessage = responseMessage.concat(ex.toString());
+        } catch (ClassCastException ex) {
+            log.info("Error calling {} sampler. ", threadName, ex);
+            res.setResponseData(ex.getMessage(), "UTF-8");
+            responseMessage = responseMessage.concat(ex.getMessage());
         } catch (Exception ex) {
-            res.setResponseData(ex.toString(), "UTF-8");
-            responseMessage = ex.getMessage();
             log.info("Error calling {} sampler. ", threadName, ex);
+            res.setResponseData(ex.toString(), "UTF-8");
+            responseMessage = responseMessage.concat(ex.toString());
         } finally {
-            if (producer != null) {
+            if (producer != null && connectionType == AzServiceBusClientParams.CONNECTION_TYPE_NEW_CONNECTION) {
                 producer.close();
             }
             res.setSamplerData(requestBody); // Request Body
-            res.setBodySize(bodySize);
-            res.setHeadersSize((int)propertiesSize);
-            res.setSentBytes(bodySize + propertiesSize);
+            res.setBytes(bytes);
+            res.setBodySize(bodyBytes);
+            res.setSentBytes(sentBytes);
             res.setResponseMessage(responseMessage);
         }
 
