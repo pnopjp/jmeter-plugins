@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package jp.co.pnop.jmeter.protocol.amqp.config.gui;
+package jp.co.pnop.jmeter.protocol.amqp.sampler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.jmeter.config.ConfigTestElement;
+import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.property.CollectionProperty;
 import org.apache.jmeter.testelement.property.PropertyIterator;
 import org.apache.jmeter.testelement.property.TestElementProperty;
@@ -28,7 +28,7 @@ import org.apache.jmeter.testelement.property.TestElementProperty;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 
-public class AzAmqpMessages extends ConfigTestElement {
+public class AzAmqpMessages extends AbstractTestElement {
     
     private static final long serialVersionUID = 1L;
     //private static final Logger log = LoggerFactory.getLogger(AzAmqpMessages.class);

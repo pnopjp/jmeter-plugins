@@ -34,15 +34,15 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.property.TestElementProperty;
 import org.apache.jorphan.gui.JLabeledChoice;
 import org.apache.jorphan.gui.JLabeledTextField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
-import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessagesPanel;
+import jp.co.pnop.jmeter.protocol.amqp.sampler.gui.AzAmqpMessagesPanel;
 import jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.AzEventHubsSampler;
 
 public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeListener {
     private static final long serialVersionUID = 1L;
-    private static final Logger log = LoggerFactory.getLogger(AzEventHubsSamplerGui.class);
+    //private static final Logger log = LoggerFactory.getLogger(AzEventHubsSamplerGui.class);
 
     private JLabeledTextField namespaceName;
     private String[] AUTH_TYPE_LABELS = {

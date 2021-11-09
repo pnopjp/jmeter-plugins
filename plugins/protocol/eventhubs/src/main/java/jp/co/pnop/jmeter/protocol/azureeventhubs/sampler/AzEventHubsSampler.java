@@ -45,11 +45,10 @@ import com.azure.messaging.eventhubs.*;
 import com.azure.messaging.eventhubs.models.CreateBatchOptions;
 import com.azure.core.amqp.exception.*;
 
-import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessage;
-import jp.co.pnop.jmeter.protocol.amqp.config.gui.AzAmqpMessages;
-
 import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential;
 import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential.AzAdCredentialComponentImpl;
+import jp.co.pnop.jmeter.protocol.amqp.sampler.AzAmqpMessage;
+import jp.co.pnop.jmeter.protocol.amqp.sampler.AzAmqpMessages;
 
 /**
  * Azure Event Hubs Sampler (non-Bean version)
@@ -71,7 +70,6 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
 
     private static final Set<String> APPLIABLE_CONFIG_CLASSES = new HashSet<>(
         Arrays.asList(
-            "jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.gui.AzEventHubsConfigGui",
             "org.apache.jmeter.config.gui.SimpleConfigGui"
         )
     );
@@ -187,8 +185,8 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
         String threadName = Thread.currentThread().getName();
         String responseMessage = "";
         String requestBody = "";
-        long bodySize = 0;
-        long propertiesSize = 0;
+        long bytes = 0;
+        long sentBytes = 0;
 
         EventHubProducerClient producer = null;
         EventHubClientBuilder producerBuilder = new EventHubClientBuilder();
@@ -246,7 +244,6 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
                     case AzAmqpMessages.MESSAGE_TYPE_BASE64:
                         byte[] binMsg = Base64.getDecoder().decode(msg.getMessage().getBytes());
                         eventData = new EventData(binMsg);
-                        bodySize += binMsg.length;
                         break;
                     case AzAmqpMessages.MESSAGE_TYPE_FILE:
                         BufferedInputStream bi = null;
@@ -255,15 +252,17 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
                         break;
                     default: // AzAmqpMessages.MESSAGE_TYPE_STRING
                         eventData = new EventData(msg.getMessage());
-                        bodySize += msg.getMessage().getBytes("UTF-8").length;
                 }
 
                 batch.tryAdd(eventData);
-                propertiesSize += 0;
             }
-    
+
+            bytes = batch.getSizeInBytes();
+
             // send the batch of events to the event hub
             producer.send(batch);
+
+            sentBytes = batch.getSizeInBytes();
             res.latencyEnd();
 
             res.setDataType(SampleResult.TEXT);
@@ -280,8 +279,7 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
                 responseMessage = "A transient error occurred in ".concat(threadName).concat(" sampler. Please try again later.\n");
             }
             responseMessage = responseMessage.concat(ex.getMessage());
-            res.setResponseData(ex.toString(), "UTF-8");
-            res.setResponseCode(ex.getErrorCondition().getErrorCondition());
+            res.setResponseData(ex.getMessage(), "UTF-8");
         } catch (FileNotFoundException ex) {
             res.setResponseData(ex.toString(), "UTF-8");
             responseMessage = ex.getMessage();
@@ -295,9 +293,8 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
                 producer.close();
             }
             res.setSamplerData(requestBody); // Request Body
-            res.setBodySize(bodySize);
-            res.setHeadersSize((int)propertiesSize);
-            res.setSentBytes(bodySize + propertiesSize);
+            res.setBytes(bytes);
+            res.setSentBytes(sentBytes);
             res.setResponseMessage(responseMessage);
         }
 

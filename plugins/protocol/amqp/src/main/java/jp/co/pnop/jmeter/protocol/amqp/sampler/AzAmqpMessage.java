@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package jp.co.pnop.jmeter.protocol.amqp.config.gui;
+package jp.co.pnop.jmeter.protocol.amqp.sampler;
 
 import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.property.StringProperty;

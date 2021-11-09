@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package jp.co.pnop.jmeter.protocol.amqp.config.gui;
+package jp.co.pnop.jmeter.protocol.amqp.sampler.gui;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -40,8 +40,8 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import org.apache.jmeter.config.gui.AbstractConfigGui;
 import org.apache.jmeter.gui.util.HeaderAsPropertyRenderer;
+import org.apache.jmeter.samplers.gui.AbstractSamplerGui;
 import org.apache.jmeter.testelement.property.PropertyIterator;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
@@ -50,10 +50,13 @@ import org.apache.jorphan.gui.GuiUtils;
 import org.apache.jorphan.gui.ObjectTableModel;
 import org.apache.jorphan.reflect.Functor;
 
+import jp.co.pnop.jmeter.protocol.amqp.sampler.AzAmqpMessage;
+import jp.co.pnop.jmeter.protocol.amqp.sampler.AzAmqpMessages;
+
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 
-public class AzAmqpMessagesPanel extends AbstractConfigGui implements ActionListener {
+public class AzAmqpMessagesPanel extends AbstractSamplerGui implements ActionListener {
     
     private static final long serialVersionUID = 1L;
     //private static final Logger log = LoggerFactory.getLogger(AzAmqpMessagesPanel.class);
@@ -79,10 +82,10 @@ public class AzAmqpMessagesPanel extends AbstractConfigGui implements ActionList
 
     protected static Map<String, String> COLUMN_NAMES = new HashMap<>();
     static {
-        COLUMN_NAMES.put("MESSAGE_TYPE", "message type");
-        COLUMN_NAMES.put("MESSAGE", "message");
-        COLUMN_NAMES.put("MESSAGE_ID", "message Id");
-        COLUMN_NAMES.put("GROUP_ID", "group Id");
+        COLUMN_NAMES.put("MESSAGE_TYPE", "message type"); //$NON-NLS-1$
+        COLUMN_NAMES.put("MESSAGE", "message"); //$NON-NLS-1$
+        COLUMN_NAMES.put("MESSAGE_ID", "message Id"); //$NON-NLS-1$
+        COLUMN_NAMES.put("GROUP_ID", "group Id"); //$NON-NLS-1$
     }
 
     public AzAmqpMessagesPanel() {
@@ -354,6 +357,7 @@ public class AzAmqpMessagesPanel extends AbstractConfigGui implements ActionList
      */
     private void init() { // WARNING: called from ctor so must not be overridden (i.e. must be private or final)
         setLayout(new BorderLayout());
+        setBorder(makeBorder());
 
         add(makeLabelPanel(), BorderLayout.NORTH);
         add(makeMainPanel(), BorderLayout.CENTER);
