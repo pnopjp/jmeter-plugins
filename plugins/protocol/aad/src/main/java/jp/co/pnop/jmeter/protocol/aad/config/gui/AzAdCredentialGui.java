@@ -2,6 +2,7 @@ package jp.co.pnop.jmeter.protocol.aad.config.gui;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -29,6 +30,8 @@ import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential;
 public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListener {
     private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(AzAdCredentialGui.class);
+
+    private static AtomicInteger classCount = new AtomicInteger(0); // keep track of classes created
 
     private String[] AUTHORITY_HOST_LABELS = {
         AzAdCredential.AUTHORITYHOST_PUBLIC,
@@ -73,7 +76,16 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
     private ButtonGroup clientCertificateFiletypeGroup = new ButtonGroup();
 
     public AzAdCredentialGui() {
+        classCount.incrementAndGet();
+        trace("AzAdCredentialGui()");
         init();
+    }
+
+    /**
+     * @return a string for the sampleResultGui Title
+     */
+    private String getTitle() {
+        return this.getName();
     }
 
     /**
@@ -409,5 +421,15 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
 
     private void toggleClientCertificateFilePasswordValue() {
         clientCertificateFilePassword.setEnabled(clientCertificateFiletypePFX.isSelected());
+    }
+
+    /*
+     * Helper method
+     */
+    private void trace(String s) {
+        if (log.isDebugEnabled()) {
+            log.debug("{} ({}) {} {} {}", Thread.currentThread().getName(), classCount.get(),
+                    getTitle(), s, this.toString());
+        }
     }
 }

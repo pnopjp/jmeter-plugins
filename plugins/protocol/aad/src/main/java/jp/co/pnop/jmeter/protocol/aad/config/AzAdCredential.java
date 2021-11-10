@@ -15,7 +15,7 @@ import java.net.InetSocketAddress;
 
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.ProxyOptions;
-import com.azure.core.util.HttpClientOptions;
+import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import com.azure.identity.ManagedIdentityCredentialBuilder;
 import com.azure.identity.ClientCertificateCredentialBuilder;
 import com.azure.identity.ClientSecretCredentialBuilder;
@@ -270,7 +270,7 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
                 if (proxyUser.length() > 0) {
                     options.setCredentials(proxyUser, proxyPass);
                 }
-                return HttpClient.createDefault((new HttpClientOptions()).setProxyOptions(options));
+                return (HttpClient) new NettyAsyncHttpClientBuilder().proxy(options).build();
             }
             return HttpClient.createDefault();
         }
