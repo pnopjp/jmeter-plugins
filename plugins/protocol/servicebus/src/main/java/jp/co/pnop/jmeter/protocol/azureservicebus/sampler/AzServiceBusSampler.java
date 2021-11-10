@@ -285,16 +285,20 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
 
             // send the batch of messages to the Service Bus
             if (connectionType.equals(AzServiceBusClientParams.CONNECTION_TYPE_DEFINED_TRANSACTION)) {
-                producer.sendMessages(batch, transaction);
-                
-                if (getCommitTransaction()) {
-                    producer.commitTransaction(transaction);
-                    getThreadContext().getVariables().remove(serviceBusClientParams.getDefinedConnectionName());
-                    transaction = null;
-                } else if (getRollabckTransaction()) {
+                if (getRollabckTransaction()) {
                     producer.rollbackTransaction(transaction);
                     getThreadContext().getVariables().remove(serviceBusClientParams.getDefinedConnectionName());
                     transaction = null;
+
+                    producer.sendMessages(batch);
+                } else { // Continue transaction or Commit transaction
+                    producer.sendMessages(batch, transaction);
+                    
+                    if (getCommitTransaction()) {
+                        producer.commitTransaction(transaction);
+                        getThreadContext().getVariables().remove(serviceBusClientParams.getDefinedConnectionName());
+                        transaction = null;
+                    }
                 }
             } else { // CONNECTION_TYPE_NEW_CONNECTION or CONNECTION_TYPE_DEFINED_CONNECTION
                 if (getCreateTransaction()) {
@@ -308,7 +312,7 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                         getThreadContext().getVariables().putObject(getCreateTransactionName(), new TransactionClass(producer, transaction));
                     }
                     producer.sendMessages(batch, transaction);
-                } else {
+                } else { // Don't create transaction
                     producer.sendMessages(batch);
                 }
             }
