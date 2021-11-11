@@ -59,7 +59,9 @@ The parameters to be set for each credential type are different.
 ## Azure Service Bus Connection
 
 Create a connection to the Azure Service Bus with the settings specified in this.  
-The connection created by this configuration will be used by the "Azure Service Bus Sampler".
+The connection created by this configuration will be used by the "Azure Service Bus Sampler".  
+
+Works with Apache JMeter™ v5.4.1 or later.
 
 ### How to install
 
@@ -87,6 +89,8 @@ Download jmeter-plugins-azure-servicebus.?.?.?.jar file from [latest release](ht
 
 - [AzServiceBusSampler.jmx](../samples/AzServiceBusSampler.jmx)
 
+<!--
 ### Tutorial
 
-- [How to request to Azure Service Bus by Apache JMeter™](https://blog.pnop.co.jp/jmeter-azure-event-hubs_en/)
+- [How to request to Azure Service Bus by Apache JMeter™](https://blog.pnop.co.jp/jmeter-azure-service-bus_en/)
+-->
