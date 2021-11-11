@@ -89,8 +89,6 @@ Download jmeter-plugins-azure-servicebus.?.?.?.jar file from [latest release](ht
 
 - [AzServiceBusSampler.jmx](../samples/AzServiceBusSampler.jmx)
 
-<!--
 ### Tutorial
 
 - [How to request to Azure Service Bus by Apache JMeter™](https://blog.pnop.co.jp/jmeter-azure-service-bus_en/)
--->
