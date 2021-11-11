@@ -166,8 +166,9 @@ public class AzServiceBusSamplerGui extends AbstractSamplerGui implements Proper
     }
 
     private JPanel createTransactionStatusPanel() {
+        JLabel transactionState = new JLabel("Transaction state");
         continueTransaction = new JRadioButton(AzServiceBusSampler.CONTINUE_TRANSACTION);
-        continueTransaction.setText("Continue transaction");
+        continueTransaction.setText("Continue transaction:");
         transactionStatusGroup.add(continueTransaction);
         
         commitTransaction = new JRadioButton(AzServiceBusSampler.COMMIT_TRANSACTION);
@@ -179,6 +180,7 @@ public class AzServiceBusSamplerGui extends AbstractSamplerGui implements Proper
         transactionStatusGroup.add(rollbackTransaction);
 
         HorizontalPanel panel = new HorizontalPanel();
+        panel.add(transactionState);
         panel.add(continueTransaction);
         panel.add(commitTransaction);
         panel.add(rollbackTransaction);
