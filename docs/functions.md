@@ -11,7 +11,7 @@
 
 ## How to install
 
-Download jmeter-plugins-functions-azure-?.?.?.jar file from [latest release](https://github.com/pnopjp/jmeter-plugins/releases/latest) and put it into lib/ext directory of JMeter \(ex. /usr/local/jmeter/lib/ext\), then restart JMeter.
+Download jmeter-plugins-functions-azure-?.?.?.jar file from [latest release](https://github.com/pnopjp/jmeter-plugins/releases/latest) and put it into lib/ext directory of JMeter \(e.g. /usr/local/jmeter/lib/ext\), then restart JMeter.
 
 ## __AzAdAccessToken
 
@@ -25,12 +25,12 @@ This function gets the access token for the Azure AD application from the Azure 
 |Grant type|Only "password" can be used.|Yes|
 |Application \(Client\) ID|The client identifier of Azure AD application.|Yes|
 |Client secret|Client secret of Azure AD application.|Yes|
-|Username|Access user account name. \(ex. name<span></span>@example.onmicrosoft.com\)|Yes|
+|Username|Access user account name. \(e.g. name<span></span>@example.onmicrosoft.com\)|Yes|
 |Password|Access user password.|Yes|
 |Scope|Acess Token Scope.|No|
 |Resource|App ID URI of the receiving web service.<br />Valid only for Azure AD version 1.<br />If you omit this, the "Application ID" value is applied.|No|
 |Azure AD version|v2.0 or empty string.|No|
-|Azure AD endpoint URI|Specify when using an Azure AD endpoint, such as Azure Government or Azure China.<br />\(ex. login<span></span>.partner.microsoftonline.cn\)<br />Or you can use some abbreviations. \(us / cn / de\)<br />The default is Azure global endpoint.<br />\* But I haven't been able to test with Azure Govement, Azure China or Azure Germany, because I don't have subscriptions there. If you use these Azure, I would be happy to have you report your results to [here](https://github.com/pnopjp/jmeter-plugins/issues).|No|
+|Azure AD endpoint URI|Specify when using an Azure AD endpoint, such as Azure Government or Azure China.<br />\(e.g. login<span></span>.partner.microsoftonline.cn\)<br />Or you can use some abbreviations. \(us / cn / de\)<br />The default is Azure global endpoint.<br />\* But I haven't been able to test with Azure Govement, Azure China or Azure Germany, because I don't have subscriptions there. If you use these Azure, I would be happy to have you report your results to [here](https://github.com/pnopjp/jmeter-plugins/issues).|No|
 |Name of variable|The name of the variable to set.|No|
 
 ### Examples
@@ -62,7 +62,7 @@ AzAppServiceAuthenticationToken gets the authentication token that should be spe
 
 |Attribute|Description|Required|
 |----|----|----|
-|Azure App Service hostname|Your Azure App Service hosname \(ex. example<span></span>.azurewebsites.net, www<span></span>.example.com\)|Yes|
+|Azure App Service hostname|Your Azure App Service hosname \(e.g. example<span></span>.azurewebsites.net, www<span></span>.example.com\)|Yes|
 |Provider|Authentication provider. \(aad, google, facebook, twitter\)|Yes|
 |access_token or id_token|Access token (aad, facebook, twitter) or id_token (google) obtained from the provider.|Yes|
 |twitter access_token_secret|In the case of twitter, set Access token secret.|No|
