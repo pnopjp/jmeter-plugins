@@ -136,26 +136,6 @@ public class AzServiceBusClientParamsPanel extends AbstractConfigGui implements 
             element.setProperty(AzServiceBusClientParams.PROTOCOL, protocol.getText());
         }
         element.setProperty(AzServiceBusClientParams.CONNECTION_TYPE, connectionType);
-
-        /*
-        element.setProperty(AzServiceBusClientParams.NAMESPACE_NAME, namespaceName.getText());
-        element.setProperty(AzServiceBusClientParams.AUTH_TYPE, authType.getText());
-        if (authType.getText() == AzServiceBusClientParams.AUTHTYPE_AAD) {
-            element.setProperty(AzServiceBusClientParams.AAD_CREDENTIAL, aadCredential.getText());
-        } else { // AUTHTYPE_SAS
-            element.setProperty(AzServiceBusClientParams.SHARED_ACCESS_KEY_NAME, sharedAccessKeyName.getText());
-            element.setProperty(AzServiceBusClientParams.SHARED_ACCESS_KEY, new String(sharedAccessKey.getPassword()));
-        }
-        String destType = "";
-        if (destTypeTopic.isSelected()) {
-            destType = AzServiceBusClientParams.DEST_TYPE_TOPIC;
-        } else {
-            destType = AzServiceBusClientParams.DEST_TYPE_QUEUE;
-        };
-        element.setProperty(AzServiceBusClientParams.DEST_TYPE, destType);
-        element.setProperty(AzServiceBusClientParams.QUEUE_NAME, queueName.getText());
-        element.setProperty(AzServiceBusClientParams.PROTOCOL, protocol.getText());
-        */
     }
 
     /**
