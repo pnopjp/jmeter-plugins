@@ -6,13 +6,14 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins-protocol-azure</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
     <packaging>pom</packaging>
     <modules>
         <module>amqp</module>
         <module>aad</module>
         <module>eventhubs</module>
         <module>servicebus</module>
+        <module>storagequeue</module>
         <!-- <module>iothub</module> -->
     </modules>
 </project>
