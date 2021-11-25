@@ -21,11 +21,21 @@ jobs:
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
-    - name: Build with Maven of functions
+    - name: Build with Maven of project
+      run: |
+        export MVN_ARGS_PROJECT="-DbuildNumberSuffix= -B --file pom.xml"
+        mvn ${MVN_ARGS_PROJECT} package
+
+    - name: Get built jar filename
       run: |
         export MVN_ARGS_FUNCTIONS="-DbuildNumberSuffix= -B --file plugins/functions/pom.xml"
-        mvn ${MVN_ARGS_FUNCTIONS} package
         echo "FILENAME_FUNCTIONS=$(mvn ${MVN_ARGS_FUNCTIONS} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
+        export MVN_ARGS_PROTOCOL_EVENTHUBS="-DbuildNumberSuffix= -B --file plugins/protocol/eventhubs/pom.xml"
+        echo "FILENAME_PROTOCOL_EVENTHUBS=$(mvn ${MVN_ARGS_PROTOCOL_EVENTHUBS} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
+        export MVN_ARGS_PROTOCOL_SERVICEBUS="-DbuildNumberSuffix= -B --file plugins/protocol/servicebus/pom.xml"
+        echo "FILENAME_PROTOCOL_SERVICEBUS=$(mvn ${MVN_ARGS_PROTOCOL_SERVICEBUS} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
+        export MVN_ARGS_PROTOCOL_STORAGEQUEUE="-DbuildNumberSuffix= -B --file plugins/protocol/storagequeue/pom.xml"
+        echo "FILENAME_PROTOCOL_STORAGEQUEUE=$(mvn ${MVN_ARGS_PROTOCOL_STORAGEQUEUE} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
 
     - name: Upload built jar of functions
       uses: actions/upload-release-asset@v1
@@ -36,17 +46,6 @@ jobs:
         asset_path: ./plugins/functions/target/${{ env.FILENAME_FUNCTIONS }}.jar
         asset_name: ${{ env.FILENAME_FUNCTIONS }}.jar
         asset_content_type: application/java-archive
-
-    - name: Build with Maven of samplers
-      run: |
-        export MVN_ARGS_PROTOCOL="-DbuildNumberSuffix= -B --file plugins/protocol/pom.xml"
-        mvn ${MVN_ARGS_PROTOCOL} clean package
-        export MVN_ARGS_PROTOCOL_EVENTHUBS="-DbuildNumberSuffix= -B --file plugins/protocol/eventhubs/pom.xml"
-        echo "FILENAME_PROTOCOL_EVENTHUBS=$(mvn ${MVN_ARGS_PROTOCOL_EVENTHUBS} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
-        export MVN_ARGS_PROTOCOL_SERVICEBUS="-DbuildNumberSuffix= -B --file plugins/protocol/servicebus/pom.xml"
-        echo "FILENAME_PROTOCOL_SERVICEBUS=$(mvn ${MVN_ARGS_PROTOCOL_SERVICEBUS} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
-        export MVN_ARGS_PROTOCOL_STORAGEQUEUE="-DbuildNumberSuffix= -B --file plugins/protocol/storagequeue/pom.xml"
-        echo "FILENAME_PROTOCOL_STORAGEQUEUE=$(mvn ${MVN_ARGS_PROTOCOL_STORAGEQUEUE} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
     
     - name: Upload built jar of AzEventHubs sampler
       uses: actions/upload-release-asset@v1
