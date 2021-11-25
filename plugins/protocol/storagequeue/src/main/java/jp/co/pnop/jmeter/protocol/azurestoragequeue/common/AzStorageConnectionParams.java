@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.property.StringProperty;
+import org.apache.jorphan.util.JOrphanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,7 +157,7 @@ public class AzStorageConnectionParams extends AbstractTestElement {
                 .replaceAll("(SharedAccessSignature=)[^;]*([;$])", "$1********$2")
                 .replaceAll("(AccountKey=)[^;]*([;$])", "$1********$2");
             params = params.concat("Connection string: ").concat(maskedConnectionString).concat("\n");
-            if (!getQueueName().isBlank()) {
+            if (!JOrphanUtils.isBlank(getQueueName())) {
                 params = params.concat("Queue name: ").concat(getQueueName()).concat("\n");
             }
         } else { // AUTHTYPE_SAS or AUTHTYPE_AAD
@@ -171,11 +172,11 @@ public class AzStorageConnectionParams extends AbstractTestElement {
                 .replaceAll("([\\?&]si=)[^\\?&]*", "$1****")
                 .replaceAll("([\\?&]sig=)[^\\?&]*", "$1********");
             params = params.concat("Endpoint Url: ").concat(maskedEndpointUrl).concat("\n");
-            if (!getQueueName().isBlank()) {
+            if (!JOrphanUtils.isBlank(getQueueName())) {
                 params = params.concat("Queue name: ").concat(getQueueName()).concat("\n");
             }
             if (authType.equals(AUTHTYPE_SAS)) {
-                if (!getSasToken().isBlank()) {
+                if (!JOrphanUtils.isBlank(getSasToken())) {
                     params = params.concat("SAS token: ********\n");
                 }
             } else if (authType.equals(AUTHTYPE_AAD)) {
@@ -194,20 +195,20 @@ public class AzStorageConnectionParams extends AbstractTestElement {
 
         if (authType.equals(AUTHTYPE_CONNECTION_STRING) || authType.equals(AUTHTYPE_KEY)) {
             queueClientBuilder = queueClientBuilder.connectionString(getConnectionString());
-            if (!getQueueName().isBlank()) {
+            if (!JOrphanUtils.isBlank(getQueueName())) {
                 queueClientBuilder = queueClientBuilder.queueName(getQueueName());
             }
         } else if (authType.equals(AUTHTYPE_SAS)) {
             queueClientBuilder = queueClientBuilder.endpoint(getEndpointUrl());
-            if (!getQueueName().isBlank()) {
+            if (!JOrphanUtils.isBlank(getQueueName())) {
                 queueClientBuilder = queueClientBuilder.queueName(getQueueName());
             }
-            if (!getSasToken().isBlank()) {
+            if (!JOrphanUtils.isBlank(getSasToken())) {
                 queueClientBuilder = queueClientBuilder.sasToken(getSasToken());
             }
         } else if (authType.equals(AUTHTYPE_AAD)) {
             queueClientBuilder = queueClientBuilder.endpoint(getEndpointUrl());
-            if (!getQueueName().isBlank()) {
+            if (!JOrphanUtils.isBlank(getQueueName())) {
                 queueClientBuilder = queueClientBuilder.queueName(getQueueName());
             }
             AzAdCredentialComponentImpl credential = AzAdCredential.getCredential(getAadCredential());

@@ -18,6 +18,7 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestStateListener;
 import org.apache.jmeter.testelement.property.StringProperty;
 import org.apache.jmeter.testelement.property.TestElementProperty;
+import org.apache.jorphan.util.JOrphanUtils;
 
 import com.azure.core.http.rest.Response;
 import com.azure.storage.queue.*;
@@ -159,21 +160,21 @@ public class AzStorageQueueSampler extends AbstractSampler implements TestStateL
             Duration visibilityTimeout = null;
             Duration timeToLive = null;
             Duration timeout = null;
-            if (!getVisibilityTimeout().isBlank()) {
+            if (!JOrphanUtils.isBlank(getVisibilityTimeout())) {
                 try {
                     visibilityTimeout = Duration.ofSeconds(Long.parseLong(getVisibilityTimeout()));
                 } catch (NumberFormatException exc) {
                     throw new NumberFormatException(exc.getMessage().concat(" [Visibility timeout]"));
                 }
             }
-            if (!getTimeToLive().isBlank()) {
+            if (!JOrphanUtils.isBlank(getTimeToLive())) {
                 try {
                     timeToLive = Duration.ofSeconds(Long.parseLong(getTimeToLive()));
                 } catch (NumberFormatException exc) {
                     throw new NumberFormatException(exc.getMessage().concat(" [Time to live]"));
                 }
             }
-            if (!getTimeout().isBlank()) {
+            if (!JOrphanUtils.isBlank(getTimeout())) {
                 try {
                     timeout = Duration.ofSeconds(Long.parseLong(getTimeout()));
                 } catch (NumberFormatException exc) {
