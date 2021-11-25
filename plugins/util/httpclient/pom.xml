@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>jp.co.pnop</groupId>
-    <artifactId>jmeter-plugins-azure-storage-queue</artifactId>
+    <artifactId>jmeter-plugins-azure-util-httpclient</artifactId>
     <version>0.1.0</version>
 
-    <name>Azure Storage Queue Sampler</name>
-    <description>Sample to Azure Storage Queue</description>
+    <name>Http client utility</name>
+    <description>Return default http client</description>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -88,24 +88,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.11.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.azure</groupId>
-            <artifactId>azure-storage-queue</artifactId>
-            <version>12.11.0-beta.1</version>
-        </dependency>
-        <dependency>
-            <groupId>jp.co.pnop</groupId>
-            <artifactId>jmeter-plugins-azure-ad</artifactId>
-            <version>0.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>jp.co.pnop</groupId>
-            <artifactId>jmeter-plugins-azure-util-httpclient</artifactId>
-            <version>0.1.0</version>
+            <artifactId>azure-core-http-netty</artifactId>
+            <version>1.10.1</version>
         </dependency>
     </dependencies>
     <build>
@@ -138,22 +123,9 @@
                 <configuration>
                     <artifactSet>
                         <includes>
-                            <include>jp.co.pnop:jmeter-plugins-azure-ad</include>
-                            <include>jp.co.pnop:jmeter-plugins-azure-util-httpclient</include>
-                            <include>com.azure:azure-storage-common</include>
-                            <include>com.azure:azure-storage-queue</include>
-
-                            <include>org.codehaus.woodstox:stax2-api</include>
-                            <include>com.fasterxml.woodstox:woodstox-core</include>
-                            <include>com.fasterxml.jackson.module:jackson-module-jaxb-annotations</include>
+                            <include>com.azure:azure-core-http-netty</include>
                         </includes>
                     </artifactSet>
-                    <relocations>
-                        <relocatioin>
-                            <pattern>com.fasterxml.jackson</pattern>
-                            <shadedPattern>shaded.com.fasterxml.jackson</shadedPattern>
-                        </relocatioin>
-                    </relocations>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>

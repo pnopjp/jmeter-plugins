@@ -223,7 +223,9 @@ public class AzStorageQueueSampler extends AbstractSampler implements TestStateL
             log.info("Error calling {} sampler. ", threadName, ex);
             
             try {
-                if (ex.getCause().getClass().getTypeName().equals("java.net.UnknownHostException")) {
+                String typeName = ex.getCause().getClass().getTypeName();
+                if (typeName.equals("java.net.UnknownHostException")
+                || typeName.equals("io.netty.channel.AbstractChannel$AnnotatedConnectException")) {
                     responseData = ex.getCause().getMessage();
                 } else {
                     responseData = ex.toString();

@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.4.1">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="TENANT_ID" elementType="Argument">
+            <stringProp name="Argument.name">TENANT_ID</stringProp>
+            <stringProp name="Argument.value">********-****-****-****-************</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="CLIENT_ID" elementType="Argument">
+            <stringProp name="Argument.name">CLIENT_ID</stringProp>
+            <stringProp name="Argument.value">********-****-****-****-************</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="CLIENT_SECRET" elementType="Argument">
+            <stringProp name="Argument.name">CLIENT_SECRET</stringProp>
+            <stringProp name="Argument.value">************</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ACCOUNT_NAME" elementType="Argument">
+            <stringProp name="Argument.name">ACCOUNT_NAME</stringProp>
+            <stringProp name="Argument.value">********</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="STORAGE_KEY" elementType="Argument">
+            <stringProp name="Argument.name">STORAGE_KEY</stringProp>
+            <stringProp name="Argument.value">************</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="QUEUE_NAME" elementType="Argument">
+            <stringProp name="Argument.name">QUEUE_NAME</stringProp>
+            <stringProp name="Argument.value">********</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="ACCOUNT_SAS_TOKEN" elementType="Argument">
+            <stringProp name="Argument.name">ACCOUNT_SAS_TOKEN</stringProp>
+            <stringProp name="Argument.value">sv=****-**-**&amp;ss=*&amp;srt=***&amp;st=****-**-**T**%3A**%3A**Z&amp;se=****-**-**T**%3A**%3A**Z&amp;sp=a&amp;sig=********</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="QUEUE_SAS_TOKEN" elementType="Argument">
+            <stringProp name="Argument.name">QUEUE_SAS_TOKEN</stringProp>
+            <stringProp name="Argument.value">?sv=****-**-**&amp;si=********&amp;sig=********</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </Arguments>
+      <hashTree/>
+      <jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential guiclass="jp.co.pnop.jmeter.protocol.aad.config.gui.AzAdCredentialGui" testclass="jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential" testname="Azure AD Credential" enabled="true">
+        <stringProp name="credentialName">aad</stringProp>
+        <stringProp name="credentialType">Client secret</stringProp>
+        <stringProp name="authorityHost">login.microsoftonline.com</stringProp>
+        <stringProp name="tenantId">${TENANT_ID}</stringProp>
+        <stringProp name="clientId">${CLIENT_ID}</stringProp>
+        <stringProp name="clientSecret">${CLIENT_SECRET}</stringProp>
+        <stringProp name="filetype"></stringProp>
+        <stringProp name="filename"></stringProp>
+        <stringProp name="filePassword"></stringProp>
+        <stringProp name="username"></stringProp>
+        <stringProp name="password"></stringProp>
+        <stringProp name="redirectUrl"></stringProp>
+      </jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential>
+      <hashTree/>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.gui.AzStorageQueueSamplerGui" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler" testname="Account Connection String" enabled="true">
+          <elementProp name="storageConnectionParams" elementType="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.gui.AzStorageConnectionParamsPanel" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" enabled="true">
+            <stringProp name="authType">Connection string</stringProp>
+            <stringProp name="connectionName"></stringProp>
+            <stringProp name="connectionString">DefaultEndpointsProtocol=https;AccountName=${ACCOUNT_NAME};AccountKey=${STORAGE_KEY};EndpointSuffix=core.windows.net</stringProp>
+            <stringProp name="defaultEndpointsProtocol">https</stringProp>
+            <stringProp name="accoutName"></stringProp>
+            <stringProp name="storageKey"></stringProp>
+            <stringProp name="endpointSuffix">core.windows.net</stringProp>
+            <stringProp name="aadCredential"></stringProp>
+            <stringProp name="queueName">${QUEUE_NAME}</stringProp>
+            <stringProp name="sasToken"></stringProp>
+            <stringProp name="endpointUrl"></stringProp>
+          </elementProp>
+          <stringProp name="messageType">String / Base64 encoded binary</stringProp>
+          <stringProp name="message">Account Connection String</stringProp>
+          <stringProp name="messageFile"></stringProp>
+          <stringProp name="visibilityTimeout"></stringProp>
+          <stringProp name="timeToLive"></stringProp>
+          <stringProp name="timeout">90</stringProp>
+        </jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler>
+        <hashTree/>
+        <jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.gui.AzStorageQueueSamplerGui" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler" testname="Storage Key" enabled="true">
+          <elementProp name="storageConnectionParams" elementType="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.gui.AzStorageConnectionParamsPanel" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" enabled="true">
+            <stringProp name="authType">Storage Key</stringProp>
+            <stringProp name="connectionName"></stringProp>
+            <stringProp name="connectionString">DefaultEndpointsProtocol=https;AccountName=${ACCOUNT_NAME};AccountKey=${STORAGE_KEY};EndpointSuffix=core.windows.net;</stringProp>
+            <stringProp name="defaultEndpointsProtocol">https</stringProp>
+            <stringProp name="accoutName">${ACCOUNT_NAME}</stringProp>
+            <stringProp name="storageKey">${STORAGE_KEY}</stringProp>
+            <stringProp name="endpointSuffix">core.windows.net</stringProp>
+            <stringProp name="aadCredential"></stringProp>
+            <stringProp name="queueName">${QUEUE_NAME}</stringProp>
+            <stringProp name="sasToken"></stringProp>
+            <stringProp name="endpointUrl"></stringProp>
+          </elementProp>
+          <stringProp name="messageType">String / Base64 encoded binary</stringProp>
+          <stringProp name="message">Storage Key</stringProp>
+          <stringProp name="messageFile"></stringProp>
+          <stringProp name="visibilityTimeout"></stringProp>
+          <stringProp name="timeToLive"></stringProp>
+          <stringProp name="timeout"></stringProp>
+        </jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler>
+        <hashTree/>
+        <jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.gui.AzStorageQueueSamplerGui" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler" testname="Account SAS Connection String" enabled="true">
+          <elementProp name="storageConnectionParams" elementType="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.gui.AzStorageConnectionParamsPanel" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" enabled="true">
+            <stringProp name="authType">Connection string</stringProp>
+            <stringProp name="connectionName"></stringProp>
+            <stringProp name="connectionString">SharedAccessSignature=${ACCOUNT_SAS_TOKEN};QueueEndpoint=https://${ACCOUNT_NAME}.queue.core.windows.net/;</stringProp>
+            <stringProp name="defaultEndpointsProtocol">https</stringProp>
+            <stringProp name="accoutName"></stringProp>
+            <stringProp name="storageKey"></stringProp>
+            <stringProp name="endpointSuffix">core.windows.net</stringProp>
+            <stringProp name="aadCredential"></stringProp>
+            <stringProp name="queueName">${QUEUE_NAME}</stringProp>
+            <stringProp name="sasToken"></stringProp>
+            <stringProp name="endpointUrl"></stringProp>
+          </elementProp>
+          <stringProp name="messageType">String / Base64 encoded binary</stringProp>
+          <stringProp name="message">Account SAS Connection String</stringProp>
+          <stringProp name="messageFile"></stringProp>
+          <stringProp name="visibilityTimeout"></stringProp>
+          <stringProp name="timeToLive"></stringProp>
+          <stringProp name="timeout"></stringProp>
+        </jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler>
+        <hashTree/>
+        <jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.gui.AzStorageQueueSamplerGui" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler" testname="Account SAS URL (Queue service SAS URL)" enabled="true">
+          <elementProp name="storageConnectionParams" elementType="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.gui.AzStorageConnectionParamsPanel" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" enabled="true">
+            <stringProp name="authType">Shared access signature</stringProp>
+            <stringProp name="connectionName"></stringProp>
+            <stringProp name="connectionString"></stringProp>
+            <stringProp name="defaultEndpointsProtocol">https</stringProp>
+            <stringProp name="accoutName"></stringProp>
+            <stringProp name="storageKey"></stringProp>
+            <stringProp name="endpointSuffix">core.windows.net</stringProp>
+            <stringProp name="aadCredential"></stringProp>
+            <stringProp name="queueName">${QUEUE_NAME}</stringProp>
+            <stringProp name="sasToken"></stringProp>
+            <stringProp name="endpointUrl">https://${ACCOUNT_NAME}.queue.core.windows.net/?${ACCOUNT_SAS_TOKEN}</stringProp>
+          </elementProp>
+          <stringProp name="messageType">String / Base64 encoded binary</stringProp>
+          <stringProp name="message">Queue service SAS URL</stringProp>
+          <stringProp name="messageFile"></stringProp>
+          <stringProp name="visibilityTimeout"></stringProp>
+          <stringProp name="timeToLive"></stringProp>
+          <stringProp name="timeout"></stringProp>
+        </jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler>
+        <hashTree/>
+        <jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.gui.AzStorageQueueSamplerGui" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler" testname="Account SAS token" enabled="true">
+          <elementProp name="storageConnectionParams" elementType="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.gui.AzStorageConnectionParamsPanel" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" enabled="true">
+            <stringProp name="authType">Shared access signature</stringProp>
+            <stringProp name="connectionName"></stringProp>
+            <stringProp name="connectionString"></stringProp>
+            <stringProp name="defaultEndpointsProtocol">https</stringProp>
+            <stringProp name="accoutName"></stringProp>
+            <stringProp name="storageKey"></stringProp>
+            <stringProp name="endpointSuffix">core.windows.net</stringProp>
+            <stringProp name="aadCredential"></stringProp>
+            <stringProp name="queueName">${QUEUE_NAME}</stringProp>
+            <stringProp name="sasToken">${ACCOUNT_SAS_TOKEN}</stringProp>
+            <stringProp name="endpointUrl">https://${ACCOUNT_NAME}.queue.core.windows.net/</stringProp>
+          </elementProp>
+          <stringProp name="messageType">String / Base64 encoded binary</stringProp>
+          <stringProp name="message">Queue service Endpoint URL</stringProp>
+          <stringProp name="messageFile"></stringProp>
+          <stringProp name="visibilityTimeout"></stringProp>
+          <stringProp name="timeToLive"></stringProp>
+          <stringProp name="timeout"></stringProp>
+        </jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler>
+        <hashTree/>
+        <jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.gui.AzStorageQueueSamplerGui" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler" testname="Queue SAS URL" enabled="true">
+          <elementProp name="storageConnectionParams" elementType="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.gui.AzStorageConnectionParamsPanel" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" enabled="true">
+            <stringProp name="authType">Shared access signature</stringProp>
+            <stringProp name="connectionName"></stringProp>
+            <stringProp name="connectionString"></stringProp>
+            <stringProp name="defaultEndpointsProtocol">https</stringProp>
+            <stringProp name="accoutName"></stringProp>
+            <stringProp name="storageKey"></stringProp>
+            <stringProp name="endpointSuffix">core.windows.net</stringProp>
+            <stringProp name="aadCredential"></stringProp>
+            <stringProp name="queueName"></stringProp>
+            <stringProp name="sasToken"></stringProp>
+            <stringProp name="endpointUrl">https://${ACCOUNT_NAME}.queue.core.windows.net/${QUEUE_NAME}${QUEUE_SAS_TOKEN}</stringProp>
+          </elementProp>
+          <stringProp name="messageType">String / Base64 encoded binary</stringProp>
+          <stringProp name="message">Queue SAS URL</stringProp>
+          <stringProp name="messageFile"></stringProp>
+          <stringProp name="visibilityTimeout"></stringProp>
+          <stringProp name="timeToLive"></stringProp>
+          <stringProp name="timeout"></stringProp>
+        </jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler>
+        <hashTree/>
+        <jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.gui.AzStorageQueueSamplerGui" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler" testname="Queue SAS token" enabled="true">
+          <elementProp name="storageConnectionParams" elementType="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.gui.AzStorageConnectionParamsPanel" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" enabled="true">
+            <stringProp name="authType">Shared access signature</stringProp>
+            <stringProp name="connectionName"></stringProp>
+            <stringProp name="connectionString"></stringProp>
+            <stringProp name="defaultEndpointsProtocol">https</stringProp>
+            <stringProp name="accoutName"></stringProp>
+            <stringProp name="storageKey"></stringProp>
+            <stringProp name="endpointSuffix">core.windows.net</stringProp>
+            <stringProp name="aadCredential"></stringProp>
+            <stringProp name="queueName">${QUEUE_NAME}</stringProp>
+            <stringProp name="sasToken">${QUEUE_SAS_TOKEN}</stringProp>
+            <stringProp name="endpointUrl">https://${ACCOUNT_NAME}.queue.core.windows.net/</stringProp>
+          </elementProp>
+          <stringProp name="messageType">String / Base64 encoded binary</stringProp>
+          <stringProp name="message">Queue SAS Endpoint URL</stringProp>
+          <stringProp name="messageFile"></stringProp>
+          <stringProp name="visibilityTimeout"></stringProp>
+          <stringProp name="timeToLive"></stringProp>
+          <stringProp name="timeout"></stringProp>
+        </jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler>
+        <hashTree/>
+        <jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.gui.AzStorageQueueSamplerGui" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler" testname="AAD" enabled="true">
+          <elementProp name="storageConnectionParams" elementType="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" guiclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.gui.AzStorageConnectionParamsPanel" testclass="jp.co.pnop.jmeter.protocol.azurestoragequeue.common.AzStorageConnectionParams" enabled="true">
+            <stringProp name="authType">Azure AD credential</stringProp>
+            <stringProp name="connectionName"></stringProp>
+            <stringProp name="connectionString"></stringProp>
+            <stringProp name="defaultEndpointsProtocol">https</stringProp>
+            <stringProp name="accoutName"></stringProp>
+            <stringProp name="storageKey"></stringProp>
+            <stringProp name="endpointSuffix">core.windows.net</stringProp>
+            <stringProp name="aadCredential">aad</stringProp>
+            <stringProp name="queueName">${QUEUE_NAME}</stringProp>
+            <stringProp name="sasToken"></stringProp>
+            <stringProp name="endpointUrl">https://${ACCOUNT_NAME}.queue.core.windows.net/</stringProp>
+          </elementProp>
+          <stringProp name="messageType">String / Base64 encoded binary</stringProp>
+          <stringProp name="message">AAD</stringProp>
+          <stringProp name="messageFile"></stringProp>
+          <stringProp name="visibilityTimeout"></stringProp>
+          <stringProp name="timeToLive"></stringProp>
+          <stringProp name="timeout"></stringProp>
+        </jp.co.pnop.jmeter.protocol.azurestoragequeue.sampler.AzStorageQueueSampler>
+        <hashTree/>
+      </hashTree>
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <url>true</url>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+      </ResultCollector>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

@@ -11,6 +11,7 @@ import com.azure.storage.queue.*;
 
 import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential;
 import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential.AzAdCredentialComponentImpl;
+import jp.co.pnop.jmeter.util.httpclient.AzUtilHttpClient;
 
 public class AzStorageConnectionParams extends AbstractTestElement {
     private static final long serialVersionUID = 1L;
@@ -213,12 +214,7 @@ public class AzStorageConnectionParams extends AbstractTestElement {
             queueClientBuilder = queueClientBuilder.credential(credential.getCredential());
         }
 
-        /*
-        producerBuilder = producerBuilder.proxyOptions(new AzAmqpProxyOptions().ProxyOptions());
-        ProxyOptions proxyOptions = new AzAmqpProxyOptions().ProxyOptions();
-        producerBuilder.proxyOptions(proxyOptions);
-        producerBuilder = producerBuilder.transportType(protocol);
-        */
+        queueClientBuilder =  queueClientBuilder.httpClient(AzUtilHttpClient.httpClientBase());
         queueClient = queueClientBuilder.buildClient();
         log.debug("Created connection: {}", queueClient.toString());
 

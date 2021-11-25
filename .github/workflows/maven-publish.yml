@@ -45,6 +45,8 @@ jobs:
         echo "FILENAME_PROTOCOL_EVENTHUBS=$(mvn ${MVN_ARGS_PROTOCOL_EVENTHUBS} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
         export MVN_ARGS_PROTOCOL_SERVICEBUS="-DbuildNumberSuffix= -B --file plugins/protocol/servicebus/pom.xml"
         echo "FILENAME_PROTOCOL_SERVICEBUS=$(mvn ${MVN_ARGS_PROTOCOL_SERVICEBUS} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
+        export MVN_ARGS_PROTOCOL_STORAGEQUEUE="-DbuildNumberSuffix= -B --file plugins/protocol/storagequeue/pom.xml"
+        echo "FILENAME_PROTOCOL_STORAGEQUEUE=$(mvn ${MVN_ARGS_PROTOCOL_STORAGEQUEUE} org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate -Dexpression=project.build.finalName -q -DforceStdout)" >> $GITHUB_ENV
     
     - name: Upload built jar of AzEventHubs sampler
       uses: actions/upload-release-asset@v1
@@ -64,4 +66,14 @@ jobs:
         upload_url: ${{ github.event.release.upload_url }} 
         asset_path: ./plugins/protocol/servicebus/target/${{ env.FILENAME_PROTOCOL_SERVICEBUS }}.jar
         asset_name: ${{ env.FILENAME_PROTOCOL_SERVICEBUS }}.jar
+        asset_content_type: application/java-archive
+    
+    - name: Upload built jar of AzStorageQueue sampler
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }} 
+        asset_path: ./plugins/protocol/storagequeue/target/${{ env.FILENAME_PROTOCOL_STORAGEQUEUE }}.jar
+        asset_name: ${{ env.FILENAME_PROTOCOL_STORAGEQUEUE }}.jar
         asset_content_type: application/java-archive
