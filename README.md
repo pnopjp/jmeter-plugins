@@ -8,6 +8,8 @@ This library contains Microsoft Azure plugin for Apache JMeter™.
     Useful functions for testing to Azure.
 - Samplers for Azure services
     - Azure Event Hubs
+    - Azure Service Bus Queue
+    - Azure Storage Queue
 
 It has been optimized for use with the [Load Tester Powered by Apache JMeter™](https://azuremarketplace.microsoft.com/en-us/marketplace/apps/pnop.jmeter-multiple-remote-servers).
 
