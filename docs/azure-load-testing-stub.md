@@ -25,7 +25,7 @@ This stub retrieve the secret value stored in one of the environment variables, 
 Configure the following settings according to the type of secret store.
 
 - [Environment variables](#get-secret-value-from-environment-variables)
-- [jmeter.properties or user.properties](#get-secret-value-from-jmeter-properties-or-user-properties)
+- [jmeter.properties or user.properties](#get-secret-value-from-jmeterproperties-or-userproperties)
 - [Azure Key Vault](#get-secret-value-from-Azure-Key-Vault)
 
 #### Get secret value from environment variables
