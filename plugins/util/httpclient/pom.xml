@@ -4,7 +4,7 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins-azure-util-httpclient</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
 
     <name>Http client utility</name>
     <description>Return default http client</description>
@@ -124,6 +124,7 @@
                     <artifactSet>
                         <includes>
                             <include>com.azure:azure-core-http-netty</include>
+                            <include>io.netty:netty-handler-proxy</include>
                         </includes>
                     </artifactSet>
                     <filters>
