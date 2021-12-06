@@ -156,25 +156,27 @@ The authentication method can be selected from the following.
     |Parameter|Description|Required|
     |-|-|-|
     |vault_uri|Vault URI of Azure Key Vault<br />e.g. https:/<span></span>/yourekeyvault.vault.azure.net|Yes|
-    |secret_name|Secret name|Yes|
-    |secret_version|Secret version|No|
+    |secret_name|Secret name in Azure Key Vault|Yes|
+    |secret_version|Secret version in Azure Key Vault|No|
 
 1. Start or restart the Apache JMeter™.
 
 ### jmeter.properties/user.properties Reference
 
-|Parameter|Description|Required|
-|-|-|-|
-|store_type|Where to store the secret<ul><li>environment_variable</li><li>jmeter_properties</li><li>keyvault</li></ol>|Yes|
-|value|Secret value when store_type is jmeter_properties|No|
-|auth_type|Authentication method when store_type is keyvault<ul><li>client_secret</li><li>client_certificate</li><li>environment_variables</li><li>managed_id</li><li>interactive_browser</li><li>azure_cli</li><li>vs_code</li></ul>|No|
-|tenant_id|AAD tenant ID of the AAD application.<br />e.g.<br />youredomain<span></span>.onmicrosoft.com<br />01234567-89ab-cdef-0123-467-89abcdef0123|No|
-|client_id|Client ID of the AAD application<br />e.g.<br />01234567-89ab-cdef-0123-467-89abcdef0123|No|
-|client_secret|Secret value of the AAD application|No|
-|certificate_type|Certificate file format<br />Specify 'PFX' or 'PEM'|No|
-|certificate_file|Path of the certificate file for authenticating to AAD|No|
-|certificate_password|Password protecting the PFX file|No|
-|authority_host|AAD endpoint to acquire tokens.<br />Specify one of the following, or uri.<ul><li>AzurePublicCloud</li><li>AzureGovernment</li><li>AzureChina</li><li>AzureGermany</li></ul>|No|
+|Parameter|Description|store_type|Required|
+|-|-|-|-
+|store_type|Where to store the secret<ul><li>environment_variables</li><li>jmeter_properties</li><li>keyvault</li></ol>|environment_variables<br />jmeter_properties<br />keyvalut|Yes|
+|value|Secret value when store_type is jmeter_properties|jmeter_properties|No|
+|auth_type|Authentication method when store_type is keyvault<ul><li>client_secret</li><li>client_certificate</li><li>environment_variables</li><li>managed_id</li><li>interactive_browser</li><li>azure_cli</li><li>vs_code</li></ul>|keyvault|No|
+|tenant_id|AAD tenant ID of the AAD application.<br />e.g.<br />youredomain<span></span>.onmicrosoft.com<br />01234567-89ab-cdef-0123-467-89abcdef0123|keyvault|No|
+|client_id|Client ID of the AAD application<br />e.g.<br />01234567-89ab-cdef-0123-467-89abcdef0123|keyvault|No|
+|client_secret|Secret value of the AAD application|keyvault|No|
+|certificate_type|Certificate file format<br />Specify 'PFX' or 'PEM'|keyvault|No|
+|certificate_file|Path of the certificate file for authenticating to AAD|keyvault|No|
+|certificate_password|Password protecting the PFX file|keyvault|No|
+|authority_host|AAD endpoint to acquire tokens.<br />Specify one of the following, or uri.<ul><li>AzurePublicCloud</li><li>AzureGovernment</li><li>AzureChina</li><li>AzureGermany</li></ul>|keyvault|No|
+|secret_name|Secret name in Azure Key Vault|environment_variables<br />jmeter_properties<br />keyvalut|Yes|
+|secret_version|Secret version in Azure Key Vault|environment_variables<br />jmeter_properties<br />keyvalut|No|
 
 e.g. **${__GetSecret(secretName)}**
 
@@ -186,7 +188,7 @@ azure_load_testing_stub.get_secret.secretName.certificate_file=C:\\work\\cert.pe
 azure_load_testing_stub.get_secret.secretName.tenant_id=01234567-89ab-cdef-0123-4567890abcde
 azure_load_testing_stub.get_secret.secretName.client_id=f0123456-789a-bcde-f012-34567890abcd
 azure_load_testing_stub.get_secret.secretName.vault_uri=https://yourkeyavault.vault.azure.net
-azure_load_testing_stub.get_secret.secretName.secret_name=secretName
+azure_load_testing_stub.get_secret.secretName.secret_name=KeyVaultSecretName
 azure_load_testing_stub.get_secret.secretName.secret_version=01234567890abcdef
 ```
 
