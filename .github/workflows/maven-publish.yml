@@ -85,6 +85,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }} 
-        asset_path: ./plugins/AzLoadTestingStub/target/${{ env.FILENAME_FUNCTIONS }}.jar
-        asset_name: ${{ env.FILENAME_FUNCTIONS }}.jar
+        asset_path: ./plugins/AzLoadTestingStub/target/${{ env.FILENAME_LOADTESTINGSTUB }}.jar
+        asset_name: ${{ env.FILENAME_LOADTESTINGSTUB }}.jar
         asset_content_type: application/java-archive
