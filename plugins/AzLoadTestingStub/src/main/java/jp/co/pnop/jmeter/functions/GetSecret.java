@@ -53,6 +53,7 @@ public class GetSecret extends AbstractFunction {
     private static final String KEY_VAULT = "keyvault";
     private static final String JMETER_PROPERTIES = "jmeter_properties";
     private static final String ENVIRONMENT_VARIABLE = "environment_variable";
+    private static final String ENVIRONMENT_VARIABLES = "environment_variables";
 
     private static final String STORE_TYPE = "store_type";
     private static final String AUTH_TYPE = "auth_type";
@@ -123,6 +124,7 @@ public class GetSecret extends AbstractFunction {
 
                 //// Environment variable
                 case ENVIRONMENT_VARIABLE:
+                case ENVIRONMENT_VARIABLES:
                 String envName = new StringBuilder(ENV_GET_SECRET).append("_").append(secretNameParam).toString();
                 secret = System.getenv(envName);
                 if (JOrphanUtils.isBlank(secret)) {
@@ -137,7 +139,14 @@ public class GetSecret extends AbstractFunction {
                 default:
                 throw new GetSecretException(
                     new StringBuffer("The store type is not specified. ")
-                    .append("Set ether ").append(KEY_VAULT).append(", ").append(JMETER_PROPERTIES).append(", ").append(ENVIRONMENT_VARIABLE)
+                    .append("Set ether ")
+                    .append(KEY_VAULT).append(", ")
+                    .append(JMETER_PROPERTIES).append(", ")
+                    .append(ENVIRONMENT_VARIABLES).append(", ")
+                    .append(MANAGED_ID).append(", ")
+                    .append(INTERACTIVE_BROWSER).append(", ")
+                    .append(AZURE_CLI).append(" or ")
+                    .append(VS_CODE)
                     .append(" for ").append(JMPROPS_GET_SECRET).append(secretNameParam).append(".store_type in the jmeter.properties file or user.properties file.")
                     .toString()
                 );
@@ -240,6 +249,7 @@ public class GetSecret extends AbstractFunction {
 
             //// EnvironmentCredential
             case ENVIRONMENT_VARIABLE:
+            case ENVIRONMENT_VARIABLES:
             return new EnvironmentCredentialBuilder()
                 .authorityHost(authorityHost)
                 .httpClient(AzUtilHttpClient.httpClientBase())
