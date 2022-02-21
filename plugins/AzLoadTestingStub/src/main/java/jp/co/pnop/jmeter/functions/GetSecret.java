@@ -288,6 +288,7 @@ public class GetSecret extends AbstractFunction {
                 .httpClient(AzUtilHttpClient.httpClientBase())
                 .build();
         }
+        log.error("The setting value '{}' for the parameter '{}{}.{}' is invalid.", authType, JMPROPS_GET_SECRET, secretNameParam, AUTH_TYPE);
         return null;
     }
 
