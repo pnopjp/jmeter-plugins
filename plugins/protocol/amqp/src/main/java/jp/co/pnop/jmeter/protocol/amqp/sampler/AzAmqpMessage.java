@@ -33,12 +33,13 @@ public class AzAmqpMessage extends AbstractTestElement {
     private static final String MESSAGE_ID = "Message.messageId"; //$NON-NLS$
     private static final String GROUP_ID = "Message.groupId"; //$NON-NLS$
     private static final String PARTITION_KEY = "Message.partitionKey"; //$NON-NLS$
+    private static final String CUSTOM_PROPERTIES = "Message.customProperties"; //$NON-NLS$
 
     public AzAmqpMessage() {
     }
 
     /**
-     * Create a new Message with the specified system properties and application properties
+     * Create a new Message with the specified system properties and custom properties
      *
      * @param messageType
      *            type of message
@@ -50,6 +51,7 @@ public class AzAmqpMessage extends AbstractTestElement {
         setProperty(new StringProperty(PARTITION_KEY, ""));
         setProperty(new StringProperty(MESSAGE_ID, ""));
         setProperty(new StringProperty(GROUP_ID, ""));
+        setProperty(new StringProperty(CUSTOM_PROPERTIES, ""));
     }
 
     /**
@@ -145,6 +147,25 @@ public class AzAmqpMessage extends AbstractTestElement {
      */
     public String getPartitionKey() {
         return getPropertyAsString(PARTITION_KEY);
+    }
+
+    /**
+     * Set the custom properties of the Message.
+     *
+     * @param newCustomProperties
+     *            the new custom properties
+     */
+    public void setCustomProperties(String newCustomProperties) {
+        setProperty(new StringProperty(CUSTOM_PROPERTIES, newCustomProperties));
+    }
+
+    /**
+     * Get the custom properties.
+     *
+     * @return the custom properties
+     */
+    public String getCustomProperties() {
+        return getPropertyAsString(CUSTOM_PROPERTIES);
     }
 
 }

@@ -72,7 +72,7 @@ Download jmeter-plugins-azure-servicebus.?.?.?.jar file from [latest release](ht
 |Create transaction before sending messages|Create a transaction before sending a messages.|No|
 |Variable name for created transaction|The name of the transaction to create, if "Create transaction before sending messages" is turned on.|No|
 |Transaction state|Specify whether to commit or rollback, if "Use Defined Transaction" is selected for "Connection/Transaction".<ul><li>\[Continue transaction\]<br />No commit, and no rollback.</li><li>\[Commit transaction after sending messages\]<br />Commits the specified transaction after sending the messages.</li><li>\[Rollback transaction before sending messages\]<br />Sends the messages after the specified transaction is rolled back. (Sending messages are not included in the transaction)</li></ul>|No|
-|Messages|List of messages to be sent in batches. Select "String" to send a UTF-8 string, "Base64 encoded binary" to send a Base64 encoded binary, or "File" to send a file as binary.|No|
+|Messages|List of messages to be sent in batches. Select "String" to send a UTF-8 string, "Base64 encoded binary" to send a Base64 encoded binary, or "File" to send a file as binary.<br />To also send custom properties (user-defined properties), fill in the "custom properties" column in JSON format. (i.g., {"prop1": "value1", "porp2":2})|No|
 
 <span id="1-servicebus">\*1</span>: If "Create New Connection" is selected for "Connection/Transaction", set these parameters.  
 <span id="2-servicebus">\*2</span>: If "Shared access signature" is selected for Auth type, set these parameters.

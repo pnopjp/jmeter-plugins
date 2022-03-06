@@ -18,11 +18,11 @@ public class AzServiceBusMessagesPanel extends AzAmqpMessagesPanel {
     @Override
     protected void initializeTableModel() {
         tableModel = new ObjectTableModel(
-            new String[] { COLUMN_NAMES.get("MESSAGE_TYPE"), COLUMN_NAMES.get("MESSAGE"), COLUMN_NAMES.get("MESSAGE_ID"), "session Id", "partition key" },
+            new String[] { COLUMN_NAMES.get("MESSAGE_TYPE"), COLUMN_NAMES.get("MESSAGE"), COLUMN_NAMES.get("MESSAGE_ID"), "session Id", "partition key", COLUMN_NAMES.get("CUSTOM_PROPERTIES") },
             AzAmqpMessage.class,
-            new Functor[] { new Functor("getMessageType"), new Functor("getMessage"), new Functor("getMessageId"), new Functor("getGroupId"), new Functor("getPartitionKey") },
-            new Functor[] { new Functor("setMessageType"), new Functor("setMessage"), new Functor("setMessageId"), new Functor("setGroupId"), new Functor("setPartitionKey") },
-            new Class[] { String.class, String.class, String.class, String.class, String.class }
+            new Functor[] { new Functor("getMessageType"), new Functor("getMessage"), new Functor("getMessageId"), new Functor("getGroupId"), new Functor("getPartitionKey"), new Functor("getCustomProperties") },
+            new Functor[] { new Functor("setMessageType"), new Functor("setMessage"), new Functor("setMessageId"), new Functor("setGroupId"), new Functor("setPartitionKey"), new Functor("setCustomProperties") },
+            new Class[] { String.class, String.class, String.class, String.class, String.class, String.class }
         );
     }
 

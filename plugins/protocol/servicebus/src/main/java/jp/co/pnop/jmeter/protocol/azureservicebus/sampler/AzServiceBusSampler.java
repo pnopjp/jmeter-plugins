@@ -26,6 +26,7 @@ import java.util.Base64;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.jmeter.config.ConfigTestElement;
@@ -44,6 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.azure.messaging.servicebus.*;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.azure.core.amqp.exception.*;
 
 import jp.co.pnop.jmeter.protocol.amqp.sampler.AzAmqpMessage;
@@ -272,6 +276,13 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                     serviceBusMessage.setPartitionKey(partitionKey);
                     requestBody = requestBody.concat("\n").concat("Partition Key: ").concat(partitionKey);
                 }
+
+                String customProperties = msg.getCustomProperties();
+                if (!customProperties.isEmpty()) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    Map<String, Object> properties = mapper.readValue(customProperties, new TypeReference<Map<String, Object>>(){});
+                    serviceBusMessage.getApplicationProperties().putAll(properties);
+                }
                 
                 batch.tryAddMessage(serviceBusMessage);
                 bodyBytes += serviceBusMessage.getBody().toBytes().length;
@@ -334,7 +345,7 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
             }
             responseMessage = responseMessage.concat(ex.getMessage());
             res.setResponseData(ex.getMessage(), "UTF-8");
-        } catch (FileNotFoundException ex) {
+        } catch (FileNotFoundException | ClassCastException | JsonParseException ex){
             log.info("Error calling {} sampler. ", threadName, ex);
             res.setResponseData(ex.getMessage(), "UTF-8");
             responseMessage = responseMessage.concat(ex.getMessage());
@@ -342,10 +353,6 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
             log.info("Error calling {} sampler. ", threadName, ex);
             res.setResponseData(ex.toString(), "UTF-8");
             responseMessage = responseMessage.concat(ex.toString());
-        } catch (ClassCastException ex) {
-            log.info("Error calling {} sampler. ", threadName, ex);
-            res.setResponseData(ex.getMessage(), "UTF-8");
-            responseMessage = responseMessage.concat(ex.getMessage());
         } catch (Exception ex) {
             log.info("Error calling {} sampler. ", threadName, ex);
             res.setResponseData(ex.toString(), "UTF-8");
