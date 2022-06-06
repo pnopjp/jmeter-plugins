@@ -34,6 +34,7 @@ public class AzAmqpMessage extends AbstractTestElement {
     private static final String GROUP_ID = "Message.groupId"; //$NON-NLS$
     private static final String PARTITION_KEY = "Message.partitionKey"; //$NON-NLS$
     private static final String CUSTOM_PROPERTIES = "Message.customProperties"; //$NON-NLS$
+    private static final String CONTENT_TYPE = "Message.contentType"; //$NON-NLS$
 
     public AzAmqpMessage() {
     }
@@ -52,6 +53,7 @@ public class AzAmqpMessage extends AbstractTestElement {
         setProperty(new StringProperty(MESSAGE_ID, ""));
         setProperty(new StringProperty(GROUP_ID, ""));
         setProperty(new StringProperty(CUSTOM_PROPERTIES, ""));
+        setProperty(new StringProperty(CONTENT_TYPE, ""));
     }
 
     /**
@@ -166,6 +168,25 @@ public class AzAmqpMessage extends AbstractTestElement {
      */
     public String getCustomProperties() {
         return getPropertyAsString(CUSTOM_PROPERTIES);
+    }
+
+    /**
+     * Set the content type of the Message.
+     *
+     * @param contentType
+     *            the new content type
+     */
+    public void setContentType(String contentType) {
+        setProperty(new StringProperty(CONTENT_TYPE, contentType));
+    }
+
+    /**
+     * Get the content type.
+     *
+     * @return the content type
+     */
+    public String getContentType() {
+        return getPropertyAsString(CONTENT_TYPE);
     }
 
 }

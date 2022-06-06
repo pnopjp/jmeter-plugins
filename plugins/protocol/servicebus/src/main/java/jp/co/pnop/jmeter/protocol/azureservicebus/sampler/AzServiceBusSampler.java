@@ -283,6 +283,12 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                     Map<String, Object> properties = mapper.readValue(customProperties, new TypeReference<Map<String, Object>>(){});
                     serviceBusMessage.getApplicationProperties().putAll(properties);
                 }
+
+                String contentType = msg.getContentType();
+                if (!contentType.isEmpty()) {
+                    serviceBusMessage.setContentType(contentType);
+                    requestBody = requestBody.concat("\n").concat("Content Type: ").concat(contentType);
+                }
                 
                 batch.tryAddMessage(serviceBusMessage);
                 bodyBytes += serviceBusMessage.getBody().toBytes().length;
