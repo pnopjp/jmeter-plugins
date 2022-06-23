@@ -35,6 +35,7 @@ public class AzAmqpMessage extends AbstractTestElement {
     private static final String PARTITION_KEY = "Message.partitionKey"; //$NON-NLS$
     private static final String CUSTOM_PROPERTIES = "Message.customProperties"; //$NON-NLS$
     private static final String CONTENT_TYPE = "Message.contentType"; //$NON-NLS$
+    private static final String LABEL = "Message.label"; //$NON-NLS$
 
     public AzAmqpMessage() {
     }
@@ -42,8 +43,7 @@ public class AzAmqpMessage extends AbstractTestElement {
     /**
      * Create a new Message with the specified system properties and custom properties
      *
-     * @param messageType
-     *            type of message
+     * @param messageType type of message
      */
 
     public AzAmqpMessage(String messageType) {
@@ -54,13 +54,13 @@ public class AzAmqpMessage extends AbstractTestElement {
         setProperty(new StringProperty(GROUP_ID, ""));
         setProperty(new StringProperty(CUSTOM_PROPERTIES, ""));
         setProperty(new StringProperty(CONTENT_TYPE, ""));
+        setProperty(new StringProperty(LABEL, ""));
     }
 
     /**
      * Set the message type of the Message.
      *
-     * @param newMessageType
-     *            the new message type
+     * @param newMessageType the new message type
      */
     public void setMessageType(String newMessageType) {
         setProperty(new StringProperty(MESSAGE_TYPE, newMessageType));
@@ -78,8 +78,7 @@ public class AzAmqpMessage extends AbstractTestElement {
     /**
      * Set the message of the Message.
      *
-     * @param newMessage
-     *            the new message
+     * @param newMessage the new message
      */
     public void setMessage(String newMessage) {
         setProperty(new StringProperty(MESSAGE, newMessage));
@@ -97,8 +96,7 @@ public class AzAmqpMessage extends AbstractTestElement {
     /**
      * Set the message Id of the Message.
      *
-     * @param newMessageId
-     *            the new message Id
+     * @param newMessageId the new message Id
      */
     public void setMessageId(String newMessageId) {
         setProperty(new StringProperty(MESSAGE_ID, newMessageId));
@@ -116,8 +114,7 @@ public class AzAmqpMessage extends AbstractTestElement {
     /**
      * Set the group Id of the Message.
      *
-     * @param newGroupId
-     *            the new group Id
+     * @param newGroupId the new group Id
      */
     public void setGroupId(String newGroupId) {
         setProperty(new StringProperty(GROUP_ID, newGroupId));
@@ -135,8 +132,7 @@ public class AzAmqpMessage extends AbstractTestElement {
     /**
      * Set the partition key of the Message.
      *
-     * @param newPartitionKey
-     *            the new message Id
+     * @param newPartitionKey the new message Id
      */
     public void setPartitionKey(String newPartitionKey) {
         setProperty(new StringProperty(PARTITION_KEY, newPartitionKey));
@@ -154,8 +150,7 @@ public class AzAmqpMessage extends AbstractTestElement {
     /**
      * Set the custom properties of the Message.
      *
-     * @param newCustomProperties
-     *            the new custom properties
+     * @param newCustomProperties the new custom properties
      */
     public void setCustomProperties(String newCustomProperties) {
         setProperty(new StringProperty(CUSTOM_PROPERTIES, newCustomProperties));
@@ -173,8 +168,7 @@ public class AzAmqpMessage extends AbstractTestElement {
     /**
      * Set the content type of the Message.
      *
-     * @param contentType
-     *            the new content type
+     * @param contentType the new content type
      */
     public void setContentType(String contentType) {
         setProperty(new StringProperty(CONTENT_TYPE, contentType));
@@ -187,6 +181,14 @@ public class AzAmqpMessage extends AbstractTestElement {
      */
     public String getContentType() {
         return getPropertyAsString(CONTENT_TYPE);
+    }
+
+    public String getLabel() {
+        return getPropertyAsString(LABEL);
+    }
+
+    public void setLabel(String label) {
+        setProperty(new StringProperty(LABEL, label));
     }
 
 }

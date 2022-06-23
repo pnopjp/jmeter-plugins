@@ -60,12 +60,11 @@ import jp.co.pnop.jmeter.protocol.azureservicebus.common.AzServiceBusClientParam
  * JMeter creates an instance of a sampler class for every occurrence of the
  * element in every thread. [some additional copies may be created before the
  * test run starts]
-* <p>
+ * <p>
  * Thus each sampler is guaranteed to be called by a single thread - there is no
  * need to synchronize access to instance variables.
  * <p>
  * However, access to class fields must be synchronized.
- *
  */
 public class AzServiceBusSampler extends AbstractSampler implements TestStateListener {
 
@@ -73,9 +72,9 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
     private static final Logger log = LoggerFactory.getLogger(AzServiceBusSampler.class);
 
     private static final Set<String> APPLIABLE_CONFIG_CLASSES = new HashSet<>(
-        Arrays.asList(
-            "org.apache.jmeter.config.gui.SimpleConfigGui"
-        )
+            Arrays.asList(
+                    "org.apache.jmeter.config.gui.SimpleConfigGui"
+            )
     );
 
     public static final String CREATE_TRANSACTION = "createTransaction";
@@ -88,6 +87,7 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
     class TransactionClass {
         private ServiceBusSenderClient producer;
         private ServiceBusTransactionContext transaction;
+
         TransactionClass(ServiceBusSenderClient prod, ServiceBusTransactionContext tran) {
             producer = prod;
             transaction = tran;
@@ -117,7 +117,7 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
     @Override
     public void clear() {
         super.clear();
-        
+
         setProperty(new BooleanProperty(CREATE_TRANSACTION, false));
         setProperty(new StringProperty(CREATE_TRANSACTION_NAME, ""));
         setProperty(new BooleanProperty(CONTINUE_TRANSACTION, false));
@@ -221,7 +221,7 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                     throw new NullPointerException("Transaction \"".concat(definedConnectionName).concat("\" is not defined."));
                 }
                 TransactionClass tran = (TransactionClass) tempObject;
-                
+
                 transaction = tran.getTransaction();
                 producer = tran.getProducer();
                 log.debug("Get defined connection: {}", transaction.toString());
@@ -232,9 +232,9 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                 = "Endpoint: sb://".concat(producer.getFullyQualifiedNamespace()).concat("\n")
                 .concat("Queue/Topic name: ").concat(producer.getEntityPath());
 
-            log.info("AzServiceBusSampler.sampler() createMessageBatch: {}", producer.toString());
+            log.info("AzServiceBusSampler.sampler() createMessageBatch: {}", producer);
             ServiceBusMessageBatch batch = producer.createMessageBatch();
-    
+
             PropertyIterator iter = getMessages().iterator();
             int msgCount = 0;
             while (iter.hasNext()) {
@@ -289,15 +289,21 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                     serviceBusMessage.setContentType(contentType);
                     requestBody = requestBody.concat("\n").concat("Content Type: ").concat(contentType);
                 }
-                
+
+                String label = msg.getLabel();
+                if (!label.isEmpty()) {
+                    serviceBusMessage.setSubject(label);
+                    requestBody = requestBody.concat("\n").concat("Label: ").concat(label);
+                }
+
                 batch.tryAddMessage(serviceBusMessage);
                 bodyBytes += serviceBusMessage.getBody().toBytes().length;
-                
+
                 requestBody = requestBody.concat("\n")
-                    .concat("Message type: ").concat(msg.getMessageType()).concat("\n")
-                    .concat("Body: ").concat(msg.getMessage());
+                        .concat("Message type: ").concat(msg.getMessageType()).concat("\n")
+                        .concat("Body: ").concat(msg.getMessage());
             }
-    
+
             bytes = batch.getSizeInBytes();
 
             // send the batch of messages to the Service Bus
@@ -310,7 +316,7 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                     producer.sendMessages(batch);
                 } else { // Continue transaction or Commit transaction
                     producer.sendMessages(batch, transaction);
-                    
+
                     if (getCommitTransaction()) {
                         producer.commitTransaction(transaction);
                         getThreadContext().getVariables().remove(serviceBusClientParams.getDefinedConnectionName());
@@ -351,7 +357,7 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
             }
             responseMessage = responseMessage.concat(ex.getMessage());
             res.setResponseData(ex.getMessage(), "UTF-8");
-        } catch (FileNotFoundException | ClassCastException | JsonParseException ex){
+        } catch (FileNotFoundException | ClassCastException | JsonParseException ex) {
             log.info("Error calling {} sampler. ", threadName, ex);
             res.setResponseData(ex.getMessage(), "UTF-8");
             responseMessage = responseMessage.concat(ex.getMessage());

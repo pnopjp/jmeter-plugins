@@ -88,6 +88,7 @@ public class AzAmqpMessagesPanel extends AbstractSamplerGui implements ActionLis
         COLUMN_NAMES.put("GROUP_ID", "group Id"); //$NON-NLS-1$
         COLUMN_NAMES.put("CUSTOM_PROPERTIES", "custom properties"); //$NON-NLS-1$
         COLUMN_NAMES.put("CONTENT_TYPE", "content type"); //$NON-NLS-1$
+        COLUMN_NAMES.put("LABEL", "label"); //$NON-NLS-1$
     }
 
     public AzAmqpMessagesPanel() {
