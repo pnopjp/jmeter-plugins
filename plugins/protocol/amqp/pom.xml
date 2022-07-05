@@ -4,7 +4,7 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins-azure-amqp</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
 
     <name>Azure AMQP Configure</name>
     <description>Conigure of AMQP</description>
