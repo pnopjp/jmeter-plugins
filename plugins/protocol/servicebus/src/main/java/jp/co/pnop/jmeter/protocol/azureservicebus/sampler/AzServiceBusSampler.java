@@ -72,9 +72,9 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
     private static final Logger log = LoggerFactory.getLogger(AzServiceBusSampler.class);
 
     private static final Set<String> APPLIABLE_CONFIG_CLASSES = new HashSet<>(
-            Arrays.asList(
-                    "org.apache.jmeter.config.gui.SimpleConfigGui"
-            )
+        Arrays.asList(
+            "org.apache.jmeter.config.gui.SimpleConfigGui"
+        )
     );
 
     public static final String CREATE_TRANSACTION = "createTransaction";
@@ -293,15 +293,15 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                 String label = msg.getLabel();
                 if (!label.isEmpty()) {
                     serviceBusMessage.setSubject(label);
-                    requestBody = requestBody.concat("\n").concat("Label: ").concat(label);
+                    requestBody = requestBody.concat("\n").concat("Label/Subject: ").concat(label);
                 }
 
                 batch.tryAddMessage(serviceBusMessage);
                 bodyBytes += serviceBusMessage.getBody().toBytes().length;
 
                 requestBody = requestBody.concat("\n")
-                        .concat("Message type: ").concat(msg.getMessageType()).concat("\n")
-                        .concat("Body: ").concat(msg.getMessage());
+                    .concat("Message type: ").concat(msg.getMessageType()).concat("\n")
+                    .concat("Body: ").concat(msg.getMessage());
             }
 
             bytes = batch.getSizeInBytes();
