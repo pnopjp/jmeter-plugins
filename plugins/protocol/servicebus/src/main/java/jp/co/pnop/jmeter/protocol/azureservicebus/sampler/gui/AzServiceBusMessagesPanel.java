@@ -18,11 +18,11 @@ public class AzServiceBusMessagesPanel extends AzAmqpMessagesPanel {
     @Override
     protected void initializeTableModel() {
         tableModel = new ObjectTableModel(
-            new String[] { COLUMN_NAMES.get("MESSAGE_TYPE"), COLUMN_NAMES.get("MESSAGE"), COLUMN_NAMES.get("MESSAGE_ID"), "session Id", "partition key", COLUMN_NAMES.get("CONTENT_TYPE"), COLUMN_NAMES.get("LABEL"), COLUMN_NAMES.get("CUSTOM_PROPERTIES") },
+            new String[] { COLUMN_NAMES.get("MESSAGE_TYPE"), COLUMN_NAMES.get("MESSAGE"), COLUMN_NAMES.get("MESSAGE_ID"), "session Id", "partition key", COLUMN_NAMES.get("CONTENT_TYPE"), COLUMN_NAMES.get("LABEL"), COLUMN_NAMES.get("STANDARD_PROPERTIES"), COLUMN_NAMES.get("CUSTOM_PROPERTIES") },
             AzAmqpMessage.class,
-            new Functor[] { new Functor("getMessageType"), new Functor("getMessage"), new Functor("getMessageId"), new Functor("getGroupId"), new Functor("getPartitionKey"), new Functor("getContentType"), new Functor("getLabel"), new Functor("getCustomProperties") },
-            new Functor[] { new Functor("setMessageType"), new Functor("setMessage"), new Functor("setMessageId"), new Functor("setGroupId"), new Functor("setPartitionKey"), new Functor("setContentType"), new Functor("setLabel"), new Functor("setCustomProperties") },
-            new Class[] { String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class }
+            new Functor[] { new Functor("getMessageType"), new Functor("getMessage"), new Functor("getMessageId"), new Functor("getGroupId"), new Functor("getPartitionKey"), new Functor("getContentType"), new Functor("getLabel"), new Functor("getStandardProperties"), new Functor("getCustomProperties") },
+            new Functor[] { new Functor("setMessageType"), new Functor("setMessage"), new Functor("setMessageId"), new Functor("setGroupId"), new Functor("setPartitionKey"), new Functor("setContentType"), new Functor("setLabel"), new Functor("setStandardProperties"), new Functor("setCustomProperties") },
+            new Class[] { String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class }
         );
     }
 

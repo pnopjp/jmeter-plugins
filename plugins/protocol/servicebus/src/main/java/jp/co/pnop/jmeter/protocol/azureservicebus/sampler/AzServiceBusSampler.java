@@ -18,6 +18,7 @@
 package jp.co.pnop.jmeter.protocol.azureservicebus.sampler;
 
 import java.lang.ClassCastException;
+import java.time.OffsetDateTime;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -48,6 +49,7 @@ import com.azure.messaging.servicebus.*;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thoughtworks.xstream.converters.time.OffsetDateTimeConverter;
 import com.azure.core.amqp.exception.*;
 
 import jp.co.pnop.jmeter.protocol.amqp.sampler.AzAmqpMessage;
@@ -294,6 +296,43 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                 if (!label.isEmpty()) {
                     serviceBusMessage.setSubject(label);
                     requestBody = requestBody.concat("\n").concat("Label/Subject: ").concat(label);
+                }
+
+                String standardProperties = msg.getStandardProperties();
+                if (!standardProperties.isEmpty()) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    Map<String, String> properties = mapper.readValue(standardProperties, new TypeReference<Map<String, String>>(){});
+                    for (Map.Entry<String, String> property : properties.entrySet()) {
+                        switch (property.getKey().toLowerCase()) {
+                            case "correlationid":
+                            case "correlation-id":
+                            serviceBusMessage.setCorrelationId(property.getValue());
+                            break;
+
+                            case "replyto":
+                            case "reply-to":
+                            serviceBusMessage.setReplyTo(property.getValue());
+                            break;
+
+                            case "replytosessionid":
+                            case "reply-to-group-id":
+                            serviceBusMessage.setReplyToSessionId(property.getValue());
+                            break;
+
+                            case "scheduledenqueuetime":
+                            case "absolute-expiry-time":
+                            serviceBusMessage.setScheduledEnqueueTime(OffsetDateTime.parse(property.getValue()));
+                            break;
+
+                            case "to":
+                            serviceBusMessage.setTo(property.getValue());
+                            break;
+
+                            default:
+                            log.error("Error calling {} sampler. The \"{}\": \"{}\" in \"standard properties\" was ignored.", threadName, property.getKey(), property.getValue());
+                        }
+                    }
+                    
                 }
 
                 batch.tryAddMessage(serviceBusMessage);

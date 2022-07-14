@@ -36,6 +36,7 @@ public class AzAmqpMessage extends AbstractTestElement {
     private static final String CUSTOM_PROPERTIES = "Message.customProperties"; //$NON-NLS$
     private static final String CONTENT_TYPE = "Message.contentType"; //$NON-NLS$
     private static final String LABEL = "Message.label"; //$NON-NLS$
+    private static final String STANDARD_PROPERTIES = "Message.standardProperties"; //$NON-NLS$
 
     public AzAmqpMessage() {
     }
@@ -55,6 +56,7 @@ public class AzAmqpMessage extends AbstractTestElement {
         setProperty(new StringProperty(CUSTOM_PROPERTIES, ""));
         setProperty(new StringProperty(CONTENT_TYPE, ""));
         setProperty(new StringProperty(LABEL, ""));
+        setProperty(new StringProperty(STANDARD_PROPERTIES, ""));
     }
 
     /**
@@ -183,12 +185,39 @@ public class AzAmqpMessage extends AbstractTestElement {
         return getPropertyAsString(CONTENT_TYPE);
     }
 
+    /**
+     * Get the label
+     *
+     * @return the label
+     */
     public String getLabel() {
         return getPropertyAsString(LABEL);
     }
 
+    /**
+     * Set the label of the Message.
+     *
+     * @param label the new Message
+     */
     public void setLabel(String label) {
         setProperty(new StringProperty(LABEL, label));
     }
 
+    /**
+     * Set the standard properties of the Message.
+     *
+     * @param standardProperties the new standard properties
+     */
+    public void setStandardProperties(String standardProperties) {
+        setProperty(new StringProperty(STANDARD_PROPERTIES, standardProperties));
+    }
+
+    /**
+     * Get the standard properties.
+     *
+     * @return the standard properties
+     */
+    public String getStandardProperties() {
+        return getPropertyAsString(STANDARD_PROPERTIES);
+    }
 }
