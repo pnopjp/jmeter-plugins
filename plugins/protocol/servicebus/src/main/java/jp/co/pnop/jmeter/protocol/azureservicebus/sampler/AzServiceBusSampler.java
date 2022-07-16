@@ -18,13 +18,18 @@
 package jp.co.pnop.jmeter.protocol.azureservicebus.sampler;
 
 import java.lang.ClassCastException;
+import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
@@ -72,6 +77,15 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
 
     private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(AzServiceBusSampler.class);
+
+    private static final Map<String, ChronoUnit> chronoUnit = new HashMap<String, ChronoUnit>();
+    static {
+        chronoUnit.put ("MILLIS", ChronoUnit.MILLIS);
+        chronoUnit.put ("SECONDS", ChronoUnit.SECONDS);
+        chronoUnit.put ("MINUTES", ChronoUnit.MINUTES);
+        chronoUnit.put ("HOURS", ChronoUnit.HOURS);
+        chronoUnit.put ("DAYS", ChronoUnit.DAYS);
+    };
 
     private static final Set<String> APPLIABLE_CONFIG_CLASSES = new HashSet<>(
         Arrays.asList(
@@ -304,32 +318,51 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                     Map<String, String> properties = mapper.readValue(standardProperties, new TypeReference<Map<String, String>>(){});
                     for (Map.Entry<String, String> property : properties.entrySet()) {
                         switch (property.getKey().toLowerCase()) {
-                            case "correlationid":
                             case "correlation-id":
+                            case "correlationid":
                             serviceBusMessage.setCorrelationId(property.getValue());
                             break;
 
-                            case "replyto":
                             case "reply-to":
+                            case "replyto":
                             serviceBusMessage.setReplyTo(property.getValue());
                             break;
 
-                            case "replytosessionid":
                             case "reply-to-group-id":
+                            case "replytosessionid":
                             serviceBusMessage.setReplyToSessionId(property.getValue());
-                            break;
-
-                            case "scheduledenqueuetime":
-                            case "absolute-expiry-time":
-                            serviceBusMessage.setScheduledEnqueueTime(OffsetDateTime.parse(property.getValue()));
                             break;
 
                             case "to":
                             serviceBusMessage.setTo(property.getValue());
                             break;
 
+                            case "ttl":
+                            case "timetolive":
+                            Pattern pattern = Pattern.compile("([0-9]+)(.*)");
+                            Matcher matcher = pattern.matcher(property.getValue());
+                            if (matcher.find()) {
+                                String unit;
+                                if (matcher.group(2).trim().length() == 0) {
+                                    unit = "SECONDS";
+                                } else {
+                                    unit = matcher.group(2).trim().toUpperCase();
+                                }
+                                try {
+                                    serviceBusMessage.setTimeToLive(Duration.of(Long.parseLong(matcher.group(1)), chronoUnit.get(unit)));
+                                } catch (NullPointerException exTtl) {
+                                    throw new Exception("Error calling ".concat(threadName).concat(":").concat(this.getName()).concat(". The \"").concat(property.getKey()).concat("\": \"").concat(property.getValue()).concat("\" in \"headers/properties/annotations\" was ignored. Only MILLIS, SECONDS, MINUTES, HOURS, and DAYS can be used for units."));
+                                }
+                            }
+                            break;
+
+                            case "x-opt-scheduled-enqueue-time":
+                            case "scheduledenqueuetime":
+                            serviceBusMessage.setScheduledEnqueueTime(OffsetDateTime.parse(property.getValue()));
+                            break;
+
                             default:
-                            log.error("Error calling {} sampler. The \"{}\": \"{}\" in \"standard properties\" was ignored.", threadName, property.getKey(), property.getValue());
+                            throw new Exception("Error calling ".concat(threadName).concat(":").concat(this.getName()).concat(". The \"").concat(property.getKey()).concat("\": \"").concat(property.getValue()).concat("\" in \"headers/properties/annotations\" was ignored."));
                         }
                     }
                     
