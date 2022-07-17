@@ -45,7 +45,7 @@ Download jmeter-plugins-azure-eventhubs.?.?.?.jar file from [latest release](htt
 
 This sampler lets you send an AMQP request to an Azure Service Bus.  
 
-Currently, this sampler does not support all Azure Service Bus features. For example, send properties, etc are not supported.  
+Currently, this sampler does not support all Azure Service Bus features.   
 I will prioritize the implementation of the ones that are most frequently requested by everyone.  
 
 Works with Apache JMeter™ v5.4.1 or later.
