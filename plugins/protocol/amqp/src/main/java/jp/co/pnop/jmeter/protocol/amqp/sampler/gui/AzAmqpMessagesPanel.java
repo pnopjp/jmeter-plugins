@@ -62,7 +62,7 @@ public class AzAmqpMessagesPanel extends AbstractSamplerGui implements ActionLis
     //private static final Logger log = LoggerFactory.getLogger(AzAmqpMessagesPanel.class);
 
     /** The title label for this component. */
-    private JLabel tableLabel;
+    protected JLabel tableLabel;
 
     /** The table containing the list of messages. */
     private transient JTable table;
@@ -359,7 +359,7 @@ public class AzAmqpMessagesPanel extends AbstractSamplerGui implements ActionLis
     /**
      * Initialize the components and layout of this component.
      */
-    private void init() { // WARNING: called from ctor so must not be overridden (i.e. must be private or final)
+    protected void init() { // WARNING: called from ctor so must not be overridden (i.e. must be private or final)
         setLayout(new BorderLayout());
         setBorder(makeBorder());
 

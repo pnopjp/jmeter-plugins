@@ -4,7 +4,7 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins-azure-eventhubs</artifactId>
-    <version>0.2.4</version>
+    <version>0.3.0</version>
 
     <name>Azure Event Hubs Sampler</name>
     <description>Sample to Azure Event Hubs</description>
@@ -123,7 +123,7 @@
         <dependency>
             <groupId>jp.co.pnop</groupId>
             <artifactId>jmeter-plugins-azure-amqp</artifactId>
-            <version>0.2.1</version>
+            <version>0.2.2</version>
         </dependency>
         <dependency>
             <groupId>jp.co.pnop</groupId>
