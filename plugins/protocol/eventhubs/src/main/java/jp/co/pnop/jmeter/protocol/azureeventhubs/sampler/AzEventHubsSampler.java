@@ -20,12 +20,18 @@ package jp.co.pnop.jmeter.protocol.azureeventhubs.sampler;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Set;
 import java.util.HashSet;
-//import java.util.HashMap;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.jmeter.config.ConfigTestElement;
@@ -43,6 +49,8 @@ import org.slf4j.LoggerFactory;
 
 import com.azure.messaging.eventhubs.*;
 import com.azure.messaging.eventhubs.models.CreateBatchOptions;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.azure.core.amqp.exception.*;
 
 import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential;
@@ -67,6 +75,15 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
 
     private static final long serialVersionUID = 1L;
     private static final Logger log = LoggerFactory.getLogger(AzEventHubsSampler.class);
+
+    private static final Map<String, ChronoUnit> chronoUnit = new HashMap<String, ChronoUnit>();
+    static {
+        chronoUnit.put ("MILLIS", ChronoUnit.MILLIS);
+        chronoUnit.put ("SECONDS", ChronoUnit.SECONDS);
+        chronoUnit.put ("MINUTES", ChronoUnit.MINUTES);
+        chronoUnit.put ("HOURS", ChronoUnit.HOURS);
+        chronoUnit.put ("DAYS", ChronoUnit.DAYS);
+    };
 
     private static final Set<String> APPLIABLE_CONFIG_CLASSES = new HashSet<>(
         Arrays.asList(
@@ -250,9 +267,106 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
                         bi = new BufferedInputStream(new FileInputStream(msg.getMessage()));
                         eventData = new EventData(IOUtils.toByteArray(bi));
                         break;
+                    case AzAmqpMessages.MESSAGE_TYPE_BYTES:
+                        eventData = new EventData(msg.getMessage().getBytes());
+                        break;
+ 
                     default: // AzAmqpMessages.MESSAGE_TYPE_STRING
                         eventData = new EventData(msg.getMessage());
                 }
+
+                String messageId = msg.getMessageId();
+                if (!messageId.isEmpty()) {
+                    eventData.setMessageId(messageId);
+                    requestBody = requestBody.concat("\n").concat("Message ID: ").concat(messageId);
+                }
+
+                /*
+                String partitionKey = msg.getPartitionKey();
+                if (!partitionKey.isEmpty()) {
+                    eventData.setPartitionKey(partitionKey);
+                    requestBody = requestBody.concat("\n").concat("Partition Key: ").concat(partitionKey);
+                }
+                */
+
+                String customProperties = msg.getCustomProperties();
+                if (!customProperties.isEmpty()) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    Map<String, Object> properties = mapper.readValue(customProperties, new TypeReference<Map<String, Object>>(){});
+                    eventData.getProperties().putAll(properties);
+                }
+
+                String contentType = msg.getContentType();
+                if (!contentType.isEmpty()) {
+                    eventData.setContentType(contentType);
+                    requestBody = requestBody.concat("\n").concat("Content Type: ").concat(contentType);
+                }
+
+                /*
+                String label = msg.getLabel();
+                if (!label.isEmpty()) {
+                    eventData.setSubject(label);
+                    requestBody = requestBody.concat("\n").concat("Label/Subject: ").concat(label);
+                }
+                */
+
+                /*
+                String standardProperties = msg.getStandardProperties();
+                if (!standardProperties.isEmpty()) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    Map<String, String> properties = mapper.readValue(standardProperties, new TypeReference<Map<String, String>>(){});
+                    for (Map.Entry<String, String> property : properties.entrySet()) {
+                        switch (property.getKey().toLowerCase()) {
+                            case "correlation-id":
+                            case "correlationid":
+                            eventData.setCorrelationId(property.getValue());
+                            break;
+
+                            case "reply-to":
+                            case "replyto":
+                            eventData.setReplyTo(property.getValue());
+                            break;
+
+                            case "reply-to-group-id":
+                            case "replytosessionid":
+                            eventData.setReplyToSessionId(property.getValue());
+                            break;
+
+                            case "to":
+                            eventData.setTo(property.getValue());
+                            break;
+
+                            case "ttl":
+                            case "timetolive":
+                            Pattern pattern = Pattern.compile("([0-9]+)(.*)");
+                            Matcher matcher = pattern.matcher(property.getValue());
+                            if (matcher.find()) {
+                                String unit;
+                                if (matcher.group(2).trim().length() == 0) {
+                                    unit = "SECONDS";
+                                } else {
+                                    unit = matcher.group(2).trim().toUpperCase();
+                                }
+                                try {
+                                    eventData.setTimeToLive(Duration.of(Long.parseLong(matcher.group(1)), chronoUnit.get(unit)));
+                                } catch (NullPointerException exTtl) {
+                                    throw new Exception("Error calling ".concat(threadName).concat(":").concat(this.getName()).concat(". The \"").concat(property.getKey()).concat("\": \"").concat(property.getValue()).concat("\" in \"headers/properties/annotations\" was ignored. Only MILLIS, SECONDS, MINUTES, HOURS, and DAYS can be used for units."));
+                                }
+                            }
+                            break;
+
+                            case "x-opt-scheduled-enqueue-time":
+                            case "scheduledenqueuetime":
+                            eventData.setScheduledEnqueueTime(OffsetDateTime.parse(property.getValue()));
+                            break;
+
+                            default:
+                            throw new Exception("Error calling ".concat(threadName).concat(":").concat(this.getName()).concat(". The \"").concat(property.getKey()).concat("\": \"").concat(property.getValue()).concat("\" in \"headers/properties/annotations\" was ignored."));
+                        }
+                    }
+                    
+                }
+                */
 
                 batch.tryAdd(eventData);
             }

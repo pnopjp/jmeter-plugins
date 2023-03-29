@@ -37,7 +37,7 @@ import org.apache.jorphan.gui.JLabeledTextField;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 
-import jp.co.pnop.jmeter.protocol.amqp.sampler.gui.AzAmqpMessagesPanel;
+import jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.gui.AzEventHubsMessagesPanel;
 import jp.co.pnop.jmeter.protocol.azureeventhubs.sampler.AzEventHubsSampler;
 
 public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeListener {
@@ -64,7 +64,7 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
     };
     private JLabeledChoice partitionType;
     private JTextField partitionValue;
-    private AzAmqpMessagesPanel messagesPanel = new AzAmqpMessagesPanel("Event data"); // $NON-NLS-1$
+    private AzEventHubsMessagesPanel messagesPanel = new AzEventHubsMessagesPanel("Event data"); // $NON-NLS-1$
 
     public AzEventHubsSamplerGui() {
         init();
