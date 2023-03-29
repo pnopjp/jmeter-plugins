@@ -38,6 +38,7 @@ public class AzAmqpMessages extends AbstractTestElement {
     public static final String MESSAGE_TYPE_STRING = "String";
     public static final String MESSAGE_TYPE_BASE64 = "Base64 encoded binary";
     public static final String MESSAGE_TYPE_FILE = "File";
+    public static final String MESSAGE_TYPE_BYTES = "Bytes";
 
     /**
      * Create a new Messages object with no messages.
