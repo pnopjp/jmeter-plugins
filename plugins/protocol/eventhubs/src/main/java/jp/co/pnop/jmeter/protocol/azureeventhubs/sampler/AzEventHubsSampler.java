@@ -267,6 +267,10 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
                         bi = new BufferedInputStream(new FileInputStream(msg.getMessage()));
                         eventData = new EventData(IOUtils.toByteArray(bi));
                         break;
+                    case AzAmqpMessages.MESSAGE_TYPE_BYTES:
+                        eventData = new EventData(msg.getMessage().getBytes());
+                        break;
+ 
                     default: // AzAmqpMessages.MESSAGE_TYPE_STRING
                         eventData = new EventData(msg.getMessage());
                 }

@@ -378,7 +378,9 @@ public class AzAmqpMessagesPanel extends AbstractSamplerGui implements ActionLis
             super (new JComboBox<>(new String[]{
                 AzAmqpMessages.MESSAGE_TYPE_STRING,
                 AzAmqpMessages.MESSAGE_TYPE_BASE64,
-                AzAmqpMessages.MESSAGE_TYPE_FILE
+                AzAmqpMessages.MESSAGE_TYPE_FILE,
+                AzAmqpMessages.MESSAGE_TYPE_BYTES
+
             }));
         }
 
