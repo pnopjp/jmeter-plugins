@@ -49,7 +49,7 @@ public class AzStorageConnectionParamsPanel extends AbstractConfigGui implements
         AzStorageConnectionParams.AUTHTYPE_CONNECTION_STRING,
         AzStorageConnectionParams.AUTHTYPE_KEY,
         AzStorageConnectionParams.AUTHTYPE_SAS,
-        AzStorageConnectionParams.AUTHTYPE_AAD
+        AzStorageConnectionParams.AUTHTYPE_ENTRAID
     };
     private JLabeledTextField connectionString;
     private JLabeledTextField aadCredential;
@@ -116,7 +116,7 @@ public class AzStorageConnectionParamsPanel extends AbstractConfigGui implements
             element.setProperty(AzStorageConnectionParams.ENDPOINT_URL, endpointUrl.getText());
             element.setProperty(AzStorageConnectionParams.QUEUE_NAME, queueName.getText());
             element.setProperty(AzStorageConnectionParams.SAS_TOKEN, sasToken.getText());
-        } else if (auth.equals(AzStorageConnectionParams.AUTHTYPE_AAD)) {
+        } else if (auth.equals(AzStorageConnectionParams.AUTHTYPE_ENTRAID) || auth.equals(AzStorageConnectionParams.AUTHTYPE_AAD)) {
             element.setProperty(AzStorageConnectionParams.AAD_CREDENTIAL, aadCredential.getText());
             element.setProperty(AzStorageConnectionParams.ENDPOINT_URL, endpointUrl.getText());
             element.setProperty(AzStorageConnectionParams.QUEUE_NAME, queueName.getText());
@@ -167,12 +167,19 @@ public class AzStorageConnectionParamsPanel extends AbstractConfigGui implements
         accountName.setText(element.getPropertyAsString(AzStorageConnectionParams.ACCOUNT_NAME));
         endpointSuffix.setText(element.getPropertyAsString(AzStorageConnectionParams.ENDPOINT_SUFFIX));
         queueName.setText(element.getPropertyAsString(AzStorageConnectionParams.QUEUE_NAME));
-        authType.setText(element.getPropertyAsString(AzStorageConnectionParams.AUTH_TYPE));
+
+        String authTypeValue = element.getPropertyAsString(AzStorageConnectionParams.AUTH_TYPE);
+        if (authTypeValue.equals(AzStorageConnectionParams.AUTHTYPE_AAD)) {
+            authTypeValue = AzStorageConnectionParams.AUTHTYPE_ENTRAID;
+        }
+        authType.setText(authTypeValue);
+
         toggleAuthTypeValue();
         storageKey.setText(element.getPropertyAsString(AzStorageConnectionParams.STORAGE_KEY));
         connectionString.setText(element.getPropertyAsString(AzStorageConnectionParams.CONNECTION_STRING));
         aadCredential.setText(element.getPropertyAsString(AzStorageConnectionParams.AAD_CREDENTIAL));
         sasToken.setText(element.getPropertyAsString(AzStorageConnectionParams.SAS_TOKEN));
+
         endpointUrl.setText(element.getPropertyAsString(AzStorageConnectionParams.ENDPOINT_URL));
     }
 
@@ -251,7 +258,7 @@ public class AzStorageConnectionParamsPanel extends AbstractConfigGui implements
     }
 
     private void createAadCredentialPanel(VerticalPanel panel) {
-        aadCredential = new JLabeledTextField("Variable Name of credential Defined in Azure AD Credential:");
+        aadCredential = new JLabeledTextField("Variable Name of credential Defined in Microsoft Entra ID Credential:");
         aadCredential.setName(AzStorageConnectionParams.AAD_CREDENTIAL);
         aadCredentialPanel.add(aadCredential);
         aadCredentialPanel.add(Box.createVerticalStrut(0));
@@ -341,7 +348,7 @@ public class AzStorageConnectionParamsPanel extends AbstractConfigGui implements
             endpointUrlPanel.setVisible(true);
             queueNamePanel.setVisible(true);
             sasTokenPanel.setVisible(true);
-        } else if (auth.equals(AzStorageConnectionParams.AUTHTYPE_AAD)) {
+        } else if (auth.equals(AzStorageConnectionParams.AUTHTYPE_ENTRAID) || auth.equals(AzStorageConnectionParams.AUTHTYPE_AAD)) {
             connectionStringPanel.setVisible(false);
             aadCredentialPanel.setVisible(true);
             storageKeyPanel.setVisible(false);

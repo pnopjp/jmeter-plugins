@@ -64,7 +64,7 @@ public class AzServiceBusClientParamsPanel extends AbstractConfigGui implements 
     private JLabeledChoice authType;
     private String[] AUTH_TYPE_LABELS = {
         AzServiceBusClientParams.AUTHTYPE_SAS,
-        AzServiceBusClientParams.AUTHTYPE_AAD
+        AzServiceBusClientParams.AUTHTYPE_ENTRAID
     };
     private JLabeledTextField sharedAccessKeyName;
     private JPasswordField sharedAccessKey;
@@ -119,7 +119,7 @@ public class AzServiceBusClientParamsPanel extends AbstractConfigGui implements 
 
             element.setProperty(AzServiceBusClientParams.NAMESPACE_NAME, namespaceName.getText());
             element.setProperty(AzServiceBusClientParams.AUTH_TYPE, authType.getText());
-            if (authType.getText() == AzServiceBusClientParams.AUTHTYPE_AAD) {
+            if (authType.getText() == AzServiceBusClientParams.AUTHTYPE_ENTRAID || authType.getText() == AzServiceBusClientParams.AUTHTYPE_AAD) {
                 element.setProperty(AzServiceBusClientParams.AAD_CREDENTIAL, aadCredential.getText());
             } else { // AUTHTYPE_SAS
                 element.setProperty(AzServiceBusClientParams.SHARED_ACCESS_KEY_NAME, sharedAccessKeyName.getText());
@@ -197,7 +197,13 @@ public class AzServiceBusClientParamsPanel extends AbstractConfigGui implements 
         }
         queueName.setText(element.getPropertyAsString(AzServiceBusClientParams.QUEUE_NAME));
         protocol.setText(element.getPropertyAsString(AzServiceBusClientParams.PROTOCOL));
-        authType.setText(element.getPropertyAsString(AzServiceBusClientParams.AUTH_TYPE));
+
+        String authTypeValue = element.getPropertyAsString(AzServiceBusClientParams.AUTH_TYPE);
+        if (authTypeValue.equals(AzServiceBusClientParams.AUTHTYPE_AAD)) {
+            authTypeValue = AzServiceBusClientParams.AUTHTYPE_ENTRAID;
+        }
+        authType.setText(authTypeValue);
+        
         toggleAuthTypeValue();
         sharedAccessKeyName.setText(element.getPropertyAsString(AzServiceBusClientParams.SHARED_ACCESS_KEY_NAME));
         sharedAccessKey.setText(element.getPropertyAsString(AzServiceBusClientParams.SHARED_ACCESS_KEY));
@@ -295,7 +301,7 @@ public class AzServiceBusClientParamsPanel extends AbstractConfigGui implements 
     }
 
     private JPanel createAadCredentialPanel() {
-        aadCredential = new JLabeledTextField("Variable Name of credential Defined in Azure AD Credential:");
+        aadCredential = new JLabeledTextField("Variable Name of credential Defined in Microsoft Entra ID Credential:");
         aadCredential.setName(AzServiceBusClientParams.AAD_CREDENTIAL);
         JPanel panel = new VerticalPanel();
         panel.add(aadCredential);
@@ -370,7 +376,7 @@ public class AzServiceBusClientParamsPanel extends AbstractConfigGui implements 
     private JPanel createAuthPanel() {
         authPanel = new JPanel(new CardLayout());
         authPanel.add(createSharedAccessSignaturePanel(), AzServiceBusClientParams.AUTHTYPE_SAS);
-        authPanel.add(createAadCredentialPanel(), AzServiceBusClientParams.AUTHTYPE_AAD);
+        authPanel.add(createAadCredentialPanel(), AzServiceBusClientParams.AUTHTYPE_ENTRAID);
 
         return authPanel;
     }
@@ -406,8 +412,8 @@ public class AzServiceBusClientParamsPanel extends AbstractConfigGui implements 
         CardLayout authTypeLayout = (CardLayout) authPanel.getLayout();
         if (authType.getText() == AzServiceBusClientParams.AUTHTYPE_SAS) {
             authTypeLayout.show(authPanel, AzServiceBusClientParams.AUTHTYPE_SAS);
-        } else { // AUTHTYPE_AAD
-            authTypeLayout.show(authPanel, AzServiceBusClientParams.AUTHTYPE_AAD);
+        } else { // AUTHTYPE_ENTRAID or AUTHTYPE_AAD
+            authTypeLayout.show(authPanel, AzServiceBusClientParams.AUTHTYPE_ENTRAID);
         }
     }
 

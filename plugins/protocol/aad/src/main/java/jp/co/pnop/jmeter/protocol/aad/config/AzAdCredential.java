@@ -209,9 +209,9 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
         JMeterVariables variables = getThreadContext().getVariables();
         String credentialName = getCredentialName();
         if (JOrphanUtils.isBlank(credentialName)) {
-            log.error("Name for Azure AD credential must not be empty in " + getName());
+            log.error("Name for Microsoft Entra ID credential must not be empty in " + getName());
         } else if (variables.getObject(credentialName) != null) {
-            log.error("Azure AD credential already defined for: {}", credentialName);
+            log.error("Microsoft Entra ID credential already defined for: {}", credentialName);
         } else {
             variables.putObject(credentialName, new AzAdCredentialComponentImpl());
         }
@@ -234,7 +234,7 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
     public static AzAdCredentialComponentImpl getCredential(String credentialName) throws Exception {
         Object credObject = JMeterContextService.getContext().getVariables().getObject(credentialName);
         if (credObject == null) {
-            throw new Exception("No credential found named: '" + credentialName + "', ensure Variable Name matches Variable Name of Azure AD Credentail.");
+            throw new Exception("No credential found named: '" + credentialName + "', ensure Variable Name matches Variable Name of Microsoft Entra ID Credentail.");
         } else {
             if (credObject instanceof AzAdCredentialComponentImpl) {
                 AzAdCredentialComponentImpl cred = (AzAdCredentialComponentImpl) credObject;

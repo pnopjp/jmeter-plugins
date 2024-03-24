@@ -1,7 +1,7 @@
 # Functions
 
 - **[AzAdAccessToken](#__azadaccesstoken)**  
-    Get an access token from Azure AD.
+    Get an access token from Microsoft Entra ID.
 - **[AzAppServiceAuthenticationToken](#__AzAppServiceAuthenticationToken)**  
     Get an authentication token for Azure App Service
 - **[AzCosmosDbAuthZ](#__azcosmosdbauthz)**  
@@ -15,22 +15,22 @@ Download jmeter-plugins-functions-azure-?.?.?.jar file from [latest release](htt
 
 ## __AzAdAccessToken
 
-This function gets the access token for the Azure AD application from the Azure AD token endpoint with a password flow.
+This function gets the access token for the Microsoft Entra ID application from the Microsoft Entra ID token endpoint with a password flow.
 
 ### Parameters
 
 |Attribute|Description|Required|
 |----|----|----|
-|Azure AD tenant ID|Tenant ID of Azure AD.|Yes|
+|Microsoft Entra ID tenant ID|Tenant ID of Microsoft Entra ID.|Yes|
 |Grant type|Only "password" can be used.|Yes|
-|Application \(Client\) ID|The client identifier of Azure AD application.|Yes|
-|Client secret|Client secret of Azure AD application.|Yes|
+|Application \(Client\) ID|The client identifier of Microsoft Entra ID application.|Yes|
+|Client secret|Client secret of Microsoft Entra ID application.|Yes|
 |Username|Access user account name. \(e.g. name<span></span>@example.onmicrosoft.com\)|Yes|
 |Password|Access user password.|Yes|
 |Scope|Acess Token Scope.|No|
-|Resource|App ID URI of the receiving web service.<br />Valid only for Azure AD version 1.<br />If you omit this, the "Application ID" value is applied.|No|
-|Azure AD version|v2.0 or empty string.|No|
-|Azure AD endpoint URI|Specify when using an Azure AD endpoint, such as Azure Government or Azure China.<br />\(e.g. login<span></span>.partner.microsoftonline.cn\)<br />Or you can use some abbreviations. \(us / cn / de\)<br />The default is Azure global endpoint.<br />\* But I haven't been able to test with Azure Govement, Azure China or Azure Germany, because I don't have subscriptions there. If you use these Azure, I would be happy to have you report your results to [here](https://github.com/pnopjp/jmeter-plugins/issues).|No|
+|Resource|App ID URI of the receiving web service.<br />Valid only for Microsoft Entra ID version 1.<br />If you omit this, the "Application ID" value is applied.|No|
+|Microsoft Entra ID version|v2.0 or empty string.|No|
+|Microsoft Entra ID endpoint URI|Specify when using an Microsoft Entra ID endpoint, such as Azure Government or Azure China.<br />\(e.g. login<span></span>.partner.microsoftonline.cn\)<br />Or you can use some abbreviations. \(us / cn / de\)<br />The default is Azure global endpoint.<br />\* But I haven't been able to test with Azure Govement, Azure China or Azure Germany, because I don't have subscriptions there. If you use these Azure, I would be happy to have you report your results to [here](https://github.com/pnopjp/jmeter-plugins/issues).|No|
 |Name of variable|The name of the variable to set.|No|
 
 ### Examples

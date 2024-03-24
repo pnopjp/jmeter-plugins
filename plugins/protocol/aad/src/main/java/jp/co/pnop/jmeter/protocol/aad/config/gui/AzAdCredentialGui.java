@@ -146,7 +146,7 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
     }
 
     public String getStaticLabel() {
-        return "Azure AD Credential";
+        return "Microsoft Entra ID Credential";
     }
 
     @Override
