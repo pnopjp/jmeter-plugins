@@ -4,9 +4,9 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins-azure-ad</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
 
-    <name>Azure AD Credential Configure</name>
+    <name>Microsoft Entra ID Credential Configure</name>
     <description>Conigure of Azure Active Directory Configure</description>
     <licenses>
         <license>

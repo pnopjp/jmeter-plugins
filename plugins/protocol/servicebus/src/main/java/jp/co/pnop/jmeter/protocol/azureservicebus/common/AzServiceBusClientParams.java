@@ -54,6 +54,7 @@ public class AzServiceBusClientParams extends AbstractTestElement {
 
     public static final String AUTHTYPE_SAS = "Shared access signature";
     public static final String AUTHTYPE_AAD = "Azure AD credential";
+    public static final String AUTHTYPE_ENTRAID = "Microsoft Entra ID credential";
 
     public static final String DEST_TYPE_QUEUE = "Queue";
     public static final String DEST_TYPE_TOPIC = "Topic";
@@ -165,31 +166,28 @@ public class AzServiceBusClientParams extends AbstractTestElement {
     }
 
     public ServiceBusSenderClient getProducer() throws Exception {
-        ServiceBusClientBuilder producerBuilder = new ServiceBusClientBuilder();
         ServiceBusSenderClient producer = null;
         
         if (getConnectionType().equals(CONNECTION_TYPE_NEW_CONNECTION)) {
+            ServiceBusClientBuilder producerBuilder = new ServiceBusClientBuilder();
             if (getAuthType().equals(AUTHTYPE_SAS)) {
                 final String connectionString
                     = "Endpoint=sb://".concat(getNamespaceName()).concat("/;")
                     .concat("SharedAccessKeyName=").concat(getSharedAccessKeyName()).concat(";")
                     .concat("SharedAccessKey=").concat(getSharedAccessKey());
-                producerBuilder = producerBuilder.connectionString(connectionString);
-            } else { // AUTHTYPE_AAD
-                AzAdCredentialComponentImpl credential = AzAdCredential.getCredential(getAadCredential());
-                producerBuilder = producerBuilder.credential(getNamespaceName(), credential.getCredential());
+                producerBuilder.connectionString(connectionString);
+            } else { // AUTHTYPE_ENTRAID or AUTHTYPE_AAD
+                producerBuilder.credential(getNamespaceName(), (AzAdCredential.getCredential(getAadCredential())).getCredential());
             }
 
             AmqpTransportType protocol = null;
             if (getProtocol() == PROTOCOL_AMQP_OVER_WEBSOCKETS) {
                 protocol = AmqpTransportType.AMQP_WEB_SOCKETS;
-                producerBuilder = producerBuilder.proxyOptions(new AzAmqpProxyOptions().ProxyOptions());
-                ProxyOptions proxyOptions = new AzAmqpProxyOptions().ProxyOptions();
-                producerBuilder.proxyOptions(proxyOptions);
+                producerBuilder.proxyOptions(new AzAmqpProxyOptions().ProxyOptions());
             } else {
                 protocol = AmqpTransportType.AMQP;
             }
-            producerBuilder = producerBuilder.transportType(protocol);
+            producerBuilder.transportType(protocol);
 
             if (getDestType().equals(DEST_TYPE_TOPIC)) {
                 producer = producerBuilder.sender().topicName(getQueueName()).buildClient();

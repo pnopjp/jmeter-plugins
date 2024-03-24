@@ -47,7 +47,7 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
     private JLabeledTextField namespaceName;
     private String[] AUTH_TYPE_LABELS = {
         AzEventHubsSampler.AUTHTYPE_SAS,
-        AzEventHubsSampler.AUTHTYPE_AAD
+        AzEventHubsSampler.AUTHTYPE_ENTRAID
     };
     private JLabel authTypeLabel;
     private JPanel authPanel;
@@ -83,11 +83,18 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
     public void configure(TestElement element) {
         super.configure(element);
         namespaceName.setText(element.getPropertyAsString(AzEventHubsSampler.NAMESPACE_NAME));
-        authType.setText(element.getPropertyAsString(AzEventHubsSampler.AUTH_TYPE));
+
+        String authTypeValue = element.getPropertyAsString(AzEventHubsSampler.AUTH_TYPE);
+        if (authTypeValue.equals(AzEventHubsSampler.AUTHTYPE_AAD)) {
+            authTypeValue = AzEventHubsSampler.AUTHTYPE_ENTRAID;
+        }
+        authType.setText(authTypeValue);
+
         toggleAuthTypeValue();
         sharedAccessKeyName.setText(element.getPropertyAsString(AzEventHubsSampler.SHARED_ACCESS_KEY_NAME));
         sharedAccessKey.setText(element.getPropertyAsString(AzEventHubsSampler.SHARED_ACCESS_KEY));
         aadCredential.setText(element.getPropertyAsString(AzEventHubsSampler.AAD_CREDENTIAL));
+
         eventHubName.setText(element.getPropertyAsString(AzEventHubsSampler.EVENT_HUB_NAME));
         partitionType.setText(element.getPropertyAsString(AzEventHubsSampler.PARTITION_TYPE));
         togglePartitionValue();
@@ -113,7 +120,7 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
         super.configureTestElement(sampler);
         sampler.setProperty(AzEventHubsSampler.NAMESPACE_NAME, namespaceName.getText());
         sampler.setProperty(AzEventHubsSampler.AUTH_TYPE, authType.getText());
-        if (authType.getText() == AzEventHubsSampler.AUTHTYPE_AAD) {
+        if (authType.getText() == AzEventHubsSampler.AUTHTYPE_ENTRAID || authType.getText() == AzEventHubsSampler.AUTHTYPE_AAD) {
             sampler.setProperty(AzEventHubsSampler.AAD_CREDENTIAL, aadCredential.getText());
         } else { // AUTHTYPE_SAS
             sampler.setProperty(AzEventHubsSampler.SHARED_ACCESS_KEY_NAME, sharedAccessKeyName.getText());
@@ -186,7 +193,7 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
     }
 
     private JPanel createAadCredentialPanel() {
-        aadCredential = new JLabeledTextField("Variable Name of credential declared in Azure AD Credential:");
+        aadCredential = new JLabeledTextField("Variable Name of credential declared in Microsoft Entra ID Credential:");
         aadCredential.setName(AzEventHubsSampler.AAD_CREDENTIAL);
         JPanel panel = new VerticalPanel();
         panel.add(aadCredential);
@@ -257,7 +264,7 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
     private JPanel createAuthPanel() {
         authPanel = new JPanel(new CardLayout());
         authPanel.add(createSharedAccessSignaturePanel(), AzEventHubsSampler.AUTHTYPE_SAS);
-        authPanel.add(createAadCredentialPanel(), AzEventHubsSampler.AUTHTYPE_AAD);
+        authPanel.add(createAadCredentialPanel(), AzEventHubsSampler.AUTHTYPE_ENTRAID);
 
         return authPanel;
     }
@@ -297,8 +304,8 @@ public class AzEventHubsSamplerGui extends AbstractSamplerGui implements ChangeL
         CardLayout authTypeLayout = (CardLayout) authPanel.getLayout();
         if (authType.getText() == AzEventHubsSampler.AUTHTYPE_SAS) {
             authTypeLayout.show(authPanel, AzEventHubsSampler.AUTHTYPE_SAS);
-        } else { // AUTHTYPE_AAD
-            authTypeLayout.show(authPanel, AzEventHubsSampler.AUTHTYPE_AAD);
+        } else { // AUTHTYPE_ENTRAID or AUTHTYPE_AAD
+            authTypeLayout.show(authPanel, AzEventHubsSampler.AUTHTYPE_ENTRAID);
         }
     }
 

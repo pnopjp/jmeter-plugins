@@ -53,16 +53,16 @@ public class AzAdAccessToken extends AbstractFunction {
     private static final int MAX_PARAMETER_COUNT = NAME_OF_VAL + 1;
 
     static {
-        desc.add("Azure AD Tenant ID");
+        desc.add("Microsoft Entra ID Tenant ID");
         desc.add("Grant type");
         desc.add("Application (Client) ID");
-        desc.add("Client secret of Azure AD application");
+        desc.add("Client secret of Microsoft Entra ID application");
         desc.add("Username");
         desc.add("Password");
         desc.add("Acess Token Scope (optional)");
         desc.add("Resource (optional)");
-        desc.add("Azure AD version (optional)");
-        desc.add("Azure AD endpoint URI (optional)");
+        desc.add("Microsoft Entra ID version (optional)");
+        desc.add("Microsoft Entra ID endpoint URI (optional)");
         desc.add("Name of variable in which to store the result (optional)");
     }
 
@@ -153,9 +153,9 @@ public class AzAdAccessToken extends AbstractFunction {
                 accessToken = node.get("access_token").textValue();
                 addVariableValue(accessToken, values, NAME_OF_VAL);
             } else {
-                log.info("Warn calling {} Azure AD request, Response status: {}, Response body {}", KEY, status, responseMessage);
+                log.info("Warn calling {} Microsoft Entra ID request, Response status: {}, Response body {}", KEY, status, responseMessage);
                 String errorDescription = node.get("error_description").textValue();
-                log.warn("Warn calling {} Azure AD request, {}: {}", KEY, response.getStatusLine().toString(),
+                log.warn("Warn calling {} Microsoft Entra ID request, {}: {}", KEY, response.getStatusLine().toString(),
                         errorDescription);
             }
         } catch (IllegalArgumentException e) {

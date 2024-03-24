@@ -4,7 +4,7 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins-azure-storage-queue</artifactId>
-    <version>0.1.2</version>
+    <version>0.1.3</version>
 
     <name>Azure Storage Queue Sampler</name>
     <description>Sample to Azure Storage Queue</description>
@@ -100,7 +100,7 @@
         <dependency>
             <groupId>jp.co.pnop</groupId>
             <artifactId>jmeter-plugins-azure-ad</artifactId>
-            <version>0.1.1</version>
+            <version>0.1.2</version>
         </dependency>
         <dependency>
             <groupId>jp.co.pnop</groupId>

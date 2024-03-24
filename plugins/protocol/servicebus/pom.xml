@@ -4,7 +4,7 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins-azure-servicebus</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
 
     <name>Azure Service Bus Sampler</name>
     <description>Sample to Azure Service Bus</description>
@@ -128,7 +128,7 @@
         <dependency>
             <groupId>jp.co.pnop</groupId>
             <artifactId>jmeter-plugins-azure-ad</artifactId>
-            <version>0.1.1</version>
+            <version>0.1.2</version>
         </dependency>
     </dependencies>
     <build>

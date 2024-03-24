@@ -36,6 +36,7 @@ public class AzStorageConnectionParams extends AbstractTestElement {
     public static final String AUTHTYPE_KEY = "Storage Key";
     public static final String AUTHTYPE_SAS = "Shared access signature";
     public static final String AUTHTYPE_AAD = "Azure AD credential";
+    public static final String AUTHTYPE_ENTRAID = "Microsoft Entra ID credential";
 
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_HTTPS = "https";
@@ -160,7 +161,7 @@ public class AzStorageConnectionParams extends AbstractTestElement {
             if (!JOrphanUtils.isBlank(getQueueName())) {
                 params = params.concat("Queue name: ").concat(getQueueName()).concat("\n");
             }
-        } else { // AUTHTYPE_SAS or AUTHTYPE_AAD
+        } else { // AUTHTYPE_SAS or AUTHTYPE_ENTRAID, AUTHTYPE_AAD
             String maskedEndpointUrl = getEndpointUrl()
                 .replaceAll("([\\?&]sv=)[^\\?&]*", "$1****")
                 .replaceAll("([\\?&]ss=)[^\\?&]*", "$1****")
@@ -179,7 +180,7 @@ public class AzStorageConnectionParams extends AbstractTestElement {
                 if (!JOrphanUtils.isBlank(getSasToken())) {
                     params = params.concat("SAS token: ********\n");
                 }
-            } else if (authType.equals(AUTHTYPE_AAD)) {
+            } else if (authType.equals(AUTHTYPE_ENTRAID) || authType.equals(AUTHTYPE_AAD)) {
                 params = params.concat("Credential name: ").concat(getAadCredential()).concat("\n");
             }
         }
@@ -206,7 +207,7 @@ public class AzStorageConnectionParams extends AbstractTestElement {
             if (!JOrphanUtils.isBlank(getSasToken())) {
                 queueClientBuilder = queueClientBuilder.sasToken(getSasToken());
             }
-        } else if (authType.equals(AUTHTYPE_AAD)) {
+        } else if (authType.equals(AUTHTYPE_ENTRAID) || authType.equals(AUTHTYPE_AAD)) {
             queueClientBuilder = queueClientBuilder.endpoint(getEndpointUrl());
             if (!JOrphanUtils.isBlank(getQueueName())) {
                 queueClientBuilder = queueClientBuilder.queueName(getQueueName());
