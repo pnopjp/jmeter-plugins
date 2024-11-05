@@ -1,6 +1,6 @@
 # Stub function for Azure Load Testing
 
-This plugin is a Stub that allows custom functions that are only available in Azure Load Testing to work in pure Azure JMeter™.  
+This plugin is a Stub that allows custom functions that are only available in Azure Load Testing to work in pure Apache JMeter™.  
 Enables Apache JMeter™ to use custom functions when creating and testing test scripts to be uploaded to Azure Load Testing.  
 
 Currently, Azure Load Testing only provides 'GetSecret' custom function.
