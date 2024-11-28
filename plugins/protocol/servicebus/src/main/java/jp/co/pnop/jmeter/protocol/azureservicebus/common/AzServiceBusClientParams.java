@@ -3,7 +3,6 @@ package jp.co.pnop.jmeter.protocol.azureservicebus.common;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.azure.core.amqp.AmqpTransportType;
-import com.azure.core.amqp.ProxyOptions;
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
 import com.azure.messaging.servicebus.ServiceBusSenderClient;
 
@@ -13,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential;
-import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential.AzAdCredentialComponentImpl;
 import jp.co.pnop.jmeter.protocol.amqp.util.AzAmqpProxyOptions;
 import jp.co.pnop.jmeter.protocol.azureservicebus.config.AzServiceBusClient.AzServiceBusClientComponentImpl;
 
@@ -181,7 +179,7 @@ public class AzServiceBusClientParams extends AbstractTestElement {
             }
 
             AmqpTransportType protocol = null;
-            if (getProtocol() == PROTOCOL_AMQP_OVER_WEBSOCKETS) {
+            if (getProtocol().equals(PROTOCOL_AMQP_OVER_WEBSOCKETS)) {
                 protocol = AmqpTransportType.AMQP_WEB_SOCKETS;
                 producerBuilder.proxyOptions(new AzAmqpProxyOptions().ProxyOptions());
             } else {
