@@ -6,7 +6,7 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins-functions-azure</artifactId>
-    <version>0.4.4</version>
+    <version>0.4.5</version>
 
     <name>Custom JMeter functions for Azure</name>
     <description>Custom JMeter functions for Azure</description>
@@ -57,8 +57,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -101,7 +101,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.13.2.1</version>
+            <version>2.18.2</version>
         </dependency>
     </dependencies>
 </project>

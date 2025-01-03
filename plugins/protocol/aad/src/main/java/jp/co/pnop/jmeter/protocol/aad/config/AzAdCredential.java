@@ -19,6 +19,7 @@ import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import com.azure.identity.ManagedIdentityCredentialBuilder;
 import com.azure.identity.ClientCertificateCredentialBuilder;
 import com.azure.identity.ClientSecretCredentialBuilder;
+import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.identity.UsernamePasswordCredentialBuilder;
 import com.azure.identity.InteractiveBrowserCredentialBuilder;
 
@@ -41,6 +42,10 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
     public static final String FILETYPE = "filetype";
     public static final String FILENAME = "filename";
     public static final String FILE_PASSWORD = "filePassword";
+    public static final String MANAGED_IDENTITY_CLIENT_ID = "managedIdentityClientId";
+    public static final String WORKLOAD_IDENTITY_CLIENT_ID = "workloadIdentityClientId";
+    public static final String ADDITIONALLY_ALLOWED_TENANTS = "additionallyAllowedTenants";
+    public static final String INTELLIJ_KEEPASS_DATABASE_PATH = "intelliJKeePassDatabasePath";
     public static final String UNAME = "username";
     public static final String PWD = "password";
     public static final String REDIRECT_URL = "redirectUrl";
@@ -53,6 +58,7 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
     public static final String CREDENTIALTYPE_MANAGED_ID = "Managed identity";
     public static final String CREDENTIALTYPE_CLIENT_SECRET = "Client secret";
     public static final String CREDENTIALTYPE_CLIENT_CERTIFICATE = "Client certificate";
+    public static final String CREDENTIALTYPE_DEFAULT_AZURE_CREDENTIAL = "DefaultAzureCredential";
     public static final String CREDENTIALTYPE_USERNAME_PASSWORD = "Username/Password";
     public static final String CREDENTIALTYPE_INTERACTIVE_BROWSER = "Interactive in the browser";
 
@@ -90,6 +96,10 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
         setProperty(new StringProperty(FILETYPE, ""));
         setProperty(new StringProperty(FILENAME, ""));
         setProperty(new StringProperty(FILE_PASSWORD, ""));
+        setProperty(new StringProperty(MANAGED_IDENTITY_CLIENT_ID, ""));
+        setProperty(new StringProperty(WORKLOAD_IDENTITY_CLIENT_ID, ""));
+        setProperty(new StringProperty(INTELLIJ_KEEPASS_DATABASE_PATH, ""));
+        setProperty(new StringProperty(ADDITIONALLY_ALLOWED_TENANTS, ""));
         setProperty(new StringProperty(UNAME, ""));
         setProperty(new StringProperty(PWD, ""));
         setProperty(new StringProperty(REDIRECT_URL, ""));
@@ -116,7 +126,11 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
     }
 
     public String getAuthorityHost() {
-        return "https://".concat(getPropertyAsString(AUTHORITY_HOST));
+        String authorityHost = getPropertyAsString(AUTHORITY_HOST);
+        if (authorityHost.length() == 0) {
+            return "https://".concat(AUTHORITYHOST_PUBLIC);
+        }
+        return "https://".concat(authorityHost);
     }
 
     public void setClientId(String clientId) {
@@ -165,6 +179,38 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
 
     public String getFilePassword() {
         return getPropertyAsString(FILE_PASSWORD);
+    }
+
+    public void setManagedIdentityClientId(String managedIdentityClientId) {
+        setProperty(new StringProperty(MANAGED_IDENTITY_CLIENT_ID, managedIdentityClientId));
+    }
+
+    public String getManagedIdentityClientId() {
+        return getPropertyAsString(MANAGED_IDENTITY_CLIENT_ID);
+    }
+
+    public void setWorkloadIdentityClientId(String workloadIdentityClientId) {
+        setProperty(new StringProperty(WORKLOAD_IDENTITY_CLIENT_ID, workloadIdentityClientId));
+    }
+
+    public String getWorkloadIdentityClientId() {
+        return getPropertyAsString(WORKLOAD_IDENTITY_CLIENT_ID);
+    }
+
+    public void setIntelliJKeePassDatabasePath(String intelliJKeePassDatabasePath) {
+        setProperty(new StringProperty(INTELLIJ_KEEPASS_DATABASE_PATH, intelliJKeePassDatabasePath));
+    }
+
+    public String getIntelliJKeePassDatabasePath() {
+        return getPropertyAsString(INTELLIJ_KEEPASS_DATABASE_PATH);
+    }
+
+    public void setAdditionallyAllowedTenants(String additionallyAllowedTenants) {
+        setProperty(new StringProperty(ADDITIONALLY_ALLOWED_TENANTS, additionallyAllowedTenants));
+    }
+
+    public String getAdditionallyAllowedTenants() {
+        return getPropertyAsString(ADDITIONALLY_ALLOWED_TENANTS);
     }
 
     public void setUsername(String username) {
@@ -282,6 +328,10 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
             String clientSecret = "";
             String filename = "";
             String filePassword = "";
+            String intelliJKeePassDatabasePath = "";
+            String managedIdentityClientId = "";
+            String workloadIdentityClientId = "";
+            String additionallyAllowedTenants = "";
             String username = "";
             String password = "";
 
@@ -333,12 +383,68 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
                             .clientId(clientId)
                             .httpClient(httpClientBase());
                         if (getFiletype() == FILETYPE_PFX) {
-                            spcBuilder = spcBuilder.pfxCertificate(filename, filePassword);
+                            spcBuilder = spcBuilder.pfxCertificate(filename).clientCertificatePassword(filePassword);
                         } else {
                             spcBuilder = spcBuilder.pemCertificate(filename);
                         }
                         
                         credential = spcBuilder.build();
+                        break;
+                    case CREDENTIALTYPE_DEFAULT_AZURE_CREDENTIAL:
+                        authorityHost = getAuthorityHost(); // Environment Credential
+                        workloadIdentityClientId = getWorkloadIdentityClientId(); // Workload Identity Credential
+                        managedIdentityClientId = getManagedIdentityClientId(); // Managed Identity
+                        tenantId = getTenantId(); // Azure Cli / Azure PowerShell Credential
+                        additionallyAllowedTenants = getAdditionallyAllowedTenants(); // Azure Cli / Azure PowerShell Credential
+
+                        if (authorityHost.trim().length() > 0) {
+                            requestBody = requestBody.concat("\n")
+                            .concat("Authority host: ").concat(authorityHost).concat("\n");
+                        }
+                        if (managedIdentityClientId.trim().length() > 0) {
+                            requestBody = requestBody.concat("\n")
+                            .concat("Managed Identity Client Id: ").concat(managedIdentityClientId).concat("\n");
+                        }
+                        if (tenantId.trim().length() > 0) {
+                            requestBody = requestBody.concat("\n")
+                            .concat("Tenant Id: ").concat(tenantId).concat("\n");
+                        }
+                        if (workloadIdentityClientId.trim().length() > 0) {
+                            requestBody = requestBody.concat("\n")
+                            .concat("Workload Identity Client Id: ").concat(workloadIdentityClientId).concat("\n");
+                        }
+                        if (intelliJKeePassDatabasePath.trim().length() > 0) {
+                            requestBody = requestBody.concat("\n")
+                            .concat("KeePass Database Path of IntelliJ: ").concat(intelliJKeePassDatabasePath).concat("\n");
+                        }
+                        if (additionallyAllowedTenants.trim().length() > 0) {
+                            requestBody = requestBody.concat("\n")
+                            .concat("Additionally allowed tenants: ").concat(additionallyAllowedTenants).concat("\n");
+                        }
+
+                        DefaultAzureCredentialBuilder dacBuilder = new DefaultAzureCredentialBuilder()
+                            .httpClient(httpClientBase());
+                        if (authorityHost.trim().length() > 0) {
+                            dacBuilder = dacBuilder.authorityHost(authorityHost);
+                        }
+                        if (managedIdentityClientId.trim().length() > 0) {
+                            dacBuilder = dacBuilder.managedIdentityClientId(managedIdentityClientId);
+                        }
+                        if (tenantId.trim().length() > 0) {
+                            dacBuilder = dacBuilder.tenantId(tenantId);
+                        }
+                        if (workloadIdentityClientId.trim().length() > 0) {
+                            dacBuilder = dacBuilder.workloadIdentityClientId(workloadIdentityClientId);
+                        }
+                        if (intelliJKeePassDatabasePath.trim().length() > 0) {
+                            dacBuilder = dacBuilder.intelliJKeePassDatabasePath(intelliJKeePassDatabasePath);
+                        }
+                        if (additionallyAllowedTenants.trim().length() > 0) {
+                            String[] tenants = additionallyAllowedTenants.split(",");
+                            dacBuilder = dacBuilder.additionallyAllowedTenants(tenants);
+                        }
+
+                        credential = dacBuilder.build();
                         break;
                     case CREDENTIALTYPE_USERNAME_PASSWORD:
                         authorityHost = getAuthorityHost();

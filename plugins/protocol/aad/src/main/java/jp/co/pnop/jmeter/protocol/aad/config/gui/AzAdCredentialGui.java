@@ -44,6 +44,7 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
         AzAdCredential.CREDENTIALTYPE_CLIENT_CERTIFICATE,
         AzAdCredential.CREDENTIALTYPE_CLIENT_SECRET,
         AzAdCredential.CREDENTIALTYPE_MANAGED_ID,
+        AzAdCredential.CREDENTIALTYPE_DEFAULT_AZURE_CREDENTIAL,
         //AzAdCredential.CREDENTIALTYPE_USERNAME_PASSWORD,
         //AzAdCredential.CREDENTIALTYPE_INTERACTIVE_BROWSER
     };
@@ -63,6 +64,12 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
     private JRadioButton clientCertificateFiletypePFX;
     private JLabeledTextField clientCertificateFilename;
     private JLabeledPasswordField clientCertificateFilePassword;
+    private JLabeledChoice defaultAzureCredentialAuthorityHost;
+    private JLabeledTextField defaultAzureCredentialTenantId;
+    private JLabeledTextField defaultAzureCredentialAdditionallyAllowedTenants;
+    private JLabeledTextField defaultAzureCredentialManagedIdentityClientId;
+    private JLabeledTextField defaultAzureCredentialWorkloadIdentityClientId;
+    private JLabeledTextField defaultAzureCredentialIntelliJKeePassDatabasePath;
     private JLabeledChoice usernamepasswordAuthorityHost;
     private JLabeledTextField usernamepasswordTenantId;
     private JLabeledTextField usernamepasswordClientId;
@@ -121,6 +128,14 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
                 clientCertificateFilePassword.setText(element.getPropertyAsString(AzAdCredential.FILE_PASSWORD));
                 toggleClientCertificateFilePasswordValue();
                 break;
+            case AzAdCredential.CREDENTIALTYPE_DEFAULT_AZURE_CREDENTIAL:
+                defaultAzureCredentialAuthorityHost.setText(element.getPropertyAsString(AzAdCredential.AUTHORITY_HOST));
+                defaultAzureCredentialTenantId.setText(element.getPropertyAsString(AzAdCredential.TENANT_ID));
+                defaultAzureCredentialAdditionallyAllowedTenants.setText(element.getPropertyAsString(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS));
+                defaultAzureCredentialManagedIdentityClientId.setText(element.getPropertyAsString(AzAdCredential.MANAGED_IDENTITY_CLIENT_ID));
+                defaultAzureCredentialWorkloadIdentityClientId.setText(element.getPropertyAsString(AzAdCredential.WORKLOAD_IDENTITY_CLIENT_ID));
+                defaultAzureCredentialIntelliJKeePassDatabasePath.setText(element.getPropertyAsString(AzAdCredential.INTELLIJ_KEEPASS_DATABASE_PATH));
+                break;
             case AzAdCredential.CREDENTIALTYPE_USERNAME_PASSWORD:
                 usernamepasswordAuthorityHost.setText(element.getPropertyAsString(AzAdCredential.AUTHORITY_HOST));
                 usernamepasswordTenantId.setText(element.getPropertyAsString(AzAdCredential.TENANT_ID));
@@ -177,6 +192,14 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
                 element.setProperty(AzAdCredential.FILENAME, clientCertificateFilename.getText());
                 element.setProperty(AzAdCredential.FILE_PASSWORD, clientCertificateFilePassword.getText());
                 break;
+            case AzAdCredential.CREDENTIALTYPE_DEFAULT_AZURE_CREDENTIAL:
+                element.setProperty(AzAdCredential.AUTHORITY_HOST, defaultAzureCredentialAuthorityHost.getText());
+                element.setProperty(AzAdCredential.TENANT_ID, defaultAzureCredentialTenantId.getText());
+                element.setProperty(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS, defaultAzureCredentialAdditionallyAllowedTenants.getText());
+                element.setProperty(AzAdCredential.MANAGED_IDENTITY_CLIENT_ID, defaultAzureCredentialManagedIdentityClientId.getText());
+                element.setProperty(AzAdCredential.WORKLOAD_IDENTITY_CLIENT_ID, defaultAzureCredentialWorkloadIdentityClientId.getText());
+                element.setProperty(AzAdCredential.INTELLIJ_KEEPASS_DATABASE_PATH, defaultAzureCredentialIntelliJKeePassDatabasePath.getText());
+                break;
             case AzAdCredential.CREDENTIALTYPE_USERNAME_PASSWORD:
                 element.setProperty(AzAdCredential.AUTHORITY_HOST, usernamepasswordAuthorityHost.getText());
                 element.setProperty(AzAdCredential.TENANT_ID, usernamepasswordTenantId.getText());
@@ -211,6 +234,12 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
         clientCertificateFiletypePFX.setSelected(false);
         clientCertificateFilename.setText("");
         clientCertificateFilePassword.setText("");
+        defaultAzureCredentialAuthorityHost.setText(AzAdCredential.AUTHORITYHOST_PUBLIC);
+        defaultAzureCredentialTenantId.setText("");
+        defaultAzureCredentialAdditionallyAllowedTenants.setText("");
+        defaultAzureCredentialManagedIdentityClientId.setText("");
+        defaultAzureCredentialWorkloadIdentityClientId.setText("");
+        defaultAzureCredentialIntelliJKeePassDatabasePath.setText("");
         usernamepasswordAuthorityHost.setText(AzAdCredential.AUTHORITYHOST_PUBLIC);
         usernamepasswordTenantId.setText("");
         usernamepasswordClientId.setText("");
@@ -260,6 +289,7 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
         credentialPanel.add(createManagedIdPanel(), AzAdCredential.CREDENTIALTYPE_MANAGED_ID);
         credentialPanel.add(createClientSecretPanel(), AzAdCredential.CREDENTIALTYPE_CLIENT_SECRET);
         credentialPanel.add(createClientCertificatePanel(), AzAdCredential.CREDENTIALTYPE_CLIENT_CERTIFICATE);
+        credentialPanel.add(createDefaultAzureCredentialPanel(), AzAdCredential.CREDENTIALTYPE_DEFAULT_AZURE_CREDENTIAL);
         credentialPanel.add(createUsernamePasswordPanel(), AzAdCredential.CREDENTIALTYPE_USERNAME_PASSWORD);
         credentialPanel.add(createInteractiveBrowserPanel(), AzAdCredential.CREDENTIALTYPE_INTERACTIVE_BROWSER);
 
@@ -335,6 +365,35 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
         panel.add(filetypePanel);
         panel.add(clientCertificateFilename);
         panel.add(clientCertificateFilePassword);
+        return panel;
+    }
+
+    private JPanel createDefaultAzureCredentialPanel() {
+        JPanel authorityHostPanel = new HorizontalPanel();
+        JLabel authorityHostLabel = new JLabel("Authority host:");
+        defaultAzureCredentialAuthorityHost = new JLabeledChoice("", AUTHORITY_HOST_LABELS, true, false);
+        defaultAzureCredentialAuthorityHost.setName(AzAdCredential.AUTHORITY_HOST);
+        authorityHostPanel.add(authorityHostLabel);
+        authorityHostPanel.add(defaultAzureCredentialAuthorityHost);
+
+        defaultAzureCredentialTenantId = new JLabeledTextField("Tenant Id:");
+        defaultAzureCredentialTenantId.setName(AzAdCredential.TENANT_ID);
+        defaultAzureCredentialAdditionallyAllowedTenants = new JLabeledTextField("Additionally allowed tenants:");
+        defaultAzureCredentialAdditionallyAllowedTenants.setName(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS);
+        defaultAzureCredentialManagedIdentityClientId = new JLabeledTextField("Managed identity Client ID:");
+        defaultAzureCredentialManagedIdentityClientId.setName(AzAdCredential.CLIENT_ID);
+        defaultAzureCredentialWorkloadIdentityClientId = new JLabeledTextField("Workload Identity Client ID:");
+        defaultAzureCredentialWorkloadIdentityClientId.setName(AzAdCredential.WORKLOAD_IDENTITY_CLIENT_ID);
+        defaultAzureCredentialIntelliJKeePassDatabasePath = new JLabeledTextField("IntelliJ KeePass database path:");
+        defaultAzureCredentialIntelliJKeePassDatabasePath.setName(AzAdCredential.INTELLIJ_KEEPASS_DATABASE_PATH);
+
+        JPanel panel = new VerticalPanel();
+        panel.add(authorityHostPanel);
+        panel.add(defaultAzureCredentialTenantId);
+        panel.add(defaultAzureCredentialManagedIdentityClientId);
+        panel.add(defaultAzureCredentialWorkloadIdentityClientId);
+        panel.add(defaultAzureCredentialIntelliJKeePassDatabasePath);
+
         return panel;
     }
 

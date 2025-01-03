@@ -11,10 +11,14 @@
     <modules>
         <module>amqp</module>
         <module>aad</module>
+        <!--
         <module>eventhubs</module>
+        -->
         <!--<module>keyvault</module>-->
         <module>servicebus</module>
+        <!--
         <module>storagequeue</module>
+        -->
         <!-- <module>iothub</module> -->
     </modules>
 </project>
