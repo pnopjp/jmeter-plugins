@@ -10,12 +10,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>plugins/util</module>
-        <!--
         <module>plugins/functions</module>
-        -->
         <module>plugins/protocol</module>
-        <!--
         <module>plugins/AzLoadTestingStub</module>
-        -->
     </modules>
 </project>
