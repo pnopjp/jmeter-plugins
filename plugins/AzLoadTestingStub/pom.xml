@@ -155,7 +155,7 @@
                             <include>com.azure:azure-identity</include>
                             <include>com.azure:azure-security-keyvault-secrets</include>
                             <include>com.microsoft.azure:msal4j</include>
-                            <include>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</include>
+                            <!-- <include>com.fasterxml.jackson.dataformat:jackson-dataformat-xml</include> -->
                             <include>com.fasterxml.jackson.datatype:jackson-datatype-jsr310</include>
                             <include>com.fasterxml.jackson.core:jackson-databind</include>
                             <include>com.fasterxml.jackson.core:jackson-core</include>
@@ -175,7 +175,7 @@
                             <include>io.netty:netty-transport-native-unix-common</include>
                             <include>io.netty:netty-codec-http2</include>
                             <include>io.netty:netty-codec-dns</include>
-                            <include>com.nimbusds:oauth2-oidc-sdk</include>
+                            <!-- <include>com.nimbusds:oauth2-oidc-sdk</include> -->
                             <include>com.nimbusds:content-type</include>
                             <include>com.nimbusds:nimbus-jose-jwt</include>
                             <include>net.java.dev.jna:jna-platform</include>

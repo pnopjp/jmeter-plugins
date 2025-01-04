@@ -166,7 +166,6 @@
                             <include>com.azure:azure-messaging-servicebus</include>
                             <include>com.azure:azure-core-amqp</include>
                             <include>org.apache.qpid:proton-j</include>
-
                             <include>com.microsoft.azure:qpid-proton-j-extensions</include>
                         </includes>
                     </artifactSet>
