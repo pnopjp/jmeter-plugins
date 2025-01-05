@@ -4,7 +4,7 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins-azure-amqp</artifactId>
-    <version>0.2.1</version>
+    <version>0.2.2</version>
 
     <name>Azure AMQP Configure</name>
     <description>Conigure of AMQP</description>
@@ -55,8 +55,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -112,7 +112,7 @@
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-core-amqp</artifactId>
-            <version>2.3.0</version>
+            <version>2.9.12</version>
         </dependency>
     </dependencies>
     <build>
@@ -133,7 +133,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

@@ -4,7 +4,7 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins-azure-util-httpclient</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
 
     <name>Http client utility</name>
     <description>Return default http client</description>
@@ -55,8 +55,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <dependencies>

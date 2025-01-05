@@ -31,6 +31,7 @@ The parameters to be set for each credential type are different.
 
 |Attribute|Description|Required|
 |-----|-----|-----|
+|Authority Host|Microsoft Entra ID endpoint to acquire tokens.|No|
 |Tenant Id|Microsoft Entra ID tenant Id.|Yes|
 |Client Id|Client \(Application\) Id of Microsoft Entra ID application.|Yes|
 |File type|Certification file type. \(PEM or PFX\)|Yes|
@@ -41,6 +42,7 @@ The parameters to be set for each credential type are different.
 
 |Attribute|Description|Required|
 |-----|-----|-----|
+|Authority Host|Microsoft Entra ID endpoint to acquire tokens.|No|
 |Tenant Id|Microsoft Entra ID tenant Id.|Yes|
 |Client Id|Client \(Application\) Id of Microsoft Entra ID application.|Yes|
 |Client Secret|Client secret for Microsoft Entra ID application.|Yes|
@@ -50,6 +52,20 @@ The parameters to be set for each credential type are different.
 |Attribute|Description|Required|
 |-----|-----|-----|
 |Client Id|Client \(Application\) Id of Microsoft Entra ID application.|No|
+
+#### DefaultAzureCredential
+
+Attempt authentication according to the following.  
+<https://learn.microsoft.com/en-us/java/api/com.azure.identity.defaultazurecredential>
+
+|Attribute|Description|Required|
+|-----|-----|-----|
+|Authority Host|Microsoft Entra ID endpoint to acquire tokens.|No|
+|Tenant Id|Microsoft Entra ID tenant Id.|No|
+|Additionally allowed tenants|For multi-tenant applications, specifies additional tenants.<br />Describe tenant IDs separated by commas.|No|
+|Managed identity Client Id|Client \(Application\) Id of managed identity.|No|
+|Workload identity Client Id|Client \(Application\) Id of Microsoft Entra ID application to be used for AKS.|No|
+|IntelliJ KeePass Database path|KeePass database path to read the cached credentials of Azure toolkit for IntelliJ plugin.|No|
 
 ### Sample files
 
