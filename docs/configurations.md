@@ -11,7 +11,7 @@ This is the configuration for authentication and authorization by Microsoft Entr
 
 ### How to install
 
-Some plugins include the classes contained in this jar file.
+Some plugins include this.
 
 ### Common parameters
 
