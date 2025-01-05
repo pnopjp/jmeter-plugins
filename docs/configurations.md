@@ -11,8 +11,7 @@ This is the configuration for authentication and authorization by Microsoft Entr
 
 ### How to install
 
-Download jmeter-plugins-azure-ad.?.?.?.jar file from [latest release](https://github.com/pnopjp/jmeter-plugins/releases/latest) and put it into lib/ext directory of JMeter \(e.g. /usr/local/jmeter/lib/ext\), then restart JMeter.
-> Some plugins include the classes contained in this jar file.
+Some plugins include the classes contained in this jar file.
 
 ### Common parameters
 
