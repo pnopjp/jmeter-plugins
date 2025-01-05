@@ -53,5 +53,5 @@ Download \*.jar file from [latest release](https://github.com/pnopjp/jmeter-plug
 
 - [Functions](docs/functions.md)
 - [Samplers](docs/samplers.md)
-- [Configurations](docs/configurations.md)
+- [Config Elements](docs/configurations.md)
 - [Stub function for Azure Load Testing](docs/azure-load-testing-stub.md)

@@ -1,4 +1,4 @@
-# Configurations
+# Config Elements
 
 - **[Microsoft Entra ID Credential](#microsoft-entra-id-credential)**  
     Configuration for authentication and authorization by Microsoft Entra ID.
