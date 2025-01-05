@@ -4,23 +4,22 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.BorderFactory;
-import javax.swing.JRadioButton;
 
+import org.apache.jmeter.config.gui.AbstractConfigGui;
 import org.apache.jmeter.gui.util.HorizontalPanel;
 import org.apache.jmeter.gui.util.VerticalPanel;
-import org.apache.jmeter.config.gui.AbstractConfigGui;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jorphan.gui.JLabeledChoice;
-import org.apache.jorphan.gui.JLabeledTextField;
 import org.apache.jmeter.testelement.property.StringProperty;
-import javax.swing.ButtonGroup;
+import org.apache.jorphan.gui.JLabeledChoice;
 import org.apache.jorphan.gui.JLabeledPasswordField;
-
+import org.apache.jorphan.gui.JLabeledTextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -253,13 +252,13 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
 
     @Override
     public TestElement createTestElement() {
-        AzAdCredential credentail = new AzAdCredential();
-        modifyTestElement(credentail);
-        return credentail;
+        AzAdCredential credential = new AzAdCredential();
+        modifyTestElement(credential);
+        return credential;
     }
 
     private JPanel createCredentialNamePanel() {
-        credentialName = new JLabeledTextField("Variable Name for created credentail:");
+        credentialName = new JLabeledTextField("Variable Name for created credential:");
         credentialName.setName(AzAdCredential.CREDENTIAL_NAME);
 
         JPanel panel = new JPanel(new BorderLayout(5, 0));

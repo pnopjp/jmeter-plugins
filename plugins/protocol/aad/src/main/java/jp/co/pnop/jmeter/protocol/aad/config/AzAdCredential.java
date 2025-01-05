@@ -1,32 +1,29 @@
 package jp.co.pnop.jmeter.protocol.aad.config;
 
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.jmeter.config.ConfigTestElement;
+import org.apache.jmeter.testelement.TestStateListener;
+import org.apache.jmeter.testelement.property.StringProperty;
 import org.apache.jmeter.threads.JMeterContextService;
+import org.apache.jmeter.threads.JMeterVariables;
+import org.apache.jmeter.util.JMeterUtils;
+import org.apache.jorphan.util.JOrphanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.azure.core.credential.TokenCredential;
-import org.apache.jmeter.config.ConfigTestElement;
-import org.apache.jmeter.testelement.property.StringProperty;
-import org.apache.jmeter.threads.JMeterVariables;
-import org.apache.jorphan.util.JOrphanUtils;
-import org.apache.jmeter.testelement.TestStateListener;
-import java.net.InetSocketAddress;
-
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.ProxyOptions;
 import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
-import com.azure.identity.ManagedIdentityCredentialBuilder;
 import com.azure.identity.ClientCertificateCredentialBuilder;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.identity.DefaultAzureCredentialBuilder;
-import com.azure.identity.UsernamePasswordCredentialBuilder;
 import com.azure.identity.InteractiveBrowserCredentialBuilder;
-
-import org.apache.jmeter.util.JMeterUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.azure.identity.ManagedIdentityCredentialBuilder;
+import com.azure.identity.UsernamePasswordCredentialBuilder;
 
 public class AzAdCredential extends ConfigTestElement implements TestStateListener {
 
@@ -280,7 +277,7 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
     public static AzAdCredentialComponentImpl getCredential(String credentialName) throws Exception {
         Object credObject = JMeterContextService.getContext().getVariables().getObject(credentialName);
         if (credObject == null) {
-            throw new Exception("No credential found named: '" + credentialName + "', ensure Variable Name matches Variable Name of Microsoft Entra ID Credentail.");
+            throw new Exception("No credential found named: '" + credentialName + "', ensure Variable Name matches Variable Name of Microsoft Entra ID credential.");
         } else {
             if (credObject instanceof AzAdCredentialComponentImpl) {
                 AzAdCredentialComponentImpl cred = (AzAdCredentialComponentImpl) credObject;
