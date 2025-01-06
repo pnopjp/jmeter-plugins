@@ -43,6 +43,12 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
         AzAdCredential.CREDENTIALTYPE_CLIENT_CERTIFICATE,
         AzAdCredential.CREDENTIALTYPE_CLIENT_SECRET,
         AzAdCredential.CREDENTIALTYPE_MANAGED_ID,
+        AzAdCredential.CREDENTIALTYPE_WORKLOAD_IDENTITY,
+        AzAdCredential.CREDENTIALTYPE_AZURE_CLI,
+        AzAdCredential.CREDENTIALTYPE_AZURE_DEVELOPER_CLI,
+        AzAdCredential.CREDENTIALTYPE_AZURE_POWERSHELL,
+        AzAdCredential.CREDENTIALTYPE_VISUAL_STUDIO_CODE,
+        //AzAdCredential.CREDENTIALTYPE_INTELLIJ,
         AzAdCredential.CREDENTIALTYPE_DEFAULT_AZURE_CREDENTIAL,
         //AzAdCredential.CREDENTIALTYPE_USERNAME_PASSWORD,
         //AzAdCredential.CREDENTIALTYPE_INTERACTIVE_BROWSER
@@ -63,6 +69,21 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
     private JRadioButton clientCertificateFiletypePFX;
     private JLabeledTextField clientCertificateFilename;
     private JLabeledPasswordField clientCertificateFilePassword;
+    private JLabeledTextField workloadIdentityTenantId;
+    private JLabeledTextField workloadIdentityAdditinalyAllowedTenants;
+    private JLabeledTextField workloadIdentityClientId;
+    private JLabeledTextField workloadIdentityTokenFilePath;
+    private JLabeledTextField azureCliTenantId;
+    private JLabeledTextField azureCliAdditionallyAllowedTenants;
+    private JLabeledTextField azureDeveloperCliTenantId;
+    private JLabeledTextField azureDeveloperCliAdditionallyAllowedTenants;
+    private JLabeledTextField azurePowerShellTenantId;
+    private JLabeledTextField azurePowerShellAdditionallyAllowedTenants;
+    private JLabeledTextField visualStudioCodeTenantId;
+    private JLabeledTextField visualStudioCodeAdditionallyAllowedTenants;
+    private JLabeledTextField intelliJTenantId;
+    private JLabeledTextField intelliJAdditionallyAllowedTenants;
+    private JLabeledTextField intelliJIntelliJKeePassDatabasePath;
     private JLabeledChoice defaultAzureCredentialAuthorityHost;
     private JLabeledTextField defaultAzureCredentialTenantId;
     private JLabeledTextField defaultAzureCredentialAdditionallyAllowedTenants;
@@ -126,6 +147,34 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
                 clientCertificateFilename.setText(element.getPropertyAsString(AzAdCredential.FILENAME));
                 clientCertificateFilePassword.setText(element.getPropertyAsString(AzAdCredential.FILE_PASSWORD));
                 toggleClientCertificateFilePasswordValue();
+                break;
+
+            case AzAdCredential.CREDENTIALTYPE_WORKLOAD_IDENTITY:
+                workloadIdentityTenantId.setText(element.getPropertyAsString(AzAdCredential.TENANT_ID));
+                workloadIdentityAdditinalyAllowedTenants.setText(element.getPropertyAsString(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS));
+                workloadIdentityClientId.setText(element.getPropertyAsString(AzAdCredential.CLIENT_ID));
+                workloadIdentityTokenFilePath.setText(element.getPropertyAsString(AzAdCredential.TOKEN_FILE_PATH));
+                break;
+            case AzAdCredential.CREDENTIALTYPE_AZURE_CLI:
+                azureCliTenantId.setText(element.getPropertyAsString(AzAdCredential.TENANT_ID));
+                azureCliAdditionallyAllowedTenants.setText(element.getPropertyAsString(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS));
+                break;
+            case AzAdCredential.CREDENTIALTYPE_AZURE_DEVELOPER_CLI:
+                azureDeveloperCliTenantId.setText(element.getPropertyAsString(AzAdCredential.TENANT_ID));
+                azureDeveloperCliAdditionallyAllowedTenants.setText(element.getPropertyAsString(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS));
+                break;
+            case AzAdCredential.CREDENTIALTYPE_AZURE_POWERSHELL:
+                azurePowerShellTenantId.setText(element.getPropertyAsString(AzAdCredential.TENANT_ID));
+                azurePowerShellAdditionallyAllowedTenants.setText(element.getPropertyAsString(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS));
+                break;
+            case AzAdCredential.CREDENTIALTYPE_VISUAL_STUDIO_CODE:
+                visualStudioCodeTenantId.setText(element.getPropertyAsString(AzAdCredential.TENANT_ID));
+                visualStudioCodeAdditionallyAllowedTenants.setText(element.getPropertyAsString(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS));
+                break;
+            case AzAdCredential.CREDENTIALTYPE_INTELLIJ:
+                intelliJTenantId.setText(element.getPropertyAsString(AzAdCredential.TENANT_ID));
+                intelliJAdditionallyAllowedTenants.setText(element.getPropertyAsString(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS));
+                intelliJIntelliJKeePassDatabasePath.setText(element.getPropertyAsString(AzAdCredential.INTELLIJ_KEEPASS_DATABASE_PATH));
                 break;
             case AzAdCredential.CREDENTIALTYPE_DEFAULT_AZURE_CREDENTIAL:
                 defaultAzureCredentialAuthorityHost.setText(element.getPropertyAsString(AzAdCredential.AUTHORITY_HOST));
@@ -191,6 +240,33 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
                 element.setProperty(AzAdCredential.FILENAME, clientCertificateFilename.getText());
                 element.setProperty(AzAdCredential.FILE_PASSWORD, clientCertificateFilePassword.getText());
                 break;
+            case AzAdCredential.CREDENTIALTYPE_WORKLOAD_IDENTITY:
+                element.setProperty(AzAdCredential.TENANT_ID, workloadIdentityTenantId.getText());
+                element.setProperty(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS, workloadIdentityAdditinalyAllowedTenants.getText());
+                element.setProperty(AzAdCredential.CLIENT_ID, workloadIdentityClientId.getText());
+                element.setProperty(AzAdCredential.TOKEN_FILE_PATH, workloadIdentityTokenFilePath.getText());
+                break;
+            case AzAdCredential.CREDENTIALTYPE_AZURE_CLI:
+                element.setProperty(AzAdCredential.TENANT_ID, azureCliTenantId.getText());
+                element.setProperty(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS, azureCliAdditionallyAllowedTenants.getText());
+                break;
+            case AzAdCredential.CREDENTIALTYPE_AZURE_DEVELOPER_CLI:
+                element.setProperty(AzAdCredential.TENANT_ID, azureDeveloperCliTenantId.getText());
+                element.setProperty(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS, azureDeveloperCliAdditionallyAllowedTenants.getText());
+                break;
+            case AzAdCredential.CREDENTIALTYPE_AZURE_POWERSHELL:
+                element.setProperty(AzAdCredential.TENANT_ID, azurePowerShellTenantId.getText());
+                element.setProperty(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS, azurePowerShellAdditionallyAllowedTenants.getText());
+                break;
+            case AzAdCredential.CREDENTIALTYPE_VISUAL_STUDIO_CODE:
+                element.setProperty(AzAdCredential.TENANT_ID, visualStudioCodeTenantId.getText());
+                element.setProperty(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS, visualStudioCodeAdditionallyAllowedTenants.getText());
+                break;
+            case AzAdCredential.CREDENTIALTYPE_INTELLIJ:
+                element.setProperty(AzAdCredential.TENANT_ID, intelliJTenantId.getText());
+                element.setProperty(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS, intelliJAdditionallyAllowedTenants.getText());
+                element.setProperty(AzAdCredential.INTELLIJ_KEEPASS_DATABASE_PATH, intelliJIntelliJKeePassDatabasePath.getText());
+                break;
             case AzAdCredential.CREDENTIALTYPE_DEFAULT_AZURE_CREDENTIAL:
                 element.setProperty(AzAdCredential.AUTHORITY_HOST, defaultAzureCredentialAuthorityHost.getText());
                 element.setProperty(AzAdCredential.TENANT_ID, defaultAzureCredentialTenantId.getText());
@@ -233,6 +309,21 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
         clientCertificateFiletypePFX.setSelected(false);
         clientCertificateFilename.setText("");
         clientCertificateFilePassword.setText("");
+        workloadIdentityTenantId.setText("");
+        workloadIdentityAdditinalyAllowedTenants.setText("");
+        workloadIdentityClientId.setText("");
+        workloadIdentityTokenFilePath.setText("");
+        azureCliTenantId.setText("");
+        azureCliAdditionallyAllowedTenants.setText("");
+        azureDeveloperCliTenantId.setText("");
+        azureDeveloperCliAdditionallyAllowedTenants.setText("");
+        azurePowerShellTenantId.setText("");
+        azurePowerShellAdditionallyAllowedTenants.setText("");
+        visualStudioCodeTenantId.setText("");
+        visualStudioCodeAdditionallyAllowedTenants.setText("");
+        intelliJTenantId.setText("");
+        intelliJAdditionallyAllowedTenants.setText("");
+        intelliJIntelliJKeePassDatabasePath.setText("");
         defaultAzureCredentialAuthorityHost.setText(AzAdCredential.AUTHORITYHOST_PUBLIC);
         defaultAzureCredentialTenantId.setText("");
         defaultAzureCredentialAdditionallyAllowedTenants.setText("");
@@ -288,6 +379,12 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
         credentialPanel.add(createManagedIdPanel(), AzAdCredential.CREDENTIALTYPE_MANAGED_ID);
         credentialPanel.add(createClientSecretPanel(), AzAdCredential.CREDENTIALTYPE_CLIENT_SECRET);
         credentialPanel.add(createClientCertificatePanel(), AzAdCredential.CREDENTIALTYPE_CLIENT_CERTIFICATE);
+        credentialPanel.add(createWorkloadIdentityPanel(), AzAdCredential.CREDENTIALTYPE_WORKLOAD_IDENTITY);
+        credentialPanel.add(createAzureCliPanel(), AzAdCredential.CREDENTIALTYPE_AZURE_CLI);
+        credentialPanel.add(createAzureDeveloperCliPanel(), AzAdCredential.CREDENTIALTYPE_AZURE_DEVELOPER_CLI);
+        credentialPanel.add(createAzurePowerShellPanel(), AzAdCredential.CREDENTIALTYPE_AZURE_POWERSHELL);
+        credentialPanel.add(createVisualStudioCodePanel(), AzAdCredential.CREDENTIALTYPE_VISUAL_STUDIO_CODE);
+        credentialPanel.add(createIntelliJPanel(), AzAdCredential.CREDENTIALTYPE_INTELLIJ);
         credentialPanel.add(createDefaultAzureCredentialPanel(), AzAdCredential.CREDENTIALTYPE_DEFAULT_AZURE_CREDENTIAL);
         credentialPanel.add(createUsernamePasswordPanel(), AzAdCredential.CREDENTIALTYPE_USERNAME_PASSWORD);
         credentialPanel.add(createInteractiveBrowserPanel(), AzAdCredential.CREDENTIALTYPE_INTERACTIVE_BROWSER);
@@ -364,6 +461,93 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
         panel.add(filetypePanel);
         panel.add(clientCertificateFilename);
         panel.add(clientCertificateFilePassword);
+        return panel;
+    }
+
+    private JPanel createWorkloadIdentityPanel() {
+        workloadIdentityTenantId = new JLabeledTextField("Tenant Id:");
+        workloadIdentityTenantId.setName(AzAdCredential.TENANT_ID);
+        workloadIdentityAdditinalyAllowedTenants = new JLabeledTextField("Additionally allowed tenants:");
+        workloadIdentityAdditinalyAllowedTenants.setName(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS);
+        workloadIdentityClientId = new JLabeledTextField("Client Id:");
+        workloadIdentityClientId.setName(AzAdCredential.CLIENT_ID);
+        workloadIdentityTokenFilePath = new JLabeledTextField("Token file path:");
+        workloadIdentityTokenFilePath.setName(AzAdCredential.TOKEN_FILE_PATH);
+
+        JPanel panel = new VerticalPanel();
+        panel.add(workloadIdentityTenantId);
+        panel.add(workloadIdentityAdditinalyAllowedTenants);
+        panel.add(workloadIdentityClientId);
+        panel.add(workloadIdentityTokenFilePath);
+
+        return panel;
+    }
+
+    private JPanel createAzureCliPanel() {
+        azureCliTenantId = new JLabeledTextField("Tenant Id:");
+        azureCliTenantId.setName(AzAdCredential.TENANT_ID);
+        azureCliAdditionallyAllowedTenants = new JLabeledTextField("Additionally allowed tenants:");
+        azureCliAdditionallyAllowedTenants.setName(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS);
+
+        JPanel panel = new VerticalPanel();
+        panel.add(azureCliTenantId);
+        panel.add(azureCliAdditionallyAllowedTenants);
+
+        return panel;
+    }
+
+    private JPanel createAzureDeveloperCliPanel() {
+        azureDeveloperCliTenantId = new JLabeledTextField("Tenant Id:");
+        azureDeveloperCliTenantId.setName(AzAdCredential.TENANT_ID);
+        azureDeveloperCliAdditionallyAllowedTenants = new JLabeledTextField("Additionally allowed tenants:");
+        azureDeveloperCliAdditionallyAllowedTenants.setName(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS);
+
+        JPanel panel = new VerticalPanel();
+        panel.add(azureDeveloperCliTenantId);
+        panel.add(azureDeveloperCliAdditionallyAllowedTenants);
+
+        return panel;
+    }
+
+    private JPanel createAzurePowerShellPanel() {
+        azurePowerShellTenantId = new JLabeledTextField("Tenant Id:");
+        azurePowerShellTenantId.setName(AzAdCredential.TENANT_ID);
+        azurePowerShellAdditionallyAllowedTenants = new JLabeledTextField("Additionally allowed tenants:");
+        azurePowerShellAdditionallyAllowedTenants.setName(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS);
+
+        JPanel panel = new VerticalPanel();
+        panel.add(azurePowerShellTenantId);
+        panel.add(azurePowerShellAdditionallyAllowedTenants);
+
+        return panel;
+    }
+
+    private JPanel createVisualStudioCodePanel() {
+        visualStudioCodeTenantId = new JLabeledTextField("Tenant Id:");
+        visualStudioCodeTenantId.setName(AzAdCredential.TENANT_ID);
+        visualStudioCodeAdditionallyAllowedTenants = new JLabeledTextField("Additionally allowed tenants:");
+        visualStudioCodeAdditionallyAllowedTenants.setName(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS);
+
+        JPanel panel = new VerticalPanel();
+        panel.add(visualStudioCodeTenantId);
+        panel.add(visualStudioCodeAdditionallyAllowedTenants);
+
+        return panel;
+    }
+
+    private JPanel createIntelliJPanel() {
+        intelliJTenantId = new JLabeledTextField("Tenant Id:");
+        intelliJTenantId.setName(AzAdCredential.TENANT_ID);
+        intelliJAdditionallyAllowedTenants = new JLabeledTextField("Additionally allowed tenants:");
+        intelliJAdditionallyAllowedTenants.setName(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS);
+        intelliJIntelliJKeePassDatabasePath = new JLabeledTextField("KeePass database path:");
+        intelliJIntelliJKeePassDatabasePath.setName(AzAdCredential.INTELLIJ_KEEPASS_DATABASE_PATH);
+
+        JPanel panel = new VerticalPanel();
+        panel.add(intelliJTenantId);
+        panel.add(intelliJAdditionallyAllowedTenants);
+        panel.add(intelliJIntelliJKeePassDatabasePath);
+
         return panel;
     }
 

@@ -18,12 +18,18 @@ import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.ProxyOptions;
 import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
+import com.azure.identity.AzureCliCredentialBuilder;
+import com.azure.identity.AzureDeveloperCliCredentialBuilder;
+import com.azure.identity.AzurePowerShellCredentialBuilder;
 import com.azure.identity.ClientCertificateCredentialBuilder;
 import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.identity.DefaultAzureCredentialBuilder;
+import com.azure.identity.IntelliJCredentialBuilder;
 import com.azure.identity.InteractiveBrowserCredentialBuilder;
 import com.azure.identity.ManagedIdentityCredentialBuilder;
 import com.azure.identity.UsernamePasswordCredentialBuilder;
+import com.azure.identity.VisualStudioCodeCredentialBuilder;
+import com.azure.identity.WorkloadIdentityCredentialBuilder;
 
 public class AzAdCredential extends ConfigTestElement implements TestStateListener {
 
@@ -39,6 +45,7 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
     public static final String FILETYPE = "filetype";
     public static final String FILENAME = "filename";
     public static final String FILE_PASSWORD = "filePassword";
+    public static final String TOKEN_FILE_PATH = "tokenFilePath";
     public static final String MANAGED_IDENTITY_CLIENT_ID = "managedIdentityClientId";
     public static final String WORKLOAD_IDENTITY_CLIENT_ID = "workloadIdentityClientId";
     public static final String ADDITIONALLY_ALLOWED_TENANTS = "additionallyAllowedTenants";
@@ -55,6 +62,12 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
     public static final String CREDENTIALTYPE_MANAGED_ID = "Managed identity";
     public static final String CREDENTIALTYPE_CLIENT_SECRET = "Client secret";
     public static final String CREDENTIALTYPE_CLIENT_CERTIFICATE = "Client certificate";
+    public static final String CREDENTIALTYPE_AZURE_CLI = "Azure Cli";
+    public static final String CREDENTIALTYPE_AZURE_POWERSHELL = "Azure PowerShell";
+    public static final String CREDENTIALTYPE_AZURE_DEVELOPER_CLI = "Azure Developer CLI";
+    public static final String CREDENTIALTYPE_VISUAL_STUDIO_CODE = "Visual Studio Code";
+    public static final String CREDENTIALTYPE_INTELLIJ = "IntelliJ";
+    public static final String CREDENTIALTYPE_WORKLOAD_IDENTITY = "Workload Identity";
     public static final String CREDENTIALTYPE_DEFAULT_AZURE_CREDENTIAL = "DefaultAzureCredential";
     public static final String CREDENTIALTYPE_USERNAME_PASSWORD = "Username/Password";
     public static final String CREDENTIALTYPE_INTERACTIVE_BROWSER = "Interactive in the browser";
@@ -93,6 +106,7 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
         setProperty(new StringProperty(FILETYPE, ""));
         setProperty(new StringProperty(FILENAME, ""));
         setProperty(new StringProperty(FILE_PASSWORD, ""));
+        setProperty(new StringProperty(TOKEN_FILE_PATH, ""));
         setProperty(new StringProperty(MANAGED_IDENTITY_CLIENT_ID, ""));
         setProperty(new StringProperty(WORKLOAD_IDENTITY_CLIENT_ID, ""));
         setProperty(new StringProperty(INTELLIJ_KEEPASS_DATABASE_PATH, ""));
@@ -176,6 +190,14 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
 
     public String getFilePassword() {
         return getPropertyAsString(FILE_PASSWORD);
+    }
+
+    public void setTokenFilePath(String tokenFilePath) {
+        setProperty(new StringProperty(TOKEN_FILE_PATH, tokenFilePath));
+    }
+
+    public String getTokenFilePath() {
+        return getPropertyAsString(TOKEN_FILE_PATH);
     }
 
     public void setManagedIdentityClientId(String managedIdentityClientId) {
@@ -325,6 +347,7 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
             String clientSecret = "";
             String filename = "";
             String filePassword = "";
+            String tokenFilePath = "";
             String intelliJKeePassDatabasePath = "";
             String managedIdentityClientId = "";
             String workloadIdentityClientId = "";
@@ -387,12 +410,131 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
                         
                         credential = spcBuilder.build();
                         break;
+                    case CREDENTIALTYPE_AZURE_CLI:
+                        tenantId = getTenantId();
+                        additionallyAllowedTenants = getAdditionallyAllowedTenants();
+
+                        requestBody = requestBody.concat("\n")
+                            .concat("Tenant Id: ").concat(tenantId).concat("\n")
+                            .concat("Additionally allowed tenants: ").concat(additionallyAllowedTenants).concat("\n");
+
+                        AzureCliCredentialBuilder accBuilder = new AzureCliCredentialBuilder()
+                            .httpClient(httpClientBase())
+                            .tenantId(tenantId);
+                        if (additionallyAllowedTenants.trim().length() > 0) {
+                            String[] tenants = additionallyAllowedTenants.split(",");
+                            accBuilder = accBuilder.additionallyAllowedTenants(tenants);
+                        }
+
+                        credential = accBuilder.build();
+                        break;
+                    case CREDENTIALTYPE_AZURE_POWERSHELL:
+                        tenantId = getTenantId();
+                        additionallyAllowedTenants = getAdditionallyAllowedTenants();
+
+                        requestBody = requestBody.concat("\n")
+                            .concat("Tenant Id: ").concat(tenantId).concat("\n")
+                            .concat("Additionally allowed tenants: ").concat(additionallyAllowedTenants).concat("\n");
+
+                        AzurePowerShellCredentialBuilder apscBuilder = new AzurePowerShellCredentialBuilder()
+                            .httpClient(httpClientBase())
+                            .tenantId(tenantId);
+                        if (additionallyAllowedTenants.trim().length() > 0) {
+                            String[] tenants = additionallyAllowedTenants.split(",");
+                            apscBuilder = apscBuilder.additionallyAllowedTenants(tenants);
+                        }
+
+                        credential = apscBuilder.build();
+                        break;
+                    case CREDENTIALTYPE_AZURE_DEVELOPER_CLI:
+                        tenantId = getTenantId();
+                        additionallyAllowedTenants = getAdditionallyAllowedTenants();
+
+                        requestBody = requestBody.concat("\n")
+                            .concat("Tenant Id: ").concat(tenantId).concat("\n")
+                            .concat("Additionally allowed tenants: ").concat(additionallyAllowedTenants).concat("\n");
+
+                        AzureDeveloperCliCredentialBuilder adccBuilder = new AzureDeveloperCliCredentialBuilder()
+                            .httpClient(httpClientBase())
+                            .tenantId(tenantId);
+                        if (additionallyAllowedTenants.trim().length() > 0) {
+                            String[] tenants = additionallyAllowedTenants.split(",");
+                            adccBuilder = adccBuilder.additionallyAllowedTenants(tenants);
+                        }
+
+                        credential = adccBuilder.build();
+                        break;
+                    case CREDENTIALTYPE_VISUAL_STUDIO_CODE:
+                        tenantId = getTenantId();
+                        additionallyAllowedTenants = getAdditionallyAllowedTenants();
+
+                        requestBody = requestBody.concat("\n")
+                            .concat("Tenant Id: ").concat(tenantId).concat("\n")
+                            .concat("Additionally allowed tenants: ").concat(additionallyAllowedTenants).concat("\n");
+
+                        VisualStudioCodeCredentialBuilder vsccBuilder = new VisualStudioCodeCredentialBuilder()
+                            .httpClient(httpClientBase())
+                            .tenantId(tenantId);
+                        if (additionallyAllowedTenants.trim().length() > 0) {
+                            String[] tenants = additionallyAllowedTenants.split(",");
+                            vsccBuilder = vsccBuilder.additionallyAllowedTenants(tenants);
+                        }
+
+                        credential = vsccBuilder.build();
+                        break;
+                    /*
+                    case CREDENTIALTYPE_INTELLIJ:
+                        tenantId = getTenantId();
+                        additionallyAllowedTenants = getAdditionallyAllowedTenants();
+                        intelliJKeePassDatabasePath = getIntelliJKeePassDatabasePath();
+
+                        requestBody = requestBody.concat("\n")
+                            .concat("Tenant Id: ").concat(tenantId).concat("\n")
+                            .concat("Additionally allowed tenants: ").concat(additionallyAllowedTenants).concat("\n")
+                            .concat("KeePass Database Path of IntelliJ: ").concat(intelliJKeePassDatabasePath).concat("\n");
+
+                        IntelliJCredentialBuilder ijcBuilder = new IntelliJCredentialBuilder()
+                            .httpClient(httpClientBase())
+                            .tenantId(tenantId)
+                            .keePassDatabasePath(intelliJKeePassDatabasePath);
+                        if (additionallyAllowedTenants.trim().length() > 0) {
+                            String[] tenants = additionallyAllowedTenants.split(",");
+                            ijcBuilder = ijcBuilder.additionallyAllowedTenants(tenants);
+                        }
+
+                        credential = ijcBuilder.build();
+                        break;
+                    */
+                    case CREDENTIALTYPE_WORKLOAD_IDENTITY:
+                        tenantId = getTenantId();
+                        additionallyAllowedTenants = getAdditionallyAllowedTenants();
+                        clientId = getClientId();
+                        tokenFilePath = getTokenFilePath();
+                        requestBody = requestBody.concat("\n")
+                            .concat("Tenant Id: ").concat(tenantId).concat("\n")
+                            .concat("Additionally allowed tenants: ").concat(additionallyAllowedTenants).concat("\n")
+                            .concat("Client Id: ").concat(clientId).concat("\n")
+                            .concat("Token file path: ").concat(tokenFilePath).concat("\n");
+
+                        WorkloadIdentityCredentialBuilder wicBuilder = new WorkloadIdentityCredentialBuilder()
+                            .clientId(clientId)
+                            .tenantId(tenantId)
+                            .tokenFilePath(tokenFilePath)
+                            .httpClient(httpClientBase());
+                        if (additionallyAllowedTenants.trim().length() > 0) {
+                            String[] tenants = additionallyAllowedTenants.split(",");
+                            wicBuilder = wicBuilder.additionallyAllowedTenants(tenants);
+                        }
+
+                        credential = wicBuilder.build();
+                        break;
                     case CREDENTIALTYPE_DEFAULT_AZURE_CREDENTIAL:
                         authorityHost = getAuthorityHost(); // Environment Credential
                         workloadIdentityClientId = getWorkloadIdentityClientId(); // Workload Identity Credential
                         managedIdentityClientId = getManagedIdentityClientId(); // Managed Identity
                         tenantId = getTenantId(); // Azure Cli / Azure PowerShell Credential
                         additionallyAllowedTenants = getAdditionallyAllowedTenants(); // Azure Cli / Azure PowerShell Credential
+                        intelliJKeePassDatabasePath = getIntelliJKeePassDatabasePath(); // IntelliJ Credential
 
                         if (authorityHost.trim().length() > 0) {
                             requestBody = requestBody.concat("\n")
