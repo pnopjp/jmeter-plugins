@@ -47,7 +47,7 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
         AzAdCredential.CREDENTIALTYPE_AZURE_CLI,
         AzAdCredential.CREDENTIALTYPE_AZURE_DEVELOPER_CLI,
         AzAdCredential.CREDENTIALTYPE_AZURE_POWERSHELL,
-        AzAdCredential.CREDENTIALTYPE_VISUAL_STUDIO_CODE,
+        //AzAdCredential.CREDENTIALTYPE_VISUAL_STUDIO_CODE,
         //AzAdCredential.CREDENTIALTYPE_INTELLIJ,
         AzAdCredential.CREDENTIALTYPE_DEFAULT_AZURE_CREDENTIAL,
         //AzAdCredential.CREDENTIALTYPE_USERNAME_PASSWORD,
