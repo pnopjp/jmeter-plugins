@@ -19,7 +19,7 @@ Some plugins include this.
 |-----|-----|-----|
 |Name|Descriptive name for this sampler that is shown in the tree|No|
 |Variable Name for created credential|Variable name bound to credential. This needs to uniquely identify the configuration. It is used by the Samplers to identify the configuration to be used.|Yes|
-|Credential type|Types of credentail.|Yes|
+|Credential type|Types of credential.|Yes|
 |Authority host|Specifies the Microsoft Entra ID endpoint to acquire tokens.<br />For general Microsoft Azure, select "login<span></span>.microsoft.online.com". For the Azure Government or Azure China 21Vianet, etc., select the appropriate endpoint.|Yes|
 
 ### Parameters for each credential type
