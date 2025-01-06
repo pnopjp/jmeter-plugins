@@ -69,6 +69,7 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
     private JRadioButton clientCertificateFiletypePFX;
     private JLabeledTextField clientCertificateFilename;
     private JLabeledPasswordField clientCertificateFilePassword;
+    private JLabeledTextField workloadIdentityAuthorityHost;
     private JLabeledTextField workloadIdentityTenantId;
     private JLabeledTextField workloadIdentityAdditinalyAllowedTenants;
     private JLabeledTextField workloadIdentityClientId;
@@ -150,6 +151,7 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
                 break;
 
             case AzAdCredential.CREDENTIALTYPE_WORKLOAD_IDENTITY:
+                workloadIdentityAuthorityHost.setText(element.getPropertyAsString(AzAdCredential.AUTHORITY_HOST));
                 workloadIdentityTenantId.setText(element.getPropertyAsString(AzAdCredential.TENANT_ID));
                 workloadIdentityAdditinalyAllowedTenants.setText(element.getPropertyAsString(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS));
                 workloadIdentityClientId.setText(element.getPropertyAsString(AzAdCredential.CLIENT_ID));
@@ -241,6 +243,7 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
                 element.setProperty(AzAdCredential.FILE_PASSWORD, clientCertificateFilePassword.getText());
                 break;
             case AzAdCredential.CREDENTIALTYPE_WORKLOAD_IDENTITY:
+                element.setProperty(AzAdCredential.AUTHORITY_HOST, workloadIdentityAuthorityHost.getText());
                 element.setProperty(AzAdCredential.TENANT_ID, workloadIdentityTenantId.getText());
                 element.setProperty(AzAdCredential.ADDITIONALLY_ALLOWED_TENANTS, workloadIdentityAdditinalyAllowedTenants.getText());
                 element.setProperty(AzAdCredential.CLIENT_ID, workloadIdentityClientId.getText());
@@ -309,6 +312,7 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
         clientCertificateFiletypePFX.setSelected(false);
         clientCertificateFilename.setText("");
         clientCertificateFilePassword.setText("");
+        workloadIdentityAuthorityHost.setText(AzAdCredential.AUTHORITYHOST_PUBLIC);
         workloadIdentityTenantId.setText("");
         workloadIdentityAdditinalyAllowedTenants.setText("");
         workloadIdentityClientId.setText("");
@@ -465,6 +469,7 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
     }
 
     private JPanel createWorkloadIdentityPanel() {
+        workloadIdentityAuthorityHost = new JLabeledTextField("Authority host:");
         workloadIdentityTenantId = new JLabeledTextField("Tenant Id:");
         workloadIdentityTenantId.setName(AzAdCredential.TENANT_ID);
         workloadIdentityAdditinalyAllowedTenants = new JLabeledTextField("Additionally allowed tenants:");
@@ -475,6 +480,7 @@ public class AzAdCredentialGui extends AbstractConfigGui implements ChangeListen
         workloadIdentityTokenFilePath.setName(AzAdCredential.TOKEN_FILE_PATH);
 
         JPanel panel = new VerticalPanel();
+        panel.add(workloadIdentityAuthorityHost);
         panel.add(workloadIdentityTenantId);
         panel.add(workloadIdentityAdditinalyAllowedTenants);
         panel.add(workloadIdentityClientId);

@@ -52,6 +52,23 @@ The parameters to be set for each credential type are different.
 |-----|-----|-----|
 |Client Id|Client \(Application\) Id of Microsoft Entra ID application.|No|
 
+#### Workload Identity
+
+|Attribute|Description|Required|
+|-----|-----|-----|
+|Authority Host|Microsoft Entra ID endpoint to acquire tokens.|No|
+|Tenant Id|Microsoft Entra ID tenant Id.|No|
+|Additionally allowed tenants|For multi-tenant applications, specifies additional tenants.<br />Describe tenant IDs separated by commas.|No|
+|Client Id|Client \(Application\) Id of Microsoft Entra ID application.|No|
+|Token file path|Path to a file containing a Kubernetes service account token|No|
+
+#### Azure CLI / Azure Developer CLI / Azure PowerShell
+
+|Attribute|Description|Required|
+|-----|-----|-----|
+|Tenant Id|Microsoft Entra ID tenant Id.|No|
+|Additionally allowed tenants|For multi-tenant applications, specifies additional tenants.<br />Describe tenant IDs separated by commas.|No|
+
 #### DefaultAzureCredential
 
 Attempt authentication according to the following.  
