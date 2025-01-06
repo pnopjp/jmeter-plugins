@@ -240,7 +240,7 @@ public class GetSecret extends AbstractFunction {
 
                 case CLIENT_CERTIFICATE_PFX:
                 String clientCertificatePassword = getKeyVaultProp(secretNameParam, CERTIFICATE_PASSWORD);
-                clientCertificateCredentialBuilder = clientCertificateCredentialBuilder.pfxCertificate(certificateFile, clientCertificatePassword);
+                clientCertificateCredentialBuilder = clientCertificateCredentialBuilder.pfxCertificate(certificateFile).clientCertificatePassword(clientCertificatePassword);
                 break;
             }
             return clientCertificateCredentialBuilder
