@@ -62,7 +62,7 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
     public static final String CREDENTIALTYPE_MANAGED_ID = "Managed identity";
     public static final String CREDENTIALTYPE_CLIENT_SECRET = "Client secret";
     public static final String CREDENTIALTYPE_CLIENT_CERTIFICATE = "Client certificate";
-    public static final String CREDENTIALTYPE_AZURE_CLI = "Azure Cli";
+    public static final String CREDENTIALTYPE_AZURE_CLI = "Azure CLI";
     public static final String CREDENTIALTYPE_AZURE_POWERSHELL = "Azure PowerShell";
     public static final String CREDENTIALTYPE_AZURE_DEVELOPER_CLI = "Azure Developer CLI";
     public static final String CREDENTIALTYPE_VISUAL_STUDIO_CODE = "Visual Studio Code";
@@ -506,17 +506,20 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
                         break;
                     */
                     case CREDENTIALTYPE_WORKLOAD_IDENTITY:
+                        authorityHost = getAuthorityHost();
                         tenantId = getTenantId();
                         additionallyAllowedTenants = getAdditionallyAllowedTenants();
                         clientId = getClientId();
                         tokenFilePath = getTokenFilePath();
                         requestBody = requestBody.concat("\n")
+                            .concat("Authority host: ").concat(authorityHost).concat("\n")
                             .concat("Tenant Id: ").concat(tenantId).concat("\n")
                             .concat("Additionally allowed tenants: ").concat(additionallyAllowedTenants).concat("\n")
                             .concat("Client Id: ").concat(clientId).concat("\n")
                             .concat("Token file path: ").concat(tokenFilePath).concat("\n");
 
                         WorkloadIdentityCredentialBuilder wicBuilder = new WorkloadIdentityCredentialBuilder()
+                            .authorityHost(authorityHost)
                             .clientId(clientId)
                             .tenantId(tenantId)
                             .tokenFilePath(tokenFilePath)
@@ -532,8 +535,8 @@ public class AzAdCredential extends ConfigTestElement implements TestStateListen
                         authorityHost = getAuthorityHost(); // Environment Credential
                         workloadIdentityClientId = getWorkloadIdentityClientId(); // Workload Identity Credential
                         managedIdentityClientId = getManagedIdentityClientId(); // Managed Identity
-                        tenantId = getTenantId(); // Azure Cli / Azure PowerShell Credential
-                        additionallyAllowedTenants = getAdditionallyAllowedTenants(); // Azure Cli / Azure PowerShell Credential
+                        tenantId = getTenantId(); // Azure CLI / Azure PowerShell Credential
+                        additionallyAllowedTenants = getAdditionallyAllowedTenants(); // Azure CLI / Azure PowerShell Credential
                         intelliJKeePassDatabasePath = getIntelliJKeePassDatabasePath(); // IntelliJ Credential
 
                         if (authorityHost.trim().length() > 0) {
