@@ -235,27 +235,45 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
             while (iter.hasNext()) {
                 msgCount ++;
                 AzAmqpMessage msg = (AzAmqpMessage) iter.next().getObjectValue();
+                String shortedMessage = "";
 
-                requestBody = requestBody.concat("\n\n")
-                            .concat("[Event data #").concat(String.valueOf(msgCount)).concat("]\n")
-                            .concat("Message type: ").concat(msg.getMessageType()).concat("\n")
-                            .concat("Body: ").concat(msg.getMessage());
                 EventData eventData;
                 switch (msg.getMessageType()) {
                     case AzAmqpMessages.MESSAGE_TYPE_BASE64:
                         byte[] binMsg = Base64.getDecoder().decode(msg.getMessage().getBytes());
                         eventData = new EventData(binMsg);
+                        if (msg.getMessage().length() > 8) {
+                            shortedMessage = "BASE64: ".concat(msg.getMessage().substring(0, 8)).concat("...");
+                        } else {
+                            shortedMessage = "BASE64: ".concat(msg.getMessage());
+                        }
                         break;
                     case AzAmqpMessages.MESSAGE_TYPE_FILE:
                         BufferedInputStream bi = null;
                         bi = new BufferedInputStream(new FileInputStream(msg.getMessage()));
                         eventData = new EventData(IOUtils.toByteArray(bi));
+                        shortedMessage = "FILE: ".concat(msg.getMessage());
                         break;
                     default: // AzAmqpMessages.MESSAGE_TYPE_STRING
                         eventData = new EventData(msg.getMessage());
+                        if (msg.getMessage().length() > 12) {
+                            shortedMessage = msg.getMessage().substring(0, 12).concat("...");
+                        } else {
+                            shortedMessage = msg.getMessage();
+                        }
                 }
+                requestBody = requestBody.concat("\n\n")
+                            .concat("[Event data #").concat(String.valueOf(msgCount)).concat("]\n")
+                            .concat("Message type: ").concat(msg.getMessageType()).concat("\n")
+                            .concat("Body: ").concat(shortedMessage);
 
-                batch.tryAdd(eventData);
+                if (batch.tryAdd(eventData) == false) {
+                    throw new Exception("Error calling ".concat(threadName).concat(":").concat(this.getName())
+                        .concat(". The message is too large to fit in the batch. Please check the size of the message and the maximum size of the batch. You tried to add \"")
+                        .concat(shortedMessage).concat("\" to the batch, but the batch had ")
+                        .concat(String.valueOf(batch.getSizeInBytes())).concat(" bytes messages, and the maximum size of the batch is ")
+                        .concat(String.valueOf(batch.getMaxSizeInBytes())).concat(" bytes."));
+                }
             }
 
             bytes = batch.getSizeInBytes();

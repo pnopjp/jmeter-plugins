@@ -249,7 +249,12 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                 .concat("Queue/Topic name: ").concat(producer.getEntityPath());
 
             log.info("AzServiceBusSampler.sampler() createMessageBatch: {}", producer);
-            ServiceBusMessageBatch batch = producer.createMessageBatch();
+            //ServiceBusMessageBatch batch = producer.createMessageBatch();
+            ServiceBusMessageBatch batch = null;
+            ServiceBusMessage sbMessage = null;
+            if (getMessages().getMessageCount() != 1) {
+                batch = producer.createMessageBatch();
+            }
 
             PropertyIterator iter = getMessages().iterator();
             int msgCount = 0;
@@ -261,18 +266,30 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                             .concat("[Message #").concat(String.valueOf(msgCount)).concat("]");
                 
                 ServiceBusMessage serviceBusMessage = null;
+                String shortedMessage = "";
                 switch (msg.getMessageType()) {
                     case AzAmqpMessages.MESSAGE_TYPE_BASE64:
                         byte[] binMsg = Base64.getDecoder().decode(msg.getMessage().getBytes());
                         serviceBusMessage = new ServiceBusMessage(binMsg);
+                        if (msg.getMessage().length() > 8) {
+                            shortedMessage = "BASE64: ".concat(msg.getMessage().substring(0, 8)).concat("...");
+                        } else {
+                            shortedMessage = "BASE64: ".concat(msg.getMessage());
+                        }
                         break;
                     case AzAmqpMessages.MESSAGE_TYPE_FILE:
                         BufferedInputStream bi = null;
                         bi = new BufferedInputStream(new FileInputStream(msg.getMessage()));
                         serviceBusMessage = new ServiceBusMessage(IOUtils.toByteArray(bi));
+                        shortedMessage = "FILE: ".concat(msg.getMessage());
                         break;
                     default: // AzAmqpMessages.MESSAGE_TYPE_STRING
                         serviceBusMessage = new ServiceBusMessage(msg.getMessage());
+                        if (msg.getMessage().length() > 12) {
+                            shortedMessage = msg.getMessage().substring(0, 12).concat("...");
+                        } else {
+                            shortedMessage = msg.getMessage();
+                        }
                 }
 
                 String messageId = msg.getMessageId();
@@ -368,15 +385,27 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                     
                 }
 
-                batch.tryAddMessage(serviceBusMessage);
-                bodyBytes += serviceBusMessage.getBody().toBytes().length;
-
                 requestBody = requestBody.concat("\n")
                     .concat("Message type: ").concat(msg.getMessageType()).concat("\n")
-                    .concat("Body: ").concat(msg.getMessage());
+                    .concat("Body: ").concat(shortedMessage);
+
+                if (batch == null) {
+                    sbMessage = serviceBusMessage;
+                } else if (batch.tryAddMessage(serviceBusMessage) == false) {
+                    throw new Exception("Error calling ".concat(threadName).concat(":").concat(this.getName())
+                        .concat(". The message is too large to fit in the batch. Please check the size of the message and the maximum size of the batch. You tried to add \""
+                        .concat(shortedMessage).concat("\" to the batch, but the batch had ")
+                        .concat(String.valueOf(batch.getSizeInBytes())).concat(" bytes messages, and the maximum size of the batch is ")
+                        .concat(String.valueOf(batch.getMaxSizeInBytes())).concat(" bytes.")));
+                }
+                bodyBytes += serviceBusMessage.getBody().toBytes().length;
             }
 
-            bytes = batch.getSizeInBytes();
+            if (batch == null)  {
+                bytes = sbMessage.getBody().toBytes().length;
+            } else {
+                bytes = batch.getSizeInBytes();
+            }
 
             // send the batch of messages to the Service Bus
             if (connectionType.equals(AzServiceBusClientParams.CONNECTION_TYPE_DEFINED_TRANSACTION)) {
@@ -385,9 +414,17 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                     getThreadContext().getVariables().remove(serviceBusClientParams.getDefinedConnectionName());
                     transaction = null;
 
-                    producer.sendMessages(batch);
+                    if (batch == null) {
+                        producer.sendMessage(sbMessage);
+                    } else {
+                        producer.sendMessages(batch);
+                    }
                 } else { // Continue transaction or Commit transaction
-                    producer.sendMessages(batch, transaction);
+                    if (batch == null) {
+                        producer.sendMessage(sbMessage, transaction);
+                    } else {
+                        producer.sendMessages(batch, transaction);
+                    }
 
                     if (getCommitTransaction()) {
                         producer.commitTransaction(transaction);
@@ -406,13 +443,21 @@ public class AzServiceBusSampler extends AbstractSampler implements TestStateLis
                         transaction = producer.createTransaction();
                         getThreadContext().getVariables().putObject(getCreateTransactionName(), new TransactionClass(producer, transaction));
                     }
-                    producer.sendMessages(batch, transaction);
+                    if (batch == null) {
+                        producer.sendMessage(sbMessage, transaction);
+                    } else {
+                        producer.sendMessages(batch, transaction);
+                    }
                 } else { // Don't create transaction
-                    producer.sendMessages(batch);
+                    if (batch == null) {
+                        producer.sendMessage(sbMessage);
+                    } else {
+                        producer.sendMessages(batch);
+                    }
                 }
             }
 
-            sentBytes = batch.getSizeInBytes();
+            sentBytes = bytes; //batch.getSizeInBytes();
             res.latencyEnd();
             res.setDataType(SampleResult.TEXT);
 
