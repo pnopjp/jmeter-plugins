@@ -4,7 +4,7 @@
 
     <groupId>jp.co.pnop</groupId>
     <artifactId>jmeter-plugins-azure-eventhubs</artifactId>
-    <version>0.2.7</version>
+    <version>0.2.8</version>
 
     <name>Azure Event Hubs Sampler</name>
     <description>Sample to Azure Event Hubs</description>
