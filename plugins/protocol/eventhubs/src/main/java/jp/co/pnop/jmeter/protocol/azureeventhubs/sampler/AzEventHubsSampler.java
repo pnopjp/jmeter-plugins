@@ -20,12 +20,14 @@ package jp.co.pnop.jmeter.protocol.azureeventhubs.sampler;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Set;
 import java.util.HashSet;
 //import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.jmeter.config.ConfigTestElement;
@@ -42,7 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.azure.messaging.eventhubs.*;
-import com.azure.messaging.eventhubs.models.CreateBatchOptions;
+import com.azure.messaging.eventhubs.models.SendOptions;
 import com.azure.core.amqp.exception.AmqpException;
 
 import jp.co.pnop.jmeter.protocol.aad.config.AzAdCredential;
@@ -214,22 +216,22 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
             }
             producer = producerBuilder.buildProducerClient();
 
-            // prepare a batch of events to send to the event hub
-            CreateBatchOptions batchOptions = new CreateBatchOptions();
+            // prepare events to send to the event hub
+            SendOptions sendOptions = new SendOptions();
             if (getPartitionValue().length() > 0) {
                 switch (getPartitionType()) {
                     case PARTITION_TYPE_ID:
-                        batchOptions.setPartitionId(getPartitionValue());
+                        sendOptions.setPartitionId(getPartitionValue());
                         requestBody = requestBody.concat("\n").concat("Partition ID: ").concat(getPartitionValue());
                         break;
                     case PARTITION_TYPE_KEY:
-                        batchOptions.setPartitionKey(getPartitionValue());
+                        sendOptions.setPartitionKey(getPartitionValue());
                         requestBody = requestBody.concat("\n").concat("Partition Key: ").concat(getPartitionValue());
                         break;
                 }
             }
-            EventDataBatch batch = producer.createBatch(batchOptions);
-    
+            List<EventData> events = new ArrayList<>();
+
             PropertyIterator iter = getMessages().iterator();
             int msgCount = 0;
             while (iter.hasNext()) {
@@ -267,21 +269,14 @@ public class AzEventHubsSampler extends AbstractSampler implements TestStateList
                             .concat("Message type: ").concat(msg.getMessageType()).concat("\n")
                             .concat("Body: ").concat(shortedMessage);
 
-                if (batch.tryAdd(eventData) == false) {
-                    throw new Exception("Error calling ".concat(threadName).concat(":").concat(this.getName())
-                        .concat(". The message is too large to fit in the batch. Please check the size of the message and the maximum size of the batch. You tried to add \"")
-                        .concat(shortedMessage).concat("\" to the batch, but the batch had ")
-                        .concat(String.valueOf(batch.getSizeInBytes())).concat(" bytes messages, and the maximum size of the batch is ")
-                        .concat(String.valueOf(batch.getMaxSizeInBytes())).concat(" bytes."));
-                }
+                events.add(eventData);
+                bytes += eventData.getBody().length;
             }
 
-            bytes = batch.getSizeInBytes();
+            // send the events to the event hub
+            producer.send(events, sendOptions);
 
-            // send the batch of events to the event hub
-            producer.send(batch);
-
-            sentBytes = batch.getSizeInBytes();
+            sentBytes = bytes;
             res.latencyEnd();
 
             res.setDataType(SampleResult.TEXT);
